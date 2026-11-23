@@ -221,3 +221,19 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Real financial data must never be committed
+data/*.db
+data/*.db-journal
+data/backups/*
+!data/.gitkeep
+!data/backups/.gitkeep
+exports_output/*
+!exports_output/.gitkeep
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+# Node
+frontend/node_modules/
+frontend/dist/
