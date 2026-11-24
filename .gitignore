@@ -228,8 +228,8 @@ data/*.db-journal
 data/backups/*
 !data/.gitkeep
 !data/backups/.gitkeep
-exports_output/*
-!exports_output/.gitkeep
+export_output/*
+!export_output/.gitkeep
 # Python
 .venv/
 __pycache__/

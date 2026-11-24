@@ -6,7 +6,7 @@ Finlog is a finacial assistant, designed to help track one's financial decisions
 
 Personal finance tracker: React frontend + FastAPI backend + SQLite. Web-first, designed to be wrapped for Android later (Capacitor).
 
-> **Status: Phase 1 (backend foundation).** The frontend, transactions, dashboard, budgets, analytics, loans and reports come in later phases. See `HANDOFF.md`.
+> **Status: Phase 2 code is present (transactions API and React transaction UI).** Dashboard, budgets, analytics, loans and reports are planned for later phases. See `HANDOFF.md` for the current status and verification notes.
 
 ## Prerequisites (Windows)
 - Python 3.11 or 3.12 (tick "Add Python to PATH"). Check: `py --version`
