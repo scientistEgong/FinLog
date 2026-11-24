@@ -1,3 +1,4 @@
+"""Database queries for category reads, writes, and usage checks."""
 from typing import Optional
 
 from sqlalchemy import func, select
@@ -32,6 +33,7 @@ def delete(db: Session, category: Category) -> None:
 
 
 def is_in_use(db: Session, category_id: int) -> bool:
+    # Check current transactions and budget references before allowing deletion.
     used_by_transactions = db.scalar(
         select(func.count(Transaction.id)).where(Transaction.category_id == category_id)
     )

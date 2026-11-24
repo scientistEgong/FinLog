@@ -1,3 +1,4 @@
+"""HTTP endpoints for transaction CRUD and filtered history."""
 from datetime import date
 from typing import Literal, Optional
 

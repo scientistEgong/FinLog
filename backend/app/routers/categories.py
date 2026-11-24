@@ -1,3 +1,4 @@
+"""HTTP endpoints for listing, creating, and deleting categories."""
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 

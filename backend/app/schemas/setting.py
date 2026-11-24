@@ -1,3 +1,4 @@
+"""API shapes for opening balance; input is naira and output includes kobo."""
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.services.validation import parse_non_negative_amount

@@ -1,3 +1,4 @@
+"""Assemble the FastAPI application and connect HTTP requests to app services."""
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Request
@@ -14,6 +15,7 @@ from app.services.errors import ConflictError, DomainValidationError, NotFoundEr
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    # Prepare storage and missing tables; startup never seeds financial records.
     ensure_data_dir()
     init_db()
     yield
@@ -31,6 +33,7 @@ app.add_middleware(
 
 @app.exception_handler(NotFoundError)
 async def _not_found(_request: Request, exc: NotFoundError):
+    # Keep service-layer errors independent of HTTP while returning consistent status codes.
     return JSONResponse(status_code=404, content={"detail": str(exc)})
 
 
@@ -41,6 +44,7 @@ async def _conflict(_request: Request, exc: ConflictError):
 
 @app.exception_handler(DomainValidationError)
 async def _invalid(_request: Request, exc: DomainValidationError):
+    # Match FastAPI's validation envelope so the client can attach messages to fields.
     loc = ["body", exc.field] if exc.field else ["body"]
     return JSONResponse(status_code=422, content={"detail": [{"loc": loc, "msg": str(exc)}]})
 

@@ -1,3 +1,4 @@
+"""Shared pytest fixtures with isolated databases for database and API tests."""
 import pytest
 from sqlalchemy.orm import Session
 

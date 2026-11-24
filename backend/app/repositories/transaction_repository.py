@@ -1,3 +1,4 @@
+"""Transaction queries and persistence; business validation stays in services."""
 from datetime import date
 from typing import Optional
 
@@ -8,6 +9,7 @@ from app.models import Transaction
 
 
 def _conditions(date_from, date_to, type_, category_id, q) -> list:
+    # Share filters across the total count and result page so both describe the same query.
     conditions = []
     if date_from:
         conditions.append(Transaction.transaction_date >= date_from)
@@ -45,6 +47,7 @@ def list_filtered(
         select(Transaction)
         .options(joinedload(Transaction.category))
         .where(*conditions)
+        # ID breaks same-day ties deterministically so pagination remains stable.
         .order_by(Transaction.transaction_date.desc(), Transaction.id.desc())
         .limit(limit)
         .offset(offset)

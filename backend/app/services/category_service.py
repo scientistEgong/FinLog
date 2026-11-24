@@ -1,3 +1,4 @@
+"""Apply category business rules before repository changes are committed."""
 from sqlalchemy.orm import Session
 
 from app.models import Category

@@ -1,3 +1,4 @@
+"""Persisted income and expense records; amounts are integer kobo."""
 from datetime import date
 from typing import Optional
 

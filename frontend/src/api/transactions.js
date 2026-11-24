@@ -1,3 +1,4 @@
+// Transaction endpoint wrappers; server owns validation and monetary conversion.
 import { request } from "./client.js";
 
 export const listTransactions = (params) => request("/api/transactions", { params });

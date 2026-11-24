@@ -1,3 +1,4 @@
+"""Persistence operations for the application's key/value settings table."""
 from typing import Optional
 
 from sqlalchemy.orm import Session

@@ -1,3 +1,4 @@
+// Controlled filter fields are lifted to the page, which owns query and pagination state.
 export default function TransactionFilters({ filters, categories, onChange, onClear }) {
   const set = (key) => (event) => onChange({ ...filters, [key]: event.target.value });
 

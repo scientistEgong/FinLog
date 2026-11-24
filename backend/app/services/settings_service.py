@@ -1,3 +1,4 @@
+"""Read/update app settings and translate stored kobo to API display values."""
 from sqlalchemy.orm import Session
 
 from app.config import SETTING_OPENING_BALANCE

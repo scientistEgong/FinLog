@@ -1,3 +1,4 @@
+"""Transaction use cases: enforce domain rules and shape API responses."""
 from datetime import date
 from typing import Optional
 
@@ -12,6 +13,7 @@ from app.services.validation import check_date_order
 
 
 def to_out(txn: Transaction) -> TransactionOut:
+    # Include canonical kobo plus separate input/display forms for the UI.
     return TransactionOut(
         id=txn.id,
         type=txn.type,
@@ -34,6 +36,7 @@ def _require_category(db: Session, category_id: int) -> None:
 
 
 def _apply(txn: Transaction, data: TransactionIn) -> None:
+    # Shared assignment keeps create and full-replacement updates consistent.
     txn.type = data.type
     txn.amount_kobo = data.amount_kobo
     txn.transaction_date = data.transaction_date

@@ -1,3 +1,4 @@
+// Share category loading and retry behavior across screens that need category choices.
 import { useCallback, useEffect, useState } from "react";
 import { listCategories } from "../api/categories.js";
 

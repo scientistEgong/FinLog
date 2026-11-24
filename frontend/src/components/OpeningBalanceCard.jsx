@@ -1,3 +1,4 @@
+// Opening balance is a starting point for balance summaries, never a transaction or income item.
 import { useEffect, useState } from "react";
 import { getOpeningBalance, setOpeningBalance } from "../api/settings.js";
 

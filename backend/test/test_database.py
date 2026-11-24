@@ -1,5 +1,6 @@
 from datetime import date
 
+"""Check schema constraints, default seeding, and relationships in a temporary DB."""
 import pytest
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError

@@ -1,3 +1,4 @@
+"""Validated input/output shapes for category endpoints."""
 from pydantic import BaseModel, field_validator
 
 from app.config import MAX_CATEGORY_NAME_LENGTH

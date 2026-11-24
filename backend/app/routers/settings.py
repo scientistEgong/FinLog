@@ -1,3 +1,4 @@
+"""HTTP endpoints for reading and changing the opening balance setting."""
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 

@@ -1,4 +1,5 @@
 """API tests (need the packages from requirements.txt; run with `pytest` from backend/)."""
+"""Exercise public HTTP behavior against a disposable SQLite database."""
 import pytest
 
 

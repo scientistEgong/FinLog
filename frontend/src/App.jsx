@@ -1,3 +1,4 @@
+// Keep route selection separate from page implementation so unfinished phases remain visible as stubs.
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout.jsx";
 import ComingSoon from "./components/ComingSoon.jsx";

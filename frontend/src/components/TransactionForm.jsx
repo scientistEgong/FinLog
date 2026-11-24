@@ -1,3 +1,4 @@
+// Form state uses editable strings; the API validates and converts money into integer kobo.
 import { useEffect, useState } from "react";
 import { createCategory } from "../api/categories.js";
 import { createTransaction, updateTransaction } from "../api/transactions.js";
@@ -49,6 +50,7 @@ export default function TransactionForm({ categories, editing, onSaved, onCancel
       setErrors({ category_id: "Choose a category." });
       return;
     }
+    // Send the API's expected naira string and normalize empty optional fields to null.
     const body = {
       type: form.type,
       amount: form.amount,

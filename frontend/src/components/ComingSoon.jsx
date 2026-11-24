@@ -1,3 +1,4 @@
+// Placeholder route content makes the roadmap discoverable without implying a feature exists.
 export default function ComingSoon({ name, phase }) {
   return (
     <section className="card">

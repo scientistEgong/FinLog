@@ -1,3 +1,4 @@
+// Browser entry point: attach React to the static HTML root and enable URL routing.
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";

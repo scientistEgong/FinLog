@@ -1,3 +1,4 @@
+// Page coordinator: owns query state and joins the form, filters, history, and API calls.
 import { useEffect, useState } from "react";
 import { listTransactions, removeTransaction } from "../api/transactions.js";
 import OpeningBalanceCard from "../components/OpeningBalanceCard.jsx";
@@ -27,6 +28,7 @@ export default function Transactions() {
   }, [filters.q]);
 
   useEffect(() => {
+    // Ignore late responses after filters change/unmount so stale data cannot replace newer results.
     let cancelled = false;
     setLoading(true);
     setError("");
