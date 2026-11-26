@@ -1,7 +1,6 @@
 // Page coordinator: owns query state and joins the form, filters, history, and API calls.
 import { useEffect, useState } from "react";
 import { listTransactions, removeTransaction } from "../api/transactions.js";
-import OpeningBalanceCard from "../components/OpeningBalanceCard.jsx";
 import TransactionFilters from "../components/TransactionFilters.jsx";
 import TransactionForm from "../components/TransactionForm.jsx";
 import TransactionList from "../components/TransactionList.jsx";
@@ -81,8 +80,6 @@ export default function Transactions() {
     <>
       <h1>Transactions</h1>
       {categoriesError && <div className="alert error">{categoriesError}</div>}
-
-      <OpeningBalanceCard />
 
       <TransactionForm
         categories={categories}

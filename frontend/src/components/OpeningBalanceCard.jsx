@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { getOpeningBalance, setOpeningBalance } from "../api/settings.js";
 
-export default function OpeningBalanceCard() {
+export default function OpeningBalanceCard({ onSaved }) {
   const [current, setCurrent] = useState(null);
   const [value, setValue] = useState("");
   const [message, setMessage] = useState("");
@@ -26,6 +26,7 @@ export default function OpeningBalanceCard() {
       setCurrent(data);
       setValue(data.amount_input);
       setMessage("Opening balance saved.");
+      onSaved?.();
     } catch (err) {
       setError(err.fields.amount || err.message);
     }
