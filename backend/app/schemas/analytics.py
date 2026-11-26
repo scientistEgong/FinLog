@@ -39,6 +39,11 @@ class WeekdayAverage(BaseModel):
     average_amount_kobo: Decimal
 
 
+class HighestSpendingPeriod(BaseModel):
+    period_start: date
+    expenditure_kobo: int
+
+
 class AnalyticsOut(BaseModel):
     date_from: date
     date_to: date
@@ -48,6 +53,7 @@ class AnalyticsOut(BaseModel):
     income_by_category: list[CategoryTotal]
     category_trends: list[CategoryTrend]
     spending_by_weekday: list[WeekdayAverage]
+    highest_spending_period: HighestSpendingPeriod | None
 
 
 class AnalyticsFilters(BaseModel):

@@ -3,12 +3,8 @@
 // ============================================================
 import { useEffect, useMemo, useState } from "react";
 import {
-  Area,
-  AreaChart,
   Bar,
   BarChart,
-  CartesianGrid,
-  ComposedChart,
   Legend,
   Line,
   LineChart,
@@ -189,16 +185,36 @@ export default function Analytics() {
             purpose="Compare period income with ordinary expenditure and savings contributions."
           >
             <ResponsiveContainer width="100%" height={280}>
-              <ComposedChart data={periods}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" />
-                <YAxis tickFormatter={compactKobo} />
+              <LineChart data={periods} margin={{ top: 12, right: 16, bottom: 4, left: 8 }}>
+                <XAxis dataKey="label" axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={compactKobo} axisLine={false} tickLine={false} width={68} />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend />
-                <Bar dataKey="expenditure_kobo" name="Ordinary spending" fill={CHART_COLORS[2]} />
-                <Bar dataKey="savings_kobo" name="Savings set aside" fill={CHART_COLORS[4]} />
-                <Line dataKey="income_kobo" name="Income" stroke={CHART_COLORS[1]} strokeWidth={3} />
-              </ComposedChart>
+                <Line
+                  dataKey="income_kobo"
+                  name="Income"
+                  stroke={CHART_COLORS[1]}
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 5 }}
+                />
+                <Line
+                  dataKey="expenditure_kobo"
+                  name="Ordinary spending"
+                  stroke={CHART_COLORS[2]}
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 5 }}
+                />
+                <Line
+                  dataKey="savings_kobo"
+                  name="Savings set aside"
+                  stroke={CHART_COLORS[4]}
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 5 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           </ChartCard>
 
@@ -207,13 +223,19 @@ export default function Analytics() {
             purpose="Income minus ordinary spending and savings set aside; opening balance is excluded."
           >
             <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={periods}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" />
-                <YAxis tickFormatter={compactKobo} />
-                <Tooltip formatter={(value) => formatKobo(value)} />
-                <Bar dataKey="available_change_kobo" name="Available balance change" fill={CHART_COLORS[0]} />
-              </BarChart>
+              <LineChart data={periods} margin={{ top: 12, right: 16, bottom: 4, left: 8 }}>
+                <XAxis dataKey="label" axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={compactKobo} axisLine={false} tickLine={false} width={68} />
+                <Tooltip content={<ChartTooltip />} />
+                <Line
+                  dataKey="available_change_kobo"
+                  name="Available balance change"
+                  stroke={CHART_COLORS[0]}
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 5 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           </ChartCard>
 
@@ -224,10 +246,9 @@ export default function Analytics() {
           >
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={topSpendingCategories} layout="vertical" margin={{ left: 12, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" tickFormatter={compactKobo} />
-                <YAxis type="category" dataKey="category_name" width={110} />
-                <Tooltip formatter={(value) => formatKobo(value)} />
+                <XAxis type="number" tickFormatter={compactKobo} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="category_name" width={110} axisLine={false} tickLine={false} />
+                <Tooltip content={<ChartTooltip />} />
                 <Bar dataKey="amount_kobo" name="Ordinary spending" fill={CHART_COLORS[0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -239,23 +260,23 @@ export default function Analytics() {
             hasData={categoryTrendNames.length > 0}
           >
             <ResponsiveContainer width="100%" height={280}>
-              <AreaChart data={categoryTrendData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" />
-                <YAxis tickFormatter={compactKobo} />
-                <Tooltip formatter={(value) => formatKobo(value)} />
+              <LineChart data={categoryTrendData} margin={{ top: 12, right: 16, bottom: 4, left: 8 }}>
+                <XAxis dataKey="label" axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={compactKobo} axisLine={false} tickLine={false} width={68} />
+                <Tooltip content={<ChartTooltip />} />
                 <Legend />
                 {categoryTrendNames.map((category, index) => (
-                  <Area
+                  <Line
                     key={category}
                     type="monotone"
                     dataKey={category}
-                    stackId="spending"
                     stroke={CHART_COLORS[index % CHART_COLORS.length]}
-                    fill={CHART_COLORS[index % CHART_COLORS.length]}
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={{ r: 4 }}
                   />
                 ))}
-              </AreaChart>
+              </LineChart>
             </ResponsiveContainer>
           </ChartCard>
 
@@ -265,12 +286,18 @@ export default function Analytics() {
             hasData={periods.some((period) => period.savings_kobo > 0)}
           >
             <ResponsiveContainer width="100%" height={280}>
-              <LineChart data={periods}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" />
-                <YAxis tickFormatter={compactKobo} />
-                <Tooltip formatter={(value) => formatKobo(value)} />
-                <Line dataKey="savings_kobo" name="Savings set aside" stroke={CHART_COLORS[4]} strokeWidth={3} />
+              <LineChart data={periods} margin={{ top: 12, right: 16, bottom: 4, left: 8 }}>
+                <XAxis dataKey="label" axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={compactKobo} axisLine={false} tickLine={false} width={68} />
+                <Tooltip content={<ChartTooltip />} />
+                <Line
+                  dataKey="savings_kobo"
+                  name="Savings set aside"
+                  stroke={CHART_COLORS[4]}
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 5 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -282,10 +309,9 @@ export default function Analytics() {
           >
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={data.income_by_category} layout="vertical" margin={{ left: 12, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" tickFormatter={compactKobo} />
-                <YAxis type="category" dataKey="category_name" width={110} />
-                <Tooltip formatter={(value) => formatKobo(value)} />
+                <XAxis type="number" tickFormatter={compactKobo} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="category_name" width={110} axisLine={false} tickLine={false} />
+                <Tooltip content={<ChartTooltip />} />
                 <Bar dataKey="amount_kobo" name="Income" fill={CHART_COLORS[1]} />
               </BarChart>
             </ResponsiveContainer>
@@ -298,10 +324,9 @@ export default function Analytics() {
           >
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={data.spending_by_weekday}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="weekday_name" />
-                <YAxis tickFormatter={compactKobo} />
-                <Tooltip formatter={(value) => formatKobo(value)} />
+                <XAxis dataKey="weekday_name" axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={compactKobo} axisLine={false} tickLine={false} width={68} />
+                <Tooltip content={<ChartTooltip />} />
                 <Bar dataKey="average_amount_kobo" name="Average ordinary spending" fill={CHART_COLORS[3]} />
               </BarChart>
             </ResponsiveContainer>
@@ -313,22 +338,38 @@ export default function Analytics() {
             hasData={periods.some((period) => period.ordinary_expense_count > 0)}
           >
             <ResponsiveContainer width="100%" height={280}>
-              <ComposedChart data={periods}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" />
-                <YAxis yAxisId="count" allowDecimals={false} />
-                <YAxis yAxisId="amount" orientation="right" tickFormatter={compactKobo} />
-                <Tooltip formatter={(value, name) => (name === "Average expense" ? formatKobo(value) : value)} />
+              <LineChart data={periods} margin={{ top: 12, right: 16, bottom: 4, left: 8 }}>
+                <XAxis dataKey="label" axisLine={false} tickLine={false} />
+                <YAxis yAxisId="count" allowDecimals={false} axisLine={false} tickLine={false} width={44} />
+                <YAxis
+                  yAxisId="amount"
+                  orientation="right"
+                  tickFormatter={compactKobo}
+                  axisLine={false}
+                  tickLine={false}
+                  width={68}
+                />
+                <Tooltip content={<ChartTooltip />} />
                 <Legend />
-                <Bar yAxisId="count" dataKey="ordinary_expense_count" name="Expense count" fill={CHART_COLORS[0]} />
+                <Line
+                  yAxisId="count"
+                  dataKey="ordinary_expense_count"
+                  name="Expense count"
+                  stroke={CHART_COLORS[0]}
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 5 }}
+                />
                 <Line
                   yAxisId="amount"
                   dataKey="average_expense_kobo"
                   name="Average expense"
                   stroke={CHART_COLORS[2]}
-                  strokeWidth={3}
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 5 }}
                 />
-              </ComposedChart>
+              </LineChart>
             </ResponsiveContainer>
           </ChartCard>
         </div>

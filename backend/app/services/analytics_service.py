@@ -108,6 +108,13 @@ def get_analytics(db: Session, filters: AnalyticsFilters) -> AnalyticsOut:
         )
         for start, values in periods.items()
     ]
+    highest_spending_period = max(
+        period_results,
+        key=lambda period: period.expenditure_kobo,
+        default=None,
+    )
+    if highest_spending_period and highest_spending_period.expenditure_kobo == 0:
+        highest_spending_period = None
 
     top_categories = sorted(
         spending_totals.items(), key=lambda item: item[1]["amount_kobo"], reverse=True
@@ -145,6 +152,13 @@ def get_analytics(db: Session, filters: AnalyticsFilters) -> AnalyticsOut:
             )
             for weekday in range(7)
         ],
+        highest_spending_period=(
+            {
+                "period_start": highest_spending_period.period_start,
+                "expenditure_kobo": highest_spending_period.expenditure_kobo,
+            }
+            if highest_spending_period else None
+        ),
     )
 
 

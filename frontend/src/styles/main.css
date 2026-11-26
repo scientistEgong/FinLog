@@ -117,6 +117,12 @@ button.danger { background: transparent; color: var(--expense); border: 1px soli
 .chart-empty { height: 280px; display: grid; place-items: center; }
 .analytics-tooltip { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); box-shadow: 0 2px 8px rgba(20, 30, 50, .15); }
 .analytics-tooltip strong { display: block; margin-bottom: 4px; }
+.dashboard-trend-card { padding: 18px 20px 12px; }
+.dashboard-trend-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.dashboard-trend-heading h2 { margin: 0 0 4px; }
+.dashboard-trend-heading p { margin: 0; }
+.trend-period-toggle { min-width: 190px; }
+.peak-summary { display: inline-block; margin: 14px 0 0; padding: 7px 11px; border-radius: 8px; background: rgba(184, 58, 50, .1); color: var(--ink); }
 
 @media (min-width: 900px) {
   .analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

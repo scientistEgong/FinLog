@@ -1,9 +1,11 @@
 // ============================================================
 // 1. Load dashboard data and reusable display components
 // ============================================================
-import { useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { getDashboardSummary } from "../api/dashboard.js";
 import OpeningBalanceCard from "../components/OpeningBalanceCard.jsx";
+
+const DashboardSpendingTrend = lazy(() => import("../components/DashboardSpendingTrend.jsx"));
 
 const SUMMARY_CARDS = [
   { key: "opening_balance", label: "Opening balance" },
@@ -60,6 +62,10 @@ export default function Dashboard() {
           </article>
         ))}
       </section>
+
+      <Suspense fallback={<p className="muted">Loading spending trend…</p>}>
+        <DashboardSpendingTrend />
+      </Suspense>
 
       {error && (
         <div className="alert error" role="alert">

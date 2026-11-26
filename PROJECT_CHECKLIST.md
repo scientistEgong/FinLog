@@ -95,6 +95,8 @@ Current exclusions: premium/payments, voice, AI assistant, login/authentication,
 
 **Implemented:** Eight views cover period income/ordinary spending/savings, available-balance change, highest spending categories, top-category trends, savings trends, income sources, weekday averages, and ordinary-expense frequency versus average size. Date inputs filter every view; period trends can be grouped weekly, monthly, or yearly.
 
+Trend charts use lines, category segmentation uses horizontal bars, chart gridlines are removed, and the Dashboard highlights the highest ordinary-spending week or month in its trailing-year line chart.
+
 ## Phase 5 — Loans and repayments
 
 - [ ] Confirm loan and repayment workflows.
