@@ -1,4 +1,6 @@
-// Budget inputs and period selection are sent to the API; the server returns authoritative totals.
+// ============================================================
+// 1. Load budget workflows, category data, and date helpers
+// ============================================================
 import { useEffect, useMemo, useState } from "react";
 import { createBudget, listBudgets, removeBudget, updateBudget } from "../api/budgets.js";
 import useCategories from "../hooks/useCategories.js";
@@ -6,6 +8,9 @@ import { periodStartISO, todayISO } from "../utils/dates.js";
 
 const EMPTY_FORM = { categoryId: "", amount: "" };
 
+// ============================================================
+// 2. Select a period and coordinate budget operations
+// ============================================================
 export default function Budgets() {
   const [periodType, setPeriodType] = useState("week");
   const [selectedDate, setSelectedDate] = useState(todayISO());
@@ -93,6 +98,7 @@ export default function Budgets() {
 
   const periodLabel = periodType === "week" ? "Week starting Sunday" : "Month starting on the first";
 
+  // The backend owns budget totals; this page only presents returned values.
   return (
     <>
       <h1>Budgets</h1>

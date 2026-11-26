@@ -2,6 +2,9 @@
 from pydantic import BaseModel
 
 
+# ============================================================
+# 1. Define the backend-calculated dashboard response
+# ============================================================
 class DashboardOut(BaseModel):
     opening_balance_kobo: int
     opening_balance_display: str

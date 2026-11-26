@@ -1,7 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// The React dev server (5173) forwards /api requests to the FastAPI backend (8000).
+// ============================================================
+// 1. Configure React and local API forwarding for development
+// ============================================================
 export default defineConfig({
   plugins: [react()],
   server: {

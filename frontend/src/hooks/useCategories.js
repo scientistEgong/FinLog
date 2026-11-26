@@ -1,4 +1,6 @@
-// Share category loading and retry behavior across screens that need category choices.
+// ============================================================
+// 1. Fetch categories and expose shared loading/retry state
+// ============================================================
 import { useCallback, useEffect, useState } from "react";
 import { listCategories } from "../api/categories.js";
 

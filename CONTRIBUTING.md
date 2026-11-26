@@ -47,9 +47,9 @@ Each backend layer should call only the layer directly below it. Follow existing
 
 ## 4. Preferred code style
 
-The developer's preferred style is structured and explanatory, similar to a well-organised analytical script: clear sections, descriptive names, readable multi-line expressions, and comments that explain the reasoning behind important operations.
+The developer's preferred style is structured and explanatory, similar to a well-organised analytical script: numbered sections show the sequence of work at a glance, names are descriptive, expressions are readable, and comments explain the reasoning behind important operations. Apply this consistently in every language, using that language's comment syntax.
 
-Apply the principle, not a mechanical template. A short component does not need numbered sections simply because a long analysis script benefits from them.
+Use numbered section headings in substantial files and scripts. A short, single-purpose component or module can use a concise purpose comment instead of invented numbered steps. Headings should describe the actual sequence and responsibilities in the file.
 
 ### Naming
 
@@ -63,15 +63,16 @@ Prefer `transaction_total` over `total`, `opening_balance_kobo` over `balance`, 
 
 ### File organisation
 
-For substantial modules, organise related code into logical sections. Examples include:
+For substantial modules, organise related code into numbered logical sections. Examples include:
 
-- imports;
+- setup and imports;
 - configuration/constants;
-- helper functions;
+- data loading or request preparation;
+- validation and transformation;
 - core business logic;
-- output/response handling.
+- output, response, or presentation.
 
-Use headings that reflect the actual file. Avoid unnecessary section headers in small files.
+Use headings that reflect the actual file and its order of operations. Apply equivalent section comments in JSX, CSS, HTML, and SQL when the file has distinct responsibilities. Avoid unnecessary section headers in small files.
 
 ### Comments
 
@@ -89,7 +90,7 @@ Unhelpful comment:
 total_expenditure = calculate_non_savings_expenses(transactions)
 ```
 
-Do not comment every line. Prefer good names and small functions first. Add comments for non-obvious rules, edge cases, assumptions, workarounds, and decisions that a future maintainer might otherwise misunderstand.
+Do not comment every line. Prefer good names and small functions first. Add comments for non-obvious rules, edge cases, assumptions, workarounds, and decisions that a future maintainer might otherwise misunderstand. At a meaningful section boundary, a concise comment should make that part's purpose clear without narrating obvious statements.
 
 ### Functions and components
 

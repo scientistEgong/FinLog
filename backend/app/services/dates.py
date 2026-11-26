@@ -3,6 +3,9 @@ import calendar
 from datetime import date, timedelta
 
 
+# ============================================================
+# 1. Derive Sunday-start weekly boundaries and validate periods
+# ============================================================
 def week_start(d: date) -> date:
     # date.weekday(): Monday=0 ... Sunday=6
     return d - timedelta(days=(d.weekday() + 1) % 7)

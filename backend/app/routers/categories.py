@@ -9,6 +9,9 @@ from app.services import category_service
 router = APIRouter(prefix="/api/categories", tags=["categories"])
 
 
+# ============================================================
+# 1. Expose category reads and validated changes
+# ============================================================
 @router.get("", response_model=list[CategoryOut])
 def list_categories(db: Session = Depends(get_db)):
     return [CategoryOut.model_validate(c, from_attributes=True) for c in category_service.list_categories(db)]

@@ -4,7 +4,7 @@
 
 ## What FinLog is
 
-FinLog is a local-first, personal finance tracker for a Windows laptop. It is a web application designed so that a mobile shell such as Capacitor could be considered later. The current product scope is recording income and expenses, managing categories, and setting an opening balance. The longer-term plan includes a dashboard, budgets, analytics, loans and reports.
+FinLog is a local-first, personal finance tracker for a Windows laptop. It is a web application designed so that a mobile shell such as Capacitor could be considered later. The current product scope includes recording income and expenses, managing categories, setting an opening balance, viewing an all-time dashboard, and managing weekly/monthly budgets. Analytics, loans and reports remain planned.
 
 The project is intentionally single-user and local at this stage. Login, cloud hosting, payments, voice features and an AI assistant are outside the current scope. The database is intended to hold the user's actual financial records; tests should use isolated temporary databases.
 
@@ -38,14 +38,14 @@ Each backend layer has a narrow responsibility. Routers translate HTTP into serv
 
 - `run_finlog.bat`: Windows startup helper; uses the project-root `.venv` and frontend `node_modules`.
 - `README.md`: short setup/run guidance.
-- `HANDOFF.md`: historical Phase 1 notes and the active Phase 2 handoff, including locked design decisions.
+- `HANDOFF.md`: project decisions, historical verification notes and current Phase 3 status.
 - `backend/requirements.txt`: Python dependencies.
 - `backend/app/config.py`: app constants, local paths, defaults, validation limits and `.env`/environment configuration.
 - `backend/app/database.py`: SQLAlchemy base/engine/session, request-scoped sessions, table initialization and default-category seeding.
 - `backend/app/main.py`: FastAPI app, startup lifecycle, CORS policy, router registration, health check and domain-error-to-HTTP mapping.
 - `backend/app/models/`: SQLAlchemy table definitions for transactions, categories, settings, budgets, loans and repayments.
 - `backend/app/schemas/`: Pydantic request and response formats; these are API data contracts, not database tables.
-- `backend/app/routers/`: HTTP endpoints for transactions, categories and opening balance.
+- `backend/app/routers/`: HTTP endpoints for transactions, categories, opening balance, dashboard summary and budgets.
 - `backend/app/services/`: business logic, money/date/text validation and domain errors.
 - `backend/app/repositories/`: database reads/writes; SQL queries should stay here.
 - `backend/app/exports/`: reserved for future CSV/PDF export implementation.
@@ -55,7 +55,7 @@ Each backend layer has a narrow responsibility. Routers translate HTTP into serv
 - `frontend/src/main.jsx`: mounts React and browser routing.
 - `frontend/src/App.jsx`: URL-to-page routing; unfinished sections currently show “Coming soon”.
 - `frontend/src/api/`: API request wrapper and endpoint-specific functions.
-- `frontend/src/pages/`: page-level state and coordination; currently includes Transactions.
+- `frontend/src/pages/`: page-level state and coordination for Dashboard, Budgets and Transactions.
 - `frontend/src/components/`: reusable UI elements and forms.
 - `frontend/src/hooks/`: reusable React state/effect logic, currently category loading.
 - `frontend/src/utils/`: small display/input helpers, currently local date formatting.
@@ -70,11 +70,11 @@ Each backend layer has a narrow responsibility. Routers translate HTTP into serv
 - **Money precision:** the backend persists money as integer kobo (for example, ₦1,500.50 is `150050` kobo). User-entered naira amounts are converted at the API edge. Inputs with more than two decimal places are rejected, not rounded. The configured maximum transaction amount is NGN 1 trillion.
 - **Transaction types:** `income` and `expense`. Each transaction has a date, category, description, optional payment method and optional notes.
 - **Categories:** one shared list for both income and expenses. Default categories are seeded only when the category table is empty. Names are unique case-insensitively. Defaults cannot be deleted; custom categories in use by a transaction or budget cannot be deleted.
-- **Savings:** a category marked `is_savings=True` (the seeded “Savings” category) represents an expense that is excluded from expenditure totals and counted separately as savings. This is how the planned dashboard should interpret it.
-- **Opening balance:** stored in the key/value settings table as `opening_balance_kobo`. It represents money held before using FinLog and must never be recorded as income. Currently it is editable from the Transactions screen; the Phase 3 plan moves this UI to Dashboard.
+- **Savings:** a category marked `is_savings=True` (the seeded “Savings” category) represents an expense that is excluded from expenditure totals and counted separately as savings. The dashboard service applies this rule.
+- **Opening balance:** stored in the key/value settings table as `opening_balance_kobo`. It represents money held before using FinLog and must never be recorded as income. It is editable from the Dashboard.
 - **Calendar:** weeks run Sunday through Saturday. Budget period start dates are the Sunday for a week or first day of a month.
 - **Loans:** planned loans are not transactions. Borrowing must not appear as income and lending must not appear as spending. Outstanding is derived as principal + flat interest − repayments rather than stored as a second, potentially stale balance.
-- **Budgets:** planned allocations are not expenses. Weekly/monthly totals are the sum of category allocations for that period.
+- **Budgets:** allocations are not expenses. Weekly/monthly totals are the sum of category allocations for that period.
 - **Safety of real records:** current table setup uses SQLAlchemy `create_all`, which creates missing tables but does not migrate existing tables. The handoff calls for an Alembic baseline before real financial records are entered. No automated backup routine is implemented yet.
 
 ## Current functionality and API
@@ -86,29 +86,36 @@ Implemented source currently contains:
 - `POST /api/transactions`, `GET /api/transactions/{id}`, `PUT /api/transactions/{id}`, and `DELETE /api/transactions/{id}`.
 - `GET /api/categories`, `POST /api/categories`, and `DELETE /api/categories/{id}`. UI supports listing/adding; deleting is API-only for now.
 - `GET /api/settings/opening-balance` and `PUT /api/settings/opening-balance`.
+- `GET /api/dashboard` returns all-time opening balance, income, ordinary expenditure, savings, available balance and total wallet. Monetary values are returned as integer kobo and formatted display strings.
+- `GET /api/budgets?period_type=week|month&period_start=YYYY-MM-DD`, `POST /api/budgets`, `PUT /api/budgets/{id}`, and `DELETE /api/budgets/{id}` manage category allocations for canonical Sunday or first-of-month period starts.
 - API error conventions: 404 for missing records, 409 for conflicts (such as deleting a protected category), and 422 for invalid input. Transaction amounts return `amount_kobo`, `amount_input` for editing, and `amount_display` for display.
-- React transaction page: add/edit/delete, category selection and quick category creation, filters/search, pagination, and opening balance editor.
-- Stub navigation routes for dashboard, budgets, analytics, loans and reports.
+- React transaction page: add/edit/delete, category selection and quick category creation, filters/search, and pagination.
+- React dashboard page: API-provided all-time financial cards and opening balance editor.
+- React budget page: week/month selection, calendar date input, category allocation CRUD and backend-provided period total.
+- Stub navigation routes remain for analytics, loans and reports.
 
 ## Progress and verification
 
-The repository handoff marks Phase 1 complete and Phase 2 written. Phase 3 (dashboard and budgets) is next. The handoff reports that in a restricted sandbox, Python compilation, 17 standard-library tests, Node syntax checks for `.js`, and selected helper/mock-fetch checks passed. It explicitly says SQLAlchemy-backed tests, FastAPI app execution, pytest API/database tests, JSX parsing, Vite build/dev server and `run_finlog.bat` had not yet been run. These are claims from the handoff, not runs performed while writing this guide.
+Phase 3 implementation is present. On 2026-11-26, the full backend suite passed (55 tests), the frontend production build passed, four Node assertions checked Sunday/month period-start conversion, and headless Chrome screenshots inspected the Dashboard and Budgets pages at 390px and 1440px viewport widths using a disposable database with synthetic records. Interactive budget-form and opening-balance save flows have not been manually exercised in a browser. These checks do not verify the launcher or a production deployment.
 
-Before proceeding with Phase 3, run the existing backend tests and launch the app on the Windows development machine; fix any integration/runtime issues found. The current API and frontend are written, but should not be described as end-to-end verified until those steps actually pass.
+Before proceeding to Phase 4, manually verify budget form create/edit/delete and opening-balance save/refetch in the browser. Do not describe those UI interactions as verified until they have been exercised.
 
 ## Planned phases from the handoff
 
 1. **Phase 1 — foundation (marked complete):** configuration, local DB, models, category seeding, helpers, health route, initial test setup and launcher.
 2. **Phase 2 — transactions (marked written):** transaction CRUD/filter API, validation, categories, opening balance, React scaffold/navigation and transaction UI.
-3. **Phase 3 — dashboard and budgets:** balance summary, date picker and week/month selection, budget CRUD/summary, move opening balance control to Dashboard, make `/` lead to Dashboard.
-4. **Phase 4 — analytics and loans:** analytics API, six Recharts visuals, loan and repayment workflows; add Recharts as a dependency when implementing.
-5. **Phase 5 — exports and release readiness:** CSV/PDF exports (ReportLab), Alembic baseline, full verification, persistence-after-restart check and a testing report. The migration baseline is a gate before real data use.
+3. **Phase 3 — dashboard and budgets:** implemented; interactive browser form verification remains outstanding.
+4. **Phase 4 — analytics:** analytics API and approved visualisations; no work started.
+5. **Phase 5 — loans and repayments:** workflows and API; no work started.
+6. **Phase 6 — exports:** CSV/PDF exports; no work started.
+7. **Phase 7 — migrations, security, backups and quality assurance:** Alembic baseline, backup/restore, and broader review. The migration and tested backup baseline remain gates before real data use.
+8. **Phase 8 — release readiness and future Android preparation:** no work started.
 
 ## Guidance for the next model / developer
 
 - Treat the architecture, phase scope, folder responsibilities and domain rules in `HANDOFF.md` as locked unless the user changes them.
 - Read `HANDOFF.md` before making architectural decisions; update its current status and verified/not-verified section at the end of each phase.
-- Do not add dashboard, budgets, analytics, loans, report features until their planned phase. Do not represent planned model tables as implemented UI/API features.
+- Do not add analytics, loans, or report features until their planned phase. Do not represent planned model tables as implemented UI/API features.
 - Keep financial calculations in backend services, query construction in repositories, API validation shapes in schemas and display/state logic in React.
 - Preserve integer-kobo storage and Sunday-start weeks. Never use floating-point arithmetic for stored money.
 - Do not put sample data in the real database. Continue using temporary DB fixtures for tests.
@@ -121,8 +128,8 @@ Before proceeding with Phase 3, run the existing backend tests and launch the ap
 
 FinLog is a Windows-first local personal finance tracker with a React 18 + Vite frontend, FastAPI/Python backend, Pydantic 2 request/response validation, SQLAlchemy 2 ORM and SQLite local database. The frontend dev server is intended for port 5173 and proxies `/api` to FastAPI on port 8000. Backend structure is routers → services → repositories → SQLAlchemy models. React displays API data and should not calculate financial totals.
 
-The project has completed the foundation phase and has Phase 2 transaction functionality written: transaction CRUD/search/filter/pagination API; category list/create/delete API; opening balance API; responsive React layout; transaction add/edit/delete form/history; quick custom category addition; filters; and an opening-balance card (temporarily on Transactions). Dashboard, budgets, analytics, loans/repayments and exports are planned, not implemented features. Next planned phase is dashboard + budgets, after validating Phase 2 end to end.
+The project has completed the foundation phase and implements Phase 2 transaction functionality and Phase 3 dashboard/budget management. Phase 3 adds an all-time dashboard summary, opening-balance editing on Dashboard, weekly/monthly category budget CRUD, and a calendar period selector. Dashboard formulas are computed in backend services; the frontend displays API values. Analytics, loans/repayments and exports remain planned, not implemented features. Backend tests and the frontend production build passed; interactive budget and opening-balance browser flows remain unverified.
 
 Core rules: persist all money as integer kobo (₦1 = 100 kobo), reject precision beyond two decimals, use shared categories, treat Savings-category expenses separately from ordinary expenditure, keep opening balance out of income, and use Sunday–Saturday weeks. Loans must never create transaction rows. No fabricated financial data in the real DB. The database currently uses `create_all` and has no Alembic migration baseline or backup routine; the handoff says not to enter real records until migrations are handled.
 
-The project handoff reports passing sandbox-only Python compilation, 17 stdlib tests, `.js` syntax/helper checks and selected SQLite constraint checks. It says SQLAlchemy/FastAPI tests and runtime, `.jsx` parsing, Vite build/dev server and launcher were not verified. Run backend pytest from `backend`, then run the Windows launcher and check `/api/health`, `/docs`, and the React UI before Phase 3. Be precise about what actually passes. See `PROJECT_DOC.md` for technology explanations, file map, feature/API details and all planned phases; see `HANDOFF.md` for the detailed locked rules and verification ledger.
+The current Phase 3 status and verification are recorded above. Earlier Phase 1 and Phase 2 check results are historical, not current claims. See this guide for technology explanations and the file map; see `HANDOFF.md` for locked rules and the verification ledger. Before Phase 4, manually verify budget form create/edit/delete and opening-balance save/refetch in the browser.

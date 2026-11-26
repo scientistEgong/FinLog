@@ -10,6 +10,9 @@ from app.models.category import Category
 from app.models.mixins import TimestampMixin
 
 
+# ============================================================
+# 1. Transaction fields and persistence constraints
+# ============================================================
 class Transaction(TimestampMixin, Base):
     __tablename__ = "transactions"
     __table_args__ = (

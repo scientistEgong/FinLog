@@ -1,4 +1,6 @@
-/* Mobile-first. Bottom nav on phones, sidebar from 768px up. */
+/* ============================================================
+   1. Theme tokens and global document defaults
+   ============================================================ */
 :root {
   --bg: #f5f6f8; --card: #fff; --ink: #1b2333; --muted: #6a7385; --line: #060708;
   --brand: #1f4e79; --income: #1c7c54; --expense: #b83a32; --warn: #b9770e;
@@ -13,6 +15,9 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 syst
 h1 { font-size: 22px; margin: 0 0 14px; } h2 { font-size: 17px; margin: 0 0 12px; }
 .muted { color: var(--muted); } .small { font-size: 12px; }
 
+/* ============================================================
+   2. Responsive application shell and navigation
+   ============================================================ */
 .shell { min-height: 100%; padding-bottom: 72px; }
 .content { max-width: 960px; margin: 0 auto; padding: 16px; }
 .brand { display: none; font-weight: 700; font-size: 20px; padding: 8px 12px 16px; color: var(--brand); }
@@ -29,6 +34,9 @@ h1 { font-size: 22px; margin: 0 0 14px; } h2 { font-size: 17px; margin: 0 0 12px
   .nav-icon { display: inline; font-size: 16px; }
 }
 
+/* ============================================================
+   3. Cards, dashboard summaries, and budget layouts
+   ============================================================ */
 .card { background: var(--card); border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 6px rgba(20, 30, 50, .07); }
 details.card summary { cursor: pointer; font-weight: 600; }
 
@@ -50,6 +58,9 @@ details.card summary { cursor: pointer; font-weight: 600; }
 .budget-table th { text-align: left; font-size: 12px; color: var(--muted); padding: 6px 4px; }
 .budget-table td { padding: 8px 4px; border-top: 1px solid var(--line); vertical-align: middle; }
 
+/* ============================================================
+   4. Form controls, feedback, and transaction history
+   ============================================================ */
 input, select, textarea, button { font: inherit; color: inherit; }
 input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
 button { border: 0; border-radius: 10px; padding: 10px 16px; background: var(--brand); color: #fff; cursor: pointer; }
@@ -93,7 +104,9 @@ button.danger { background: transparent; color: var(--expense); border: 1px soli
 .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 8px; flex-wrap: wrap; }
 .pager button + button { margin-left: 6px; }
 
-/* Phones: each table row becomes a card */
+/* ============================================================
+   5. Phone layouts: present wide table rows as readable cards
+   ============================================================ */
 @media (max-width: 639px) {
   .txn-table thead { display: none; }
   .txn-table, .txn-table tbody, .txn-table tr, .txn-table td { display: block; width: 100%; }

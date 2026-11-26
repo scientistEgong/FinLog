@@ -1,4 +1,6 @@
-// Keep route selection separate from page implementation so unfinished phases remain visible as stubs.
+// ============================================================
+// 1. Imports and page dependencies
+// ============================================================
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout.jsx";
 import ComingSoon from "./components/ComingSoon.jsx";
@@ -6,6 +8,9 @@ import Budgets from "./pages/Budgets.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Transactions from "./pages/Transactions.jsx";
 
+// ============================================================
+// 2. Match URLs to implemented pages or planned-feature stubs
+// ============================================================
 export default function App() {
   return (
     <Layout>

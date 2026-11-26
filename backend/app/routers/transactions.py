@@ -13,6 +13,9 @@ from app.services import transaction_service
 router = APIRouter(prefix="/api/transactions", tags=["transactions"])
 
 
+# ============================================================
+# 1. Expose filtered transaction reads and CRUD operations
+# ============================================================
 @router.get("", response_model=TransactionPage)
 def list_transactions(
     date_from: Optional[date] = None,

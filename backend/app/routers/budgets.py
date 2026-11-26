@@ -12,6 +12,9 @@ from app.services import budget_service
 router = APIRouter(prefix="/api/budgets", tags=["budgets"])
 
 
+# ============================================================
+# 1. Expose validated budget period and allocation operations
+# ============================================================
 @router.get("", response_model=BudgetPage)
 def list_budgets(
     period_type: Literal["week", "month"],

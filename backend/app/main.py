@@ -13,6 +13,9 @@ from app.routers import budgets, categories, dashboard, settings, transactions
 from app.services.errors import ConflictError, DomainValidationError, NotFoundError
 
 
+# ============================================================
+# 1. Application startup and middleware
+# ============================================================
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     # Prepare storage and missing tables; startup never seeds financial records.
@@ -30,6 +33,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ============================================================
+# 2. Domain error responses and API routes
+# ============================================================
 
 @app.exception_handler(NotFoundError)
 async def _not_found(_request: Request, exc: NotFoundError):

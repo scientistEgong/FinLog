@@ -7,6 +7,9 @@ from app.schemas.setting import OpeningBalanceIn, OpeningBalanceOut
 from app.services.money import format_naira, kobo_to_decimal
 
 
+# ============================================================
+# 1. Read and update the opening-balance setting
+# ============================================================
 def _out(kobo: int) -> OpeningBalanceOut:
     return OpeningBalanceOut(
         amount_kobo=kobo, amount_input=f"{kobo_to_decimal(kobo):.2f}", amount_display=format_naira(kobo)

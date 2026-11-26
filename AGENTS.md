@@ -111,7 +111,7 @@ Do not change these definitions without asking.
 - If absent, its value is zero.
 - It is not an income transaction.
 - The API contract is `GET` and `PUT /api/settings/opening-balance`.
-- The opening-balance UI was temporarily placed on the Transactions page; the intended later move is to the Dashboard.
+- The opening-balance UI now lives on the Dashboard; it was moved there during Phase 3.
 
 ### Loans
 
@@ -144,7 +144,8 @@ Use the following principles across languages, adapting them to each language's 
 ### Structure
 
 - Organise substantial files into logical sections.
-- Use clear section headings when they improve navigation. Numbered sections are welcome in long analytical scripts or modules, but do not force numbering into every small file.
+- Follow the developer's sequential section style across every programming language: use descriptive numbered headings in substantial files so a reader can follow the work from setup through processing to output. Adapt heading syntax to Python, JavaScript/JSX, CSS, HTML, SQL, and other languages used by the project.
+- For a short, single-purpose module, use a concise purpose comment or docstring and only add a numbered heading when it helps explain a real sequence. Do not invent steps to satisfy a numbering pattern.
 - Keep functions and components focused on one responsibility.
 - Prefer straightforward control flow over clever, compressed expressions.
 - Use descriptive names for variables, functions, classes, components, and constants.
@@ -154,7 +155,7 @@ Use the following principles across languages, adapting them to each language's 
 
 ### Comments and documentation
 
-Comments must add meaning. They should explain intent, reasoning, assumptions, non-obvious behaviour, constraints, or why a particular approach was chosen.
+Comments must add meaning. They should explain intent, reasoning, assumptions, non-obvious behaviour, constraints, or why a particular approach was chosen. Apply this standard consistently in every programming language; use the language's normal comment or documentation syntax.
 
 Good comments answer questions such as:
 - Why is this calculation structured this way?
@@ -163,7 +164,7 @@ Good comments answer questions such as:
 - What business rule or edge case does this block protect?
 - Why would changing this line cause a problem?
 
-Do not add comments that merely translate an obvious line into English. Do not comment every line just to increase comment count.
+Do not add comments that merely translate an obvious line into English. Do not comment every line just to increase comment count. Prefer a short explanation at the start of a meaningful section or around a non-obvious decision.
 
 Use:
 - Python docstrings for public or non-obvious functions/classes and module purpose where useful.

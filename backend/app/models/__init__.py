@@ -1,4 +1,6 @@
-# Importing every model here registers it with Base.metadata.
+# ============================================================
+# 1. Import models so SQLAlchemy registers every table
+# ============================================================
 from app.models.budget import Budget
 from app.models.category import Category
 from app.models.loan import Loan, LoanRepayment

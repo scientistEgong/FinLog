@@ -7,6 +7,9 @@ from app.services.money import format_naira
 from app.services.settings_service import get_opening_balance_kobo
 
 
+# ============================================================
+# 1. Apply approved balance formulas and shape the summary
+# ============================================================
 def get_dashboard_summary(db: Session) -> DashboardOut:
     opening_balance = get_opening_balance_kobo(db)
     total_income, total_expenditure, total_savings = dashboard_repository.get_all_time_totals(db)

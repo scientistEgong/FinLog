@@ -1,4 +1,6 @@
-// Form state uses editable strings; the API validates and converts money into integer kobo.
+// ============================================================
+// 1. Load API actions and form defaults
+// ============================================================
 import { useEffect, useState } from "react";
 import { createCategory } from "../api/categories.js";
 import { createTransaction, updateTransaction } from "../api/transactions.js";
@@ -16,6 +18,9 @@ const blank = () => ({
   notes: "",
 });
 
+// ============================================================
+// 2. Manage form state and submit transaction/category changes
+// ============================================================
 export default function TransactionForm({ categories, editing, onSaved, onCancel, onCategoryAdded }) {
   const [form, setForm] = useState(blank);
   const [errors, setErrors] = useState({});
@@ -90,6 +95,7 @@ export default function TransactionForm({ categories, editing, onSaved, onCancel
     }
   }
 
+  // Editable money remains text here; the API enforces precision and stores kobo.
   return (
     <form className="card" onSubmit={handleSubmit}>
       <h2>{editing ? "Edit transaction" : "Add transaction"}</h2>

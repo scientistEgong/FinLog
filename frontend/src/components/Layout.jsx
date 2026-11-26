@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 
+// 1. Keep destinations in one list so desktop and phone navigation stay aligned.
 const LINKS = [
   { to: "/dashboard", label: "Dashboard", icon: "🏠" },
   { to: "/transactions", label: "Transactions", icon: "🧾" },
@@ -10,6 +11,7 @@ const LINKS = [
 ];
 
 // Bottom bar on phones, left sidebar on larger screens (pure CSS, same markup).
+// 2. Render the shared responsive shell around the selected page.
 export default function Layout({ children }) {
   return (
     <div className="shell">

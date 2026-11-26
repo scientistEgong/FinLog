@@ -1,4 +1,6 @@
-// Page coordinator: owns query state and joins the form, filters, history, and API calls.
+// ============================================================
+// 1. Load page dependencies and transaction view defaults
+// ============================================================
 import { useEffect, useState } from "react";
 import { listTransactions, removeTransaction } from "../api/transactions.js";
 import TransactionFilters from "../components/TransactionFilters.jsx";
@@ -9,6 +11,9 @@ import useCategories from "../hooks/useCategories.js";
 const PAGE_SIZE = 25;
 const EMPTY_FILTERS = { dateFrom: "", dateTo: "", type: "", categoryId: "", q: "" };
 
+// ============================================================
+// 2. Coordinate filters, pagination, edits, and API requests
+// ============================================================
 export default function Transactions() {
   const { categories, error: categoriesError, reload: reloadCategories } = useCategories();
   const [filters, setFilters] = useState(EMPTY_FILTERS);

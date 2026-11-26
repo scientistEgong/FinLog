@@ -1,7 +1,12 @@
-// Opening balance is a starting point for balance summaries, never a transaction or income item.
+// ============================================================
+// 1. Load opening-balance API operations
+// ============================================================
 import { useEffect, useState } from "react";
 import { getOpeningBalance, setOpeningBalance } from "../api/settings.js";
 
+// ============================================================
+// 2. Read, edit, and save the opening balance
+// ============================================================
 export default function OpeningBalanceCard({ onSaved }) {
   const [current, setCurrent] = useState(null);
   const [value, setValue] = useState("");

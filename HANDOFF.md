@@ -137,7 +137,7 @@ Do not change this model without discussing it with the developer.
 - Defaults to zero if absent.
 - Is not an income transaction.
 - API: `GET` and `PUT /api/settings/opening-balance`.
-- UI was temporarily placed on Transactions page; planned move is to Dashboard in Phase 3.
+- The opening-balance editor was moved from Transactions to the Dashboard in Phase 3.
 
 ### Loans
 
@@ -211,7 +211,19 @@ Earlier sandbox verification was limited:
 - JSX/Vite build and dev server were not run;
 - `run_finlog.bat` was not verified end-to-end.
 
-**Current known status:** Phase 2 implementation was reported as written, but execution verification remained outstanding. Inspect the current repo and perform a controlled verification pass before beginning Phase 3.
+**Historical status at the time:** Phase 2 implementation was reported as written, but execution verification remained outstanding. The full backend suite has since passed during Phase 3 verification; see the current Phase 3 record below.
+
+### Phase 3: Dashboard and budgets
+
+**Implemented 2026-11-26:** Added `GET /api/dashboard` for the all-time summary. It returns opening balance, income, non-savings expenditure, savings, available balance, and total wallet as integer-kobo and display fields. Dashboard balance formulas remain in `dashboard_service.py`; repository aggregation is in `dashboard_repository.py`.
+
+Added `GET /api/budgets?period_type=week|month&period_start=YYYY-MM-DD`, `POST /api/budgets`, `PUT /api/budgets/{id}`, and `DELETE /api/budgets/{id}`. Budget inputs use a naira `amount` string, non-negative amount validation, category existence validation, Sunday weekly starts, first-of-month monthly starts, and conflict responses for duplicate category/period allocations. Budget totals are sums of allocation rows and are not joined into dashboard expenditure calculations.
+
+The React Dashboard displays API-provided all-time metrics and now owns the opening-balance editor; `/` redirects to `/dashboard`. The Budgets page provides week/month selection, a calendar date input, category budget CRUD, and the backend-provided period total. The selected calendar date is mapped to a canonical period start in the existing frontend date utility.
+
+**Verification:** `python -m pytest test --basetemp=.pytest_cache\phase3-final` from `backend` passed 55 tests on 2026-11-26. `npm.cmd run build` from `frontend` passed. Four Node assertions checked period-start conversion. Headless Chrome screenshots were captured at 390×844 and 1440×1000 using a temporary Vite config and backend on port 8001 with a disposable SQLite database and synthetic records. The 390px document width and main budget component bounds were checked through Chrome DevTools Protocol. The existing `data/finlog.db` was not used or changed.
+
+**Not verified:** Budget create/edit/delete and opening-balance save/refetch have API test coverage, but those interactions were not manually clicked through in a browser. No automated frontend interaction test framework is configured.
 
 ## 8. Roadmap
 
@@ -249,12 +261,9 @@ Before the first public push, inspect Git history for secrets and private data. 
 
 ## 10. Immediate next step
 
-1. Inspect the actual repository and Git status.
-2. Compare the current files with this handoff and the checklist.
-3. Verify the Phase 2 backend and frontend in the local environment.
-4. Report exactly what passed, failed, or could not be run.
-5. Identify the smallest remaining Phase 2 tasks.
-6. Wait for approval before beginning Phase 3 or making architectural changes.
+1. Manually verify budget form create/edit/delete and opening-balance save/refetch in the browser.
+2. Record the results in this handoff and `PROJECT_CHECKLIST.md`.
+3. Do not begin Phase 4 until the developer approves it.
 
 ## 11. Handoff update protocol
 
@@ -269,8 +278,12 @@ Each update should distinguish:
 
 Do not write “completed” when the work is only drafted or generated.
 
+## 12. Code organisation and comments
+
+The developer's preferred style follows the supplied analytical script: numbered, descriptive section headings make the order of work visible at a glance. Apply this across languages using each language's normal comment syntax. Substantial files should show their actual sequence (for example setup, validation, processing, and output); short single-purpose modules should use a concise purpose comment rather than artificial sections. Comments should explain intent, constraints, assumptions, and non-obvious decisions instead of restating code. `AGENTS.md` and `CONTRIBUTING.md` are the canonical detailed guidance.
+
 ## Historical handoff notes retained from the earlier Phase 1 record
 
 The earlier handoff marked the foundation work complete and recorded the following historical checks: 17 standard-library tests for money/date/validation/environment loading, raw SQLite constraint checks, and Python compilation. SQLAlchemy-backed model/database checks, FastAPI startup, API/database tests, and launcher execution were not verified in that earlier environment. These reports describe prior work and are not current verification. The later Phase 2 record says selected JavaScript syntax/helper checks passed, while JSX parsing, the Vite build, application startup, and end-to-end workflows remained unverified.
 
-The original Phase 1 handoff and later Phase 2 handoff disagreed about current phase. The current source includes the Phase 2 implementation, but runtime verification remains outstanding according to the available historical report. The checklist tracks implementation and verification separately.
+The original Phase 1 and Phase 2 handoff sections are historical records. The current source includes the Phase 2 and Phase 3 implementations; Phase 3 backend tests and frontend build passed as recorded above. The checklist tracks implementation and verification separately.

@@ -8,6 +8,9 @@ from app.models.category import Category
 from app.models.mixins import TimestampMixin
 
 
+# ============================================================
+# 1. Budget allocation table and integrity constraints
+# ============================================================
 class Budget(TimestampMixin, Base):
     """One allocation for one category in one week or month.
 

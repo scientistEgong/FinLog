@@ -1,4 +1,6 @@
-// Single place that talks to the FastAPI backend. No money maths happens in the frontend.
+// ============================================================
+// 1. Define the error type shared by API callers
+// ============================================================
 
 export class ApiError extends Error {
   constructor(message, status, fields = {}) {
@@ -8,7 +10,9 @@ export class ApiError extends Error {
   }
 }
 
-// Turns FastAPI's error "detail" (a string, or a list of {loc, msg}) into text + per-field messages.
+// ============================================================
+// 2. Convert FastAPI error details into user-facing messages
+// ============================================================
 export function parseErrorDetail(detail) {
   if (typeof detail === "string") return { message: detail, fields: {} };
   if (Array.isArray(detail)) {
@@ -25,6 +29,9 @@ export function parseErrorDetail(detail) {
   return { message: "The request could not be completed.", fields: {} };
 }
 
+// ============================================================
+// 3. Send JSON requests and present safe request failures
+// ============================================================
 export async function request(path, { method = "GET", body, params } = {}) {
   let url = path;
   if (params) {

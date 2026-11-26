@@ -13,6 +13,9 @@ from app.services.money import format_naira, kobo_to_decimal
 from app.services.validation import check_date_in_range
 
 
+# ============================================================
+# 1. Response mapping and domain validation
+# ============================================================
 def _to_out(budget: Budget) -> BudgetOut:
     return BudgetOut(
         id=budget.id,
@@ -65,6 +68,9 @@ def _commit_or_raise_conflict(db: Session) -> None:
         raise ConflictError("A budget already exists for this category and period.") from None
 
 
+# ============================================================
+# 2. Budget listing and total calculation
+# ============================================================
 def list_budgets(db: Session, period_type: str, period_start: date) -> BudgetPage:
     _validate_period_start(period_type, period_start)
     budgets = budget_repository.list_for_period(db, period_type, period_start)
@@ -78,6 +84,9 @@ def list_budgets(db: Session, period_type: str, period_start: date) -> BudgetPag
     )
 
 
+# ============================================================
+# 3. Budget create, update, and delete operations
+# ============================================================
 def create_budget(db: Session, data: BudgetIn) -> BudgetOut:
     _require_category(db, data.category_id)
     _check_unique_period_category(db, data)

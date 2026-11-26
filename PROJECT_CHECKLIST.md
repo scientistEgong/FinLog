@@ -8,6 +8,8 @@ This is the project roadmap and progress tracker. It is not permission to start 
 
 FinLog is a local-first personal finance tracker, initially for Windows desktop use, with a web-first React frontend and a possible future Android wrapper using Capacitor.
 
+**Code style:** Use descriptive numbered sections in substantial files to show the sequence of work, across languages. Comments should explain intent and non-obvious rules; keep short modules concise. See `AGENTS.md` and `CONTRIBUTING.md` for the full standard.
+
 Current exclusions: premium/payments, voice, AI assistant, login/authentication, cloud deployment, and unrelated integrations.
 
 ## Phase 1 — Foundation
@@ -48,7 +50,7 @@ Current exclusions: premium/payments, voice, AI assistant, login/authentication,
 - [ ] Search and filters.
 - [ ] Pagination.
 - [ ] Edit and delete flows.
-- [ ] Opening balance UI (currently intended as temporary placement on Transactions page).
+- [x] Opening balance UI (originally on Transactions; moved to Dashboard in Phase 3).
 
 ### Verification
 - [ ] Backend tests run in the actual project environment.
@@ -63,19 +65,22 @@ Current exclusions: premium/payments, voice, AI assistant, login/authentication,
 
 ## Phase 3 — Dashboard and budgets
 
-- [ ] Define and approve dashboard metrics and calculation contracts.
-- [ ] Implement dashboard service calculations.
-- [ ] Implement dashboard API endpoint and response schema.
-- [ ] Add dashboard page and connect it to API data.
-- [ ] Display opening balance on the Dashboard.
-- [ ] Move opening-balance UI from Transactions page to Dashboard.
-- [ ] Implement weekly budgets.
-- [ ] Implement monthly budgets.
-- [ ] Add calendar/period selection.
-- [ ] Ensure weekly periods run Sunday–Saturday.
-- [ ] Ensure monthly periods start on day one.
-- [ ] Ensure budgets are not counted as expenditure.
+- [x] Define and approve dashboard metrics and calculation contracts.
+- [x] Implement dashboard repository aggregate query.
+- [x] Implement dashboard service calculations.
+- [x] Implement dashboard API endpoint and response schema.
+- [x] Add dashboard page and connect it to API data.
+- [x] Display opening balance on the Dashboard.
+- [x] Move opening-balance UI from Transactions page to Dashboard.
+- [x] Implement weekly budgets.
+- [x] Implement monthly budgets.
+- [x] Add calendar/period selection.
+- [x] Ensure weekly periods run Sunday–Saturday.
+- [x] Ensure monthly periods start on day one.
+- [x] Ensure budgets are not counted as expenditure.
 - [ ] Add calculation, API, and UI tests.
+
+**Verified 2026-11-26:** Backend suite passed (55 tests); Vite production build passed; four JavaScript assertions verified Sunday and first-of-month boundaries. Headless Chrome screenshots exercised the dashboard and budget pages at 390px and 1440px widths against a temporary backend/database containing synthetic records. Chrome reported a 390px document width at the phone viewport. API tests cover budget create/read/update/delete, validation, and dashboard formulas. Interactive budget-form and opening-balance save flows have not been manually exercised in a browser, so the combined UI-test item remains unchecked.
 
 ## Phase 4 — Analytics
 
@@ -144,9 +149,9 @@ Current exclusions: premium/payments, voice, AI assistant, login/authentication,
 
 ## Current phase and next approved task
 
-**Current phase:** Phase 2 implementation has been reported as written; execution verification is outstanding according to the latest known handoff. Re-inspect the repository and verify before deciding the exact next task.
+**Current phase:** Phase 3 dashboard and budget implementation is present. Backend tests and frontend build passed; interactive browser form flows remain to be manually verified.
 
-**Next logical action:** Perform a controlled Phase 2 verification pass. Do not start Phase 3 until the developer approves it.
+**Next logical action:** Manually verify budget form create/edit/delete and opening-balance save/refresh in the browser. Do not start Phase 4 until the developer approves it.
 
 ## Progress recording rules
 

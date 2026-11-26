@@ -31,6 +31,24 @@ def test_dashboard_starts_at_zero(client):
     assert data["total_wallet_kobo"] == 0
 
 
+def test_budget_allocations_are_not_counted_as_expenses(client):
+    client.post(
+        "/api/budgets",
+        json={
+            "period_type": "week",
+            "period_start": "2026-11-22",
+            "category_id": category_id(client, "Food"),
+            "amount": "2500",
+        },
+    )
+
+    data = client.get("/api/dashboard").json()
+
+    assert data["total_expenditure_kobo"] == 0
+    assert data["available_balance_kobo"] == 0
+    assert data["total_wallet_kobo"] == 0
+
+
 def test_dashboard_applies_locked_balance_formulas(client):
     client.put("/api/settings/opening-balance", json={"amount": "1000.00"})
     create_transaction(

@@ -1,4 +1,6 @@
-// All balance totals are calculated and formatted by the backend.
+// ============================================================
+// 1. Load dashboard data and reusable display components
+// ============================================================
 import { useCallback, useEffect, useState } from "react";
 import { getDashboardSummary } from "../api/dashboard.js";
 import OpeningBalanceCard from "../components/OpeningBalanceCard.jsx";
@@ -12,6 +14,9 @@ const SUMMARY_CARDS = [
   { key: "total_wallet", label: "Total wallet", tone: "wallet" },
 ];
 
+// ============================================================
+// 2. Fetch the authoritative summary and render its API values
+// ============================================================
 export default function Dashboard() {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);

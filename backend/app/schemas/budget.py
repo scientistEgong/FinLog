@@ -8,6 +8,9 @@ from app.services.dates import week_start
 from app.services.validation import check_date_in_range, parse_non_negative_amount
 
 
+# ============================================================
+# 1. Validate budget request data and canonical periods
+# ============================================================
 class BudgetIn(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -35,6 +38,9 @@ class BudgetIn(BaseModel):
         return self
 
 
+# ============================================================
+# 2. Define budget response and period summary contracts
+# ============================================================
 class BudgetOut(BaseModel):
     id: int
     period_type: str

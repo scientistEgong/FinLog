@@ -1,8 +1,15 @@
 """Central configuration for FinLog. No secrets, no heavy imports."""
+
+# ============================================================
+# 1. Imports and configuration sources
+# ============================================================
 import os
 from datetime import date
 from pathlib import Path
 
+# ============================================================
+# 2. Application paths and environment configuration
+# ============================================================
 APP_NAME = "FinLog"
 APP_VERSION = "0.2.0"
 
@@ -26,6 +33,9 @@ def _load_dotenv(path: Path) -> None:
 
 _load_dotenv(BASE_DIR / ".env")
 
+# ============================================================
+# 3. Currency, calendar, and default categories
+# ============================================================
 # Override with FINLOG_DATABASE_URL to point at PostgreSQL later.
 DATABASE_URL = os.environ.get("FINLOG_DATABASE_URL", f"sqlite:///{DB_PATH.as_posix()}")
 
@@ -58,6 +68,9 @@ TRANSACTION_TYPES = ("income", "expense")
 PERIOD_TYPES = ("week", "month")
 LOAN_DIRECTIONS = ("borrowed", "lent")
 
+# ============================================================
+# 4. Settings keys and validation limits
+# ============================================================
 # Keys used in the settings table.
 SETTING_OPENING_BALANCE = "opening_balance_kobo"
 

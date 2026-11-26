@@ -8,6 +8,9 @@ from app.database import Base
 from app.models.mixins import TimestampMixin
 
 
+# ============================================================
+# 1. Loan terms and derived outstanding balance relationship
+# ============================================================
 class Loan(TimestampMixin, Base):
     """Money borrowed or lent. Never written to the transactions table.
 
@@ -37,6 +40,9 @@ class Loan(TimestampMixin, Base):
     )
 
 
+# ============================================================
+# 2. Repayment records linked to each loan
+# ============================================================
 class LoanRepayment(TimestampMixin, Base):
     __tablename__ = "loan_repayments"
     __table_args__ = (

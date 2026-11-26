@@ -1,4 +1,6 @@
-// Table on wide screens; the same markup turns into stacked cards on phones (see main.css).
+// ============================================================
+// 1. Render transaction history with loading and empty states
+// ============================================================
 export default function TransactionList({ items, loading, onEdit, onDelete }) {
   if (!loading && items.length === 0) {
     return <p className="muted empty">No transactions match. Add one above, or change the filters.</p>;

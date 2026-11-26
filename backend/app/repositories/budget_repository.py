@@ -8,6 +8,9 @@ from sqlalchemy.orm import Session, joinedload
 from app.models import Budget
 
 
+# ============================================================
+# 1. Read budget rows and period allocations
+# ============================================================
 def list_for_period(db: Session, period_type: str, period_start: date) -> list[Budget]:
     statement = (
         select(Budget)
@@ -41,6 +44,9 @@ def get_for_category_period(
     return db.scalars(statement).first()
 
 
+# ============================================================
+# 2. Persist allocation changes and sum a period's total
+# ============================================================
 def add(db: Session, budget: Budget) -> Budget:
     db.add(budget)
     db.flush()

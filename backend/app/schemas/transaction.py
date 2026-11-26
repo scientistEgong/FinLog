@@ -12,6 +12,9 @@ from app.services.validation import (
 )
 
 
+# ============================================================
+# 1. Validate transaction request data
+# ============================================================
 class TransactionIn(BaseModel):
     """Request body. The client sends `amount` in naira (e.g. "15,000.50"); it is stored as kobo."""
 
@@ -51,6 +54,9 @@ class TransactionIn(BaseModel):
         return clean_optional_text(value, "Notes", MAX_NOTES_LENGTH)
 
 
+# ============================================================
+# 2. Define transaction responses and paginated history
+# ============================================================
 class TransactionOut(BaseModel):
     id: int
     type: str

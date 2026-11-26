@@ -5,6 +5,9 @@ from sqlalchemy.orm import Session
 from app.models import Category, Transaction
 
 
+# ============================================================
+# 1. Aggregate dashboard totals in integer kobo
+# ============================================================
 def get_all_time_totals(db: Session) -> tuple[int, int, int]:
     """Return income, ordinary expenditure, and savings totals in kobo."""
     is_income = Transaction.type == "income"

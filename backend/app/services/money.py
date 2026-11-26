@@ -3,9 +3,15 @@ from decimal import Decimal, InvalidOperation
 
 from app.config import CURRENCY_SYMBOL
 
+# ============================================================
+# 1. Define the integer-kobo conversion factor
+# ============================================================
 KOBO_PER_NAIRA = 100
 
 
+# ============================================================
+# 2. Convert and format monetary values without losing precision
+# ============================================================
 def naira_to_kobo(value) -> int:
     """Convert user input such as '15,000.50' or '₦1500' to integer kobo.
 

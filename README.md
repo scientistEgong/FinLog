@@ -1,6 +1,6 @@
 # FinLog
 
-FinLog is a local-first personal finance tracker for Windows. The current implementation provides transaction management, categories, and an opening balance. Dashboard, budgets, analytics, loans, repayments, and reports are planned; some have database models, but their APIs and user workflows are not implemented.
+FinLog is a local-first personal finance tracker for Windows. The current implementation provides transaction management, categories, an all-time financial dashboard, opening-balance editing, and weekly/monthly category budgets. Analytics, loans, repayments, and reports remain planned; some have database models, but their APIs and user workflows are not implemented.
 
 Check [HANDOFF.md](HANDOFF.md) and [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md) for the recorded implementation and verification status. See [PROJECT_DOC.md](PROJECT_DOC.md) for the detailed file map, technology explanations, domain conventions, API summary, and roadmap.
 

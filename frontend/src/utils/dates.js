@@ -1,4 +1,6 @@
-// Local calendar date as YYYY-MM-DD (not UTC, so "today" is correct late at night).
+// ============================================================
+// 1. Build stable local calendar date strings
+// ============================================================
 export function todayISO() {
   const d = new Date();
   const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -6,7 +8,9 @@ export function todayISO() {
   return `${d.getFullYear()}-${month}-${day}`;
 }
 
-// Convert a selected local calendar date to the API's canonical period boundary.
+// ============================================================
+// 2. Convert selected dates to canonical API period boundaries
+// ============================================================
 export function periodStartISO(dateValue, periodType) {
   const [year, month, day] = dateValue.split("-").map(Number);
   const selectedDate = new Date(year, month - 1, day, 12);

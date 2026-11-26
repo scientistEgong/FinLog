@@ -4,6 +4,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
 
 
+# ============================================================
+# 1. Category fields and case-insensitive uniqueness
+# ============================================================
 class Category(Base):
     __tablename__ = "categories"
 

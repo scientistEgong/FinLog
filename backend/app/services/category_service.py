@@ -7,6 +7,9 @@ from app.schemas.category import CategoryIn
 from app.services.errors import ConflictError, NotFoundError
 
 
+# ============================================================
+# 1. List, create, and protect category records
+# ============================================================
 def list_categories(db: Session) -> list[Category]:
     return category_repository.list_all(db)
 

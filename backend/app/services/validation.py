@@ -9,6 +9,9 @@ from app.config import MAX_AMOUNT_KOBO, MAX_DATE, MIN_DATE
 from app.services.money import naira_to_kobo
 
 
+# ============================================================
+# 1. Validate and normalize user-provided text
+# ============================================================
 def clean_required_text(value, label: str, max_length: int) -> str:
     text = "" if value is None else str(value).strip()
     if not text:

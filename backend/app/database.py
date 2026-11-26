@@ -9,6 +9,9 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from app.config import DATA_DIR, DATABASE_URL, DEFAULT_CATEGORIES
 
 
+# ============================================================
+# 1. SQLAlchemy base and engine setup
+# ============================================================
 class Base(DeclarativeBase):
     pass
 
@@ -33,6 +36,9 @@ engine = make_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
 
+# ============================================================
+# 2. Request-scoped database sessions
+# ============================================================
 def ensure_data_dir() -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -46,6 +52,9 @@ def get_db():
         db.close()
 
 
+# ============================================================
+# 3. Initialisation and safe default seeding
+# ============================================================
 def seed_default_categories(session: Session) -> int:
     """Insert the default categories only if the categories table is empty."""
     from app.models import Category
