@@ -84,14 +84,16 @@ Current exclusions: premium/payments, voice, AI assistant, login/authentication,
 
 ## Phase 4 — Analytics
 
-- [ ] Agree on the analytical questions before choosing charts.
-- [ ] Define analytics API response contracts.
-- [ ] Implement analytics calculations in backend services.
-- [ ] Implement analytics endpoints.
-- [ ] Add the approved Recharts visualisations.
-- [ ] Ensure charts use API data and do not calculate authoritative financial totals in React.
-- [ ] Handle empty data, date filters, and responsive layouts.
+- [x] Agree on analytical questions and define each chart's purpose.
+- [x] Define the date-filtered analytics API response contract.
+- [x] Implement analytics repository aggregates and service calculations.
+- [x] Implement `GET /api/analytics` with weekly, monthly, and yearly grouping.
+- [x] Add eight Recharts visualisations with responsive chart cards.
+- [x] Keep financial aggregation in the backend and render API-provided chart data.
+- [x] Handle empty ranges, date filters, and responsive layouts.
 - [ ] Add tests for analytics calculations and endpoint responses.
+
+**Implemented:** Eight views cover period income/ordinary spending/savings, available-balance change, highest spending categories, top-category trends, savings trends, income sources, weekday averages, and ordinary-expense frequency versus average size. Date inputs filter every view; period trends can be grouped weekly, monthly, or yearly.
 
 ## Phase 5 — Loans and repayments
 
@@ -149,9 +151,9 @@ Current exclusions: premium/payments, voice, AI assistant, login/authentication,
 
 ## Current phase and next approved task
 
-**Current phase:** Phase 3 dashboard and budget implementation is present. Backend tests and frontend build passed; interactive browser form flows remain to be manually verified.
+**Current phase:** Phase 4 analytics implementation is present. The API imports and OpenAPI contract were inspected, and the frontend production build passed. Analytics data calculations, chart interactions, and responsive browser layouts remain to be verified.
 
-**Next logical action:** Manually verify budget form create/edit/delete and opening-balance save/refresh in the browser. Do not start Phase 4 until the developer approves it.
+**Next logical action:** Add isolated backend tests for date boundaries and all analytics aggregates, then exercise the charts with synthetic data at phone and desktop widths. Phase 4 was explicitly approved by the developer.
 
 ## Progress recording rules
 

@@ -1,6 +1,6 @@
 # FinLog
 
-FinLog is a local-first personal finance tracker for Windows. The current implementation provides transaction management, categories, an all-time financial dashboard, opening-balance editing, and weekly/monthly category budgets. Analytics, loans, repayments, and reports remain planned; some have database models, but their APIs and user workflows are not implemented.
+FinLog is a local-first personal finance tracker for Windows. The current implementation provides transaction management, categories, an all-time financial dashboard, opening-balance editing, weekly/monthly category budgets, and date-filtered analytics with weekly, monthly, and yearly views. Loans, repayments, and reports remain planned; some have database models, but their APIs and user workflows are not implemented.
 
 Check [HANDOFF.md](HANDOFF.md) and [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md) for the recorded implementation and verification status. See [PROJECT_DOC.md](PROJECT_DOC.md) for the detailed file map, technology explanations, domain conventions, API summary, and roadmap.
 
@@ -49,7 +49,7 @@ The test fixtures use temporary SQLite databases. Do not point tests at `data/fi
 
 ## Financial data and limitations
 
-Money is stored as integer kobo; API inputs use naira amounts, with values beyond two decimal places rejected. Weeks run Sunday through Saturday. The opening balance is a setting and is currently edited on the Transactions page.
+Money is stored as integer kobo; API inputs use naira amounts, with values beyond two decimal places rejected. Weeks run Sunday through Saturday. The opening balance is a setting and is edited on the Dashboard. Analytics provides date-range views with weekly, monthly, and yearly trend grouping.
 
 There is no Alembic migration baseline or automated backup/restore routine yet. Do not enter real financial records until migration and backup/restore readiness has been established. See [SECURITY.md](SECURITY.md) for data handling requirements.
 

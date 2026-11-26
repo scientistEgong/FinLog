@@ -105,7 +105,25 @@ button.danger { background: transparent; color: var(--expense); border: 1px soli
 .pager button + button { margin-left: 6px; }
 
 /* ============================================================
-   5. Phone layouts: present wide table rows as readable cards
+   5. Analytics filters, responsive chart cards, and tooltips
+   ============================================================ */
+.analytics-controls { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 12px; }
+.analytics-controls .field { flex: 1 1 150px; }
+.analytics-controls .segmented { flex: 1 1 260px; }
+.analytics-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.analytics-card { min-width: 0; overflow: hidden; }
+.analytics-card h2 { margin-bottom: 4px; }
+.analytics-card > .small { min-height: 34px; margin: 0 0 8px; }
+.chart-empty { height: 280px; display: grid; place-items: center; }
+.analytics-tooltip { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); box-shadow: 0 2px 8px rgba(20, 30, 50, .15); }
+.analytics-tooltip strong { display: block; margin-bottom: 4px; }
+
+@media (min-width: 900px) {
+  .analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ============================================================
+   6. Phone layouts: present wide table rows as readable cards
    ============================================================ */
 @media (max-width: 639px) {
   .txn-table thead { display: none; }

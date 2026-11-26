@@ -4,7 +4,7 @@
 
 ## What FinLog is
 
-FinLog is a local-first, personal finance tracker for a Windows laptop. It is a web application designed so that a mobile shell such as Capacitor could be considered later. The current product scope includes recording income and expenses, managing categories, setting an opening balance, viewing an all-time dashboard, and managing weekly/monthly budgets. Analytics, loans and reports remain planned.
+FinLog is a local-first, personal finance tracker for a Windows laptop. It is a web application designed so that a mobile shell such as Capacitor could be considered later. The current product scope includes recording income and expenses, managing categories, setting an opening balance, viewing an all-time dashboard, managing weekly/monthly budgets, and exploring date-filtered financial analytics. Loans and reports remain planned.
 
 The project is intentionally single-user and local at this stage. Login, cloud hosting, payments, voice features and an AI assistant are outside the current scope. The database is intended to hold the user's actual financial records; tests should use isolated temporary databases.
 
@@ -20,6 +20,7 @@ The project is intentionally single-user and local at this stage. Login, cloud h
 | React 18 | JavaScript UI library | Builds the interactive forms, navigation and transaction history in the browser. JSX is JavaScript with HTML-like UI syntax. |
 | Vite 5 | Frontend development server and build tool | Serves the React app on port 5173 and bundles it for production. Its development proxy forwards `/api` calls to FastAPI. |
 | React Router 6 | Client-side navigation library | Maps URLs such as `/transactions` and `/budgets` to React page components without a full page reload. |
+| Recharts 3 | React chart library | Renders the analytics visuals from API-provided data; loaded only when the Analytics page opens. |
 | CSS | Browser styling language | Sets responsive layout, colors, controls and the mobile table-to-card presentation. |
 | pytest / unittest | Python test tools | pytest runs the integration/database tests; several pure helper tests use Python's built-in unittest style and can also be collected by pytest. |
 | httpx | HTTP client library | Supports FastAPI's test client in API tests. |
@@ -38,24 +39,28 @@ Each backend layer has a narrow responsibility. Routers translate HTTP into serv
 
 - `run_finlog.bat`: Windows startup helper; uses the project-root `.venv` and frontend `node_modules`.
 - `README.md`: short setup/run guidance.
-- `HANDOFF.md`: project decisions, historical verification notes and current Phase 3 status.
+- `HANDOFF.md`: project decisions, historical verification notes and current Phase 4 status.
 - `backend/requirements.txt`: Python dependencies.
 - `backend/app/config.py`: app constants, local paths, defaults, validation limits and `.env`/environment configuration.
 - `backend/app/database.py`: SQLAlchemy base/engine/session, request-scoped sessions, table initialization and default-category seeding.
 - `backend/app/main.py`: FastAPI app, startup lifecycle, CORS policy, router registration, health check and domain-error-to-HTTP mapping.
 - `backend/app/models/`: SQLAlchemy table definitions for transactions, categories, settings, budgets, loans and repayments.
 - `backend/app/schemas/`: Pydantic request and response formats; these are API data contracts, not database tables.
+- `backend/app/schemas/analytics.py`: validated analytics filters and chart response shapes.
 - `backend/app/routers/`: HTTP endpoints for transactions, categories, opening balance, dashboard summary and budgets.
+- `backend/app/routers/analytics.py`: date-filtered analytics endpoint.
 - `backend/app/services/`: business logic, money/date/text validation and domain errors.
+- `backend/app/services/analytics_service.py`: weekly/monthly/yearly trend, category, and weekday calculations.
 - `backend/app/repositories/`: database reads/writes; SQL queries should stay here.
+- `backend/app/repositories/analytics_repository.py`: date-range transaction aggregates for analytics.
 - `backend/app/exports/`: reserved for future CSV/PDF export implementation.
 - `backend/app/migrations/`: currently contains migration guidance only; Alembic baseline is a future requirement.
 - `backend/test/`: temporary-database fixtures and unit/API/database tests. The directory is named `test` (not the historical `tests`).
 - `frontend/index.html`: browser entry document with the React mount point.
 - `frontend/src/main.jsx`: mounts React and browser routing.
 - `frontend/src/App.jsx`: URL-to-page routing; unfinished sections currently show “Coming soon”.
-- `frontend/src/api/`: API request wrapper and endpoint-specific functions.
-- `frontend/src/pages/`: page-level state and coordination for Dashboard, Budgets and Transactions.
+- `frontend/src/api/`: API request wrapper and endpoint-specific functions, including analytics.
+- `frontend/src/pages/`: page-level state and coordination for Dashboard, Analytics, Budgets and Transactions.
 - `frontend/src/components/`: reusable UI elements and forms.
 - `frontend/src/hooks/`: reusable React state/effect logic, currently category loading.
 - `frontend/src/utils/`: small display/input helpers, currently local date formatting.
@@ -87,25 +92,27 @@ Implemented source currently contains:
 - `GET /api/categories`, `POST /api/categories`, and `DELETE /api/categories/{id}`. UI supports listing/adding; deleting is API-only for now.
 - `GET /api/settings/opening-balance` and `PUT /api/settings/opening-balance`.
 - `GET /api/dashboard` returns all-time opening balance, income, ordinary expenditure, savings, available balance and total wallet. Monetary values are returned as integer kobo and formatted display strings.
+- `GET /api/analytics?date_from=YYYY-MM-DD&date_to=YYYY-MM-DD&group_by=week|month|year` returns backend-aggregated trend, category, and weekday data for the selected range.
 - `GET /api/budgets?period_type=week|month&period_start=YYYY-MM-DD`, `POST /api/budgets`, `PUT /api/budgets/{id}`, and `DELETE /api/budgets/{id}` manage category allocations for canonical Sunday or first-of-month period starts.
 - API error conventions: 404 for missing records, 409 for conflicts (such as deleting a protected category), and 422 for invalid input. Transaction amounts return `amount_kobo`, `amount_input` for editing, and `amount_display` for display.
 - React transaction page: add/edit/delete, category selection and quick category creation, filters/search, and pagination.
 - React dashboard page: API-provided all-time financial cards and opening balance editor.
+- React analytics page: eight Recharts views for period cash flow, available-balance movement, top spending categories, category trends, savings, income sources, weekday averages, and expense frequency/size. Date range and weekly/monthly/yearly grouping controls are available; chart calculations come from the backend.
 - React budget page: week/month selection, calendar date input, category allocation CRUD and backend-provided period total.
-- Stub navigation routes remain for analytics, loans and reports.
+- Stub navigation routes remain for loans and reports.
 
 ## Progress and verification
 
 Phase 3 implementation is present. On 2026-11-26, the full backend suite passed (55 tests), the frontend production build passed, four Node assertions checked Sunday/month period-start conversion, and headless Chrome screenshots inspected the Dashboard and Budgets pages at 390px and 1440px viewport widths using a disposable database with synthetic records. Interactive budget-form and opening-balance save flows have not been manually exercised in a browser. These checks do not verify the launcher or a production deployment.
 
-Before proceeding to Phase 4, manually verify budget form create/edit/delete and opening-balance save/refetch in the browser. Do not describe those UI interactions as verified until they have been exercised.
+Phase 4 analytics implementation is present. The backend imports and exposes the expected OpenAPI query parameters, and the frontend production build passed. Analytics data calculations and browser chart/responsive behavior remain unverified. See `HANDOFF.md` for the chart list, dependency review, and next verification steps.
 
 ## Planned phases from the handoff
 
 1. **Phase 1 — foundation (marked complete):** configuration, local DB, models, category seeding, helpers, health route, initial test setup and launcher.
 2. **Phase 2 — transactions (marked written):** transaction CRUD/filter API, validation, categories, opening balance, React scaffold/navigation and transaction UI.
 3. **Phase 3 — dashboard and budgets:** implemented; interactive browser form verification remains outstanding.
-4. **Phase 4 — analytics:** analytics API and approved visualisations; no work started.
+4. **Phase 4 — analytics:** API, repository/service calculations, and eight approved Recharts views implemented; tests and browser review remain.
 5. **Phase 5 — loans and repayments:** workflows and API; no work started.
 6. **Phase 6 — exports:** CSV/PDF exports; no work started.
 7. **Phase 7 — migrations, security, backups and quality assurance:** Alembic baseline, backup/restore, and broader review. The migration and tested backup baseline remain gates before real data use.
@@ -115,7 +122,7 @@ Before proceeding to Phase 4, manually verify budget form create/edit/delete and
 
 - Treat the architecture, phase scope, folder responsibilities and domain rules in `HANDOFF.md` as locked unless the user changes them.
 - Read `HANDOFF.md` before making architectural decisions; update its current status and verified/not-verified section at the end of each phase.
-- Do not add analytics, loans, or report features until their planned phase. Do not represent planned model tables as implemented UI/API features.
+- Do not add loans or report features until their planned phase. Do not represent planned model tables as implemented UI/API features.
 - Keep financial calculations in backend services, query construction in repositories, API validation shapes in schemas and display/state logic in React.
 - Preserve integer-kobo storage and Sunday-start weeks. Never use floating-point arithmetic for stored money.
 - Do not put sample data in the real database. Continue using temporary DB fixtures for tests.
@@ -128,8 +135,8 @@ Before proceeding to Phase 4, manually verify budget form create/edit/delete and
 
 FinLog is a Windows-first local personal finance tracker with a React 18 + Vite frontend, FastAPI/Python backend, Pydantic 2 request/response validation, SQLAlchemy 2 ORM and SQLite local database. The frontend dev server is intended for port 5173 and proxies `/api` to FastAPI on port 8000. Backend structure is routers → services → repositories → SQLAlchemy models. React displays API data and should not calculate financial totals.
 
-The project has completed the foundation phase and implements Phase 2 transaction functionality and Phase 3 dashboard/budget management. Phase 3 adds an all-time dashboard summary, opening-balance editing on Dashboard, weekly/monthly category budget CRUD, and a calendar period selector. Dashboard formulas are computed in backend services; the frontend displays API values. Analytics, loans/repayments and exports remain planned, not implemented features. Backend tests and the frontend production build passed; interactive budget and opening-balance browser flows remain unverified.
+The project has completed the foundation phase and implements transaction management, the Phase 3 dashboard/budgets, and Phase 4 analytics. Analytics provides a date range with weekly/monthly/yearly trend grouping and eight Recharts views; all monetary aggregation is performed in the backend. The API import/OpenAPI contract and frontend production build were checked. Analytics calculations and browser chart behavior remain unverified. Loans/repayments and exports remain planned.
 
 Core rules: persist all money as integer kobo (₦1 = 100 kobo), reject precision beyond two decimals, use shared categories, treat Savings-category expenses separately from ordinary expenditure, keep opening balance out of income, and use Sunday–Saturday weeks. Loans must never create transaction rows. No fabricated financial data in the real DB. The database currently uses `create_all` and has no Alembic migration baseline or backup routine; the handoff says not to enter real records until migrations are handled.
 
-The current Phase 3 status and verification are recorded above. Earlier Phase 1 and Phase 2 check results are historical, not current claims. See this guide for technology explanations and the file map; see `HANDOFF.md` for locked rules and the verification ledger. Before Phase 4, manually verify budget form create/edit/delete and opening-balance save/refetch in the browser.
+Current Phase 3 and Phase 4 status and verification are recorded above. Earlier Phase 1 and Phase 2 check results are historical, not current claims. See this guide for technology explanations and the file map; see `HANDOFF.md` for locked rules and the verification ledger. Next, test analytics calculations and inspect charts at phone and desktop widths using synthetic records.

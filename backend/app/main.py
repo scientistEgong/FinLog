@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.config import APP_NAME, APP_VERSION, CORS_ORIGINS, CURRENCY_CODE
 from app.database import ensure_data_dir, get_db, init_db
-from app.routers import budgets, categories, dashboard, settings, transactions
+from app.routers import analytics, budgets, categories, dashboard, settings, transactions
 from app.services.errors import ConflictError, DomainValidationError, NotFoundError
 
 
@@ -57,6 +57,7 @@ async def _invalid(_request: Request, exc: DomainValidationError):
 
 app.include_router(transactions.router)
 app.include_router(categories.router)
+app.include_router(analytics.router)
 app.include_router(dashboard.router)
 app.include_router(budgets.router)
 app.include_router(settings.router)

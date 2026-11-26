@@ -238,6 +238,18 @@ The current planned sequence is:
 7. Migrations, security, backups, and quality assurance.
 8. Release readiness and future Android preparation.
 
+### Phase 4: Analytics
+
+**Implemented:** Added `GET /api/analytics?date_from=YYYY-MM-DD&date_to=YYYY-MM-DD&group_by=week|month|year`. The repository filters and groups transaction rows; the service builds canonical Sunday-start, first-of-month, and calendar-year periods and computes category, trend, and weekday aggregates. Amount totals remain integer kobo. Average amounts use Decimal values because a statistical mean can be fractional in kobo. The API preserves the existing savings rule: savings-category expenses are reported separately and excluded from ordinary expenditure.
+
+The response powers eight charts: (1) period income, ordinary expenditure, and savings; (2) change in available balance excluding opening balance; (3) highest spending categories; (4) trends for the five largest spending categories; (5) savings contributions by period; (6) income sources by category; (7) average ordinary spending per weekday occurrence; and (8) ordinary expense count versus average expense size. Every chart uses the selected exact date range; trend charts use the selected weekly, monthly, or yearly grouping. Recharts is lazy-loaded with the Analytics route so its bundle does not inflate the initial app load.
+
+**Verification:** The backend application imported and OpenAPI showed required `date_from`/`date_to` and optional `group_by`. `npm.cmd run build` passed after lazy loading; main bundle was 185.98 kB and analytics chunk 491.82 kB (uncompressed). No analytics calculation tests or manual browser interaction/responsive checks were run.
+
+**Dependency review:** Recharts 3.11.1 was added. `npm audit` reports four issues in existing Vite/esbuild and React Router dependency lines (three moderate, one high); Recharts was not listed among the affected packages. Those existing dependencies were not upgraded as part of this feature.
+
+**Next:** Add isolated tests for analytics aggregates and boundary dates, then inspect the eight chart states with synthetic records at phone and desktop widths.
+
 See `PROJECT_CHECKLIST.md` for detailed items.
 
 Do not start a later phase merely because it appears in the roadmap. The developer approves the next task.
@@ -261,9 +273,9 @@ Before the first public push, inspect Git history for secrets and private data. 
 
 ## 10. Immediate next step
 
-1. Manually verify budget form create/edit/delete and opening-balance save/refetch in the browser.
-2. Record the results in this handoff and `PROJECT_CHECKLIST.md`.
-3. Do not begin Phase 4 until the developer approves it.
+1. Add isolated tests for analytics date boundaries and aggregate calculations.
+2. Exercise the eight analytics charts at phone and desktop widths using synthetic transactions.
+3. Record results in this handoff and `PROJECT_CHECKLIST.md` before marking verification complete.
 
 ## 11. Handoff update protocol
 
