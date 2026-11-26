@@ -254,6 +254,16 @@ The response powers eight charts: (1) period income, ordinary expenditure, and s
 
 See `PROJECT_CHECKLIST.md` for detailed items.
 
+### Dashboard enhancement — Stage 3 (approved 2026-11-26)
+
+**Implemented:** `GET /api/dashboard` now accepts optional `date_from` and `date_to` query parameters. Existing all-time response fields are unchanged. When a complete range is supplied, the response adds a `period` object containing range-filtered income, ordinary expenditure, savings, available change, savings rate (null when income is zero), ranked ordinary-spending categories with percentage of period expenditure, and backend-generated factual observations. Incomplete or reversed ranges return 422.
+
+The React Dashboard now provides preset and custom reporting periods, separates all-time position cards from period activity cards, shows an income/expenditure/savings/retained comparison chart, shows a compact spending-by-category chart with an Analytics link, lists backend observations, and shows the five most recent transactions. Existing Recharts is reused and lazy-loaded; no new dependency, schema, or folder structure was introduced.
+
+**Verification:** `..\.venv\Scripts\python.exe -m pytest test\test_dashboard.py -q` from `backend` passed 8 tests. The full backend suite passed 60 tests and 21 subtests. `npm.cmd run build` from `frontend` passed. Tests used temporary databases only; `data/finlog.db` was not used.
+
+**Not verified:** Browser interaction, chart tooltips, and phone/desktop layout have not been manually inspected. Stage 4 analytics chart changes remain unimplemented.
+
 Do not start a later phase merely because it appears in the roadmap. The developer approves the next task.
 
 ## 9. Data safety and Git
@@ -275,9 +285,10 @@ Before the first public push, inspect Git history for secrets and private data. 
 
 ## 10. Immediate next step
 
-1. Add isolated tests for analytics date boundaries and aggregate calculations.
-2. Exercise the eight analytics charts at phone and desktop widths using synthetic transactions.
-3. Record results in this handoff and `PROJECT_CHECKLIST.md` before marking verification complete.
+1. Implement Stage 4 backend aggregates: savings-rate trend, category percentages, top individual expenses, and budget-vs-actual data.
+2. Add the corresponding Analytics charts and preset reporting periods.
+3. Add isolated analytics tests and inspect charts at phone and desktop widths using synthetic transactions.
+4. Record results in this handoff and `PROJECT_CHECKLIST.md` before marking verification complete.
 
 ## 11. Handoff update protocol
 

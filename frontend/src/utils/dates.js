@@ -26,3 +26,47 @@ export function periodStartISO(dateValue, periodType) {
   const startDay = String(selectedDate.getDate()).padStart(2, "0");
   return `${startYear}-${startMonth}-${startDay}`;
 }
+
+function toISODate(value) {
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  const day = String(value.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function periodRangeForPreset(preset, today = new Date()) {
+  const current = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
+
+  if (preset === "this-week") {
+    const start = new Date(current);
+    start.setDate(start.getDate() - start.getDay());
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    return { dateFrom: toISODate(start), dateTo: toISODate(end) };
+  }
+
+  if (preset === "this-month") {
+    const start = new Date(current.getFullYear(), current.getMonth(), 1, 12);
+    const end = new Date(current.getFullYear(), current.getMonth() + 1, 0, 12);
+    return { dateFrom: toISODate(start), dateTo: toISODate(end) };
+  }
+
+  if (preset === "last-month") {
+    const start = new Date(current.getFullYear(), current.getMonth() - 1, 1, 12);
+    const end = new Date(current.getFullYear(), current.getMonth(), 0, 12);
+    return { dateFrom: toISODate(start), dateTo: toISODate(end) };
+  }
+
+  if (preset === "last-3-months" || preset === "last-6-months") {
+    const monthsBack = preset === "last-3-months" ? 2 : 5;
+    const start = new Date(current.getFullYear(), current.getMonth() - monthsBack, 1, 12);
+    return { dateFrom: toISODate(start), dateTo: toISODate(current) };
+  }
+
+  if (preset === "this-year") {
+    const start = new Date(current.getFullYear(), 0, 1, 12);
+    return { dateFrom: toISODate(start), dateTo: toISODate(current) };
+  }
+
+  return periodRangeForPreset("this-month", today);
+}

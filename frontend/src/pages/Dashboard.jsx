@@ -1,29 +1,28 @@
-// ============================================================
-// 1. Load dashboard data and reusable display components
-// ============================================================
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { getDashboardSummary } from "../api/dashboard.js";
+import DashboardPeriodSelector from "../components/DashboardPeriodSelector.jsx";
+import DashboardSummaryCards from "../components/DashboardSummaryCards.jsx";
 import OpeningBalanceCard from "../components/OpeningBalanceCard.jsx";
+import RecentTransactions from "../components/RecentTransactions.jsx";
+import { periodRangeForPreset } from "../utils/dates.js";
 
 const DashboardSpendingTrend = lazy(() => import("../components/DashboardSpendingTrend.jsx"));
+const IncomeExpenseChart = lazy(() => import("../components/IncomeExpenseChart.jsx"));
+const SpendingByCategoryChart = lazy(() => import("../components/SpendingByCategoryChart.jsx"));
 
-const SUMMARY_CARDS = [
-  { key: "opening_balance", label: "Opening balance" },
-  { key: "total_income", label: "Total income", tone: "income" },
-  { key: "total_expenditure", label: "Total expenditure", tone: "expense" },
-  { key: "total_savings", label: "Total savings" },
-  { key: "available_balance", label: "Available balance" },
-  { key: "total_wallet", label: "Total wallet", tone: "wallet" },
-];
-
-// ============================================================
-// 2. Fetch the authoritative summary and render its API values
-// ============================================================
 export default function Dashboard() {
+  const [preset, setPreset] = useState("this-month");
+  const [customRange, setCustomRange] = useState(null);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+
+  const range = useMemo(
+    () => customRange || periodRangeForPreset(preset),
+    [customRange, preset],
+  );
+  const period = summary?.period || null;
 
   const refresh = useCallback(() => setRefreshKey((key) => key + 1), []);
 
@@ -31,47 +30,62 @@ export default function Dashboard() {
     let cancelled = false;
     setLoading(true);
     setError("");
-    getDashboardSummary()
+    setSummary(null);
+    getDashboardSummary({ date_from: range.dateFrom, date_to: range.dateTo })
       .then((data) => !cancelled && setSummary(data))
       .catch((requestError) => !cancelled && setError(requestError.message))
       .finally(() => !cancelled && setLoading(false));
-
     return () => {
       cancelled = true;
     };
-  }, [refreshKey]);
+  }, [refreshKey, range.dateFrom, range.dateTo]);
 
   return (
     <>
       <h1>Dashboard</h1>
-      <p className="muted">All-time financial summary</p>
+      <p className="muted">Current position, selected-period activity, and recent financial movements.</p>
 
       <OpeningBalanceCard onSaved={refresh} />
 
-      <section className="summary-grid" aria-label="Financial summary">
-        {SUMMARY_CARDS.map((card) => (
-          <article className={`card summary-card ${card.tone || ""}`} key={card.key}>
-            <h2>{card.label}</h2>
-            {loading ? (
-              <p className="summary-value muted">Loading…</p>
-            ) : error ? (
-              <p className="summary-value muted">Unavailable</p>
-            ) : (
-              <p className="summary-value">{summary[`${card.key}_display`]}</p>
-            )}
-          </article>
-        ))}
-      </section>
+      <DashboardPeriodSelector
+        preset={preset}
+        range={range}
+        onPresetChange={(nextPreset) => {
+          setPreset(nextPreset);
+          setCustomRange(null);
+        }}
+        onCustomChange={(nextRange) => {
+          setPreset("custom");
+          setCustomRange(nextRange);
+        }}
+      />
 
-      <Suspense fallback={<p className="muted">Loading spending trend…</p>}>
-        <DashboardSpendingTrend />
-      </Suspense>
+      <DashboardSummaryCards summary={summary} loading={loading} error={error} range={range} />
 
       {error && (
         <div className="alert error" role="alert">
           {error} <button type="button" className="secondary small-btn" onClick={refresh}>Retry</button>
         </div>
       )}
+
+      <Suspense fallback={<p className="muted">Loading charts…</p>}>
+        <IncomeExpenseChart period={period} loading={loading} error={error} />
+        <SpendingByCategoryChart period={period} loading={loading} error={error} />
+        <DashboardSpendingTrend />
+      </Suspense>
+
+      {!loading && !error && period?.observations?.length > 0 && (
+        <section className="card">
+          <h2>Financial observations</h2>
+          <ul className="observation-list">
+            {period.observations.map((observation) => (
+              <li key={observation.code}>{observation.message}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <RecentTransactions />
 
       <p className="muted small">
         Savings are shown separately from expenditure and remain part of your total wallet.

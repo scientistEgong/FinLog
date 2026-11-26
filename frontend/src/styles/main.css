@@ -123,6 +123,19 @@ button.danger { background: transparent; color: var(--expense); border: 1px soli
 .dashboard-trend-heading p { margin: 0; }
 .trend-period-toggle { min-width: 190px; }
 .peak-summary { display: inline-block; margin: 14px 0 0; padding: 7px 11px; border-radius: 8px; background: rgba(184, 58, 50, .1); color: var(--ink); }
+.dashboard-period-card h2 { margin-bottom: 4px; }
+.dashboard-period-card > .small { margin: 0 0 12px; }
+.dashboard-preset-toggle { flex-wrap: wrap; }
+.dashboard-preset-toggle .seg { flex: 0 1 auto; min-width: 118px; }
+.dashboard-preset-toggle .seg.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+.dashboard-custom-range { margin-top: 12px; grid-template-columns: 1fr; }
+.observation-list { margin: 0; padding-left: 18px; }
+.observation-list li + li { margin-top: 6px; }
+a.small-btn { display: inline-flex; align-items: center; text-decoration: none; color: var(--brand); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font-size: 13px; }
+
+@media (min-width: 640px) {
+  .dashboard-custom-range { grid-template-columns: repeat(2, minmax(0, 240px)); }
+}
 
 @media (min-width: 900px) {
   .analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

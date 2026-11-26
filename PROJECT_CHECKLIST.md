@@ -97,6 +97,26 @@ Current exclusions: premium/payments, voice, AI assistant, login/authentication,
 
 Trend charts use lines, category segmentation uses horizontal bars, chart gridlines are removed, and the Dashboard highlights the highest ordinary-spending week or month in its trailing-year line chart.
 
+## Dashboard and analytics enhancement — approved 2026-11-26
+
+### Stage 3 — Dashboard
+- [x] Extend `GET /api/dashboard` with optional `date_from` and `date_to` while preserving all-time fields.
+- [x] Return period income, ordinary expenditure, savings, available change, and savings rate from the backend.
+- [x] Return ranked ordinary-spending categories and factual observations from the backend.
+- [x] Validate incomplete and reversed date ranges.
+- [x] Add dashboard preset/custom period controls with explicit all-time and period labels.
+- [x] Add income/expenditure/savings/retained comparison and category bar charts.
+- [x] Add recent transactions and navigation to full Transactions and Analytics pages.
+- [x] Add isolated tests for period totals, savings exclusion, savings rate, categories, observations, and validation.
+
+**Verified 2026-11-26:** Dashboard tests passed 8 cases; full backend suite passed 60 tests and 21 subtests; Vite production build passed. Temporary test databases were used. Browser interaction and responsive layout have not been manually checked.
+
+### Stage 4 — Analytics
+- [ ] Add backend savings-rate trend, category percentages, top individual expenses, and budget-vs-actual aggregates.
+- [ ] Add preset reporting periods and the new analytical charts to the Analytics page.
+- [ ] Add isolated backend tests for the new analytics fields and boundary cases.
+- [ ] Verify charts and filters in a browser at phone and desktop widths.
+
 ## Phase 5 — Loans and repayments
 
 - [ ] Confirm loan and repayment workflows.
@@ -153,9 +173,9 @@ Trend charts use lines, category segmentation uses horizontal bars, chart gridli
 
 ## Current phase and next approved task
 
-**Current phase:** Phase 4 analytics implementation is present. The API imports and OpenAPI contract were inspected, and the frontend production build passed. Analytics data calculations, chart interactions, and responsive browser layouts remain to be verified.
+**Current phase:** Stage 3 Dashboard enhancement is implemented and statically verified. Stage 4 Analytics enhancement is approved but not yet implemented. Analytics calculation tests and browser chart verification remain outstanding.
 
-**Next logical action:** Add isolated backend tests for date boundaries and all analytics aggregates, then exercise the charts with synthetic data at phone and desktop widths. Phase 4 was explicitly approved by the developer.
+**Next logical action:** Add the approved backend analytics aggregates and frontend charts, then exercise all charts with synthetic data at phone and desktop widths.
 
 ## Progress recording rules
 

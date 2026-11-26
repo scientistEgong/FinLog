@@ -19,12 +19,16 @@ class AnalyticsPeriod(BaseModel):
     available_change_kobo: int
     ordinary_expense_count: int
     average_expense_kobo: Decimal
+    savings_rate_percent: Decimal | None
+    change_from_previous_period_kobo: int | None
+    change_from_previous_period_percent: Decimal | None
 
 
 class CategoryTotal(BaseModel):
     category_id: int
     category_name: str
     amount_kobo: int
+    percentage_of_total: Decimal
 
 
 class CategoryTrend(BaseModel):
@@ -44,16 +48,50 @@ class HighestSpendingPeriod(BaseModel):
     expenditure_kobo: int
 
 
+class TopExpense(BaseModel):
+    id: int
+    description: str
+    category_name: str
+    transaction_date: date
+    amount_kobo: int
+    amount_display: str
+
+
+class BudgetComparison(BaseModel):
+    period_type: Literal["week", "month"]
+    period_start: date
+    category_id: int
+    category_name: str
+    budget_kobo: int
+    budget_display: str
+    actual_kobo: int
+    actual_display: str
+    variance_kobo: int
+    variance_display: str
+    utilization_percent: Decimal
+
+
+class AnalyticsSummary(BaseModel):
+    income_kobo: int
+    expenditure_kobo: int
+    savings_kobo: int
+    available_change_kobo: int
+    savings_rate_percent: Decimal | None
+
+
 class AnalyticsOut(BaseModel):
     date_from: date
     date_to: date
     group_by: Literal["week", "month", "year"]
+    summary: AnalyticsSummary
     periods: list[AnalyticsPeriod]
     spending_by_category: list[CategoryTotal]
     income_by_category: list[CategoryTotal]
     category_trends: list[CategoryTrend]
     spending_by_weekday: list[WeekdayAverage]
     highest_spending_period: HighestSpendingPeriod | None
+    top_expenses: list[TopExpense]
+    budget_comparison: list[BudgetComparison]
 
 
 class AnalyticsFilters(BaseModel):

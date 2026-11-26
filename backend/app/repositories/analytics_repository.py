@@ -33,3 +33,25 @@ def list_daily_category_totals(db: Session, date_from: date, date_to: date) -> l
         .order_by(Transaction.transaction_date)
     )
     return list(db.execute(statement).all())
+
+
+def list_top_ordinary_expenses(db: Session, date_from: date, date_to: date, limit: int) -> list[tuple]:
+    statement = (
+        select(
+            Transaction.id,
+            Transaction.description,
+            Category.name,
+            Transaction.transaction_date,
+            Transaction.amount_kobo,
+        )
+        .join(Category, Transaction.category_id == Category.id)
+        .where(
+            Transaction.type == "expense",
+            ~Category.is_savings.is_(True),
+            Transaction.transaction_date >= date_from,
+            Transaction.transaction_date <= date_to,
+        )
+        .order_by(Transaction.amount_kobo.desc(), Transaction.id.desc())
+        .limit(limit)
+    )
+    return list(db.execute(statement).all())
