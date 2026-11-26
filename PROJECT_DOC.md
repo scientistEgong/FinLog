@@ -106,14 +106,14 @@ Implemented source currently contains:
 
 Phase 3 implementation is present. On 2026-11-26, the full backend suite passed (55 tests), the frontend production build passed, four Node assertions checked Sunday/month period-start conversion, and headless Chrome screenshots inspected the Dashboard and Budgets pages at 390px and 1440px viewport widths using a disposable database with synthetic records. Interactive budget-form and opening-balance save flows have not been manually exercised in a browser. These checks do not verify the launcher or a production deployment.
 
-Phase 4 analytics implementation is present. The backend imports and exposes the expected OpenAPI query parameters, and the frontend production build passed. Analytics data calculations and browser chart/responsive behavior remain unverified. See `HANDOFF.md` for the chart list, dependency review, and next verification steps.
+Phase 4 analytics implementation is present and tested. On 2026-11-26, the analytics tests passed 6 cases, the full backend suite passed 66 tests and 21 subtests, and the frontend production build passed. A headless Chrome desktop DOM render confirmed the new chart sections and budget comparison rows with synthetic data on a temporary database. Manual visual review of phone/desktop screenshots and interactive tooltip/preset/link flows remains outstanding. See `HANDOFF.md` for commands, dependency review, and limitations.
 
 ## Planned phases from the handoff
 
 1. **Phase 1 — foundation (marked complete):** configuration, local DB, models, category seeding, helpers, health route, initial test setup and launcher.
 2. **Phase 2 — transactions (marked written):** transaction CRUD/filter API, validation, categories, opening balance, React scaffold/navigation and transaction UI.
 3. **Phase 3 — dashboard and budgets:** implemented; interactive browser form verification remains outstanding.
-4. **Phase 4 — analytics:** API, repository/service calculations, and eight approved Recharts views implemented; tests and browser review remain.
+4. **Phase 4 — analytics:** API, repository/service calculations, extended analytics fields, and approved Recharts views implemented; tests and desktop DOM rendering passed, manual visual/interactive review remains.
 5. **Phase 5 — loans and repayments:** workflows and API; no work started.
 6. **Phase 6 — exports:** CSV/PDF exports; no work started.
 7. **Phase 7 — migrations, security, backups and quality assurance:** Alembic baseline, backup/restore, and broader review. The migration and tested backup baseline remain gates before real data use.
@@ -136,8 +136,8 @@ Phase 4 analytics implementation is present. The backend imports and exposes the
 
 FinLog is a Windows-first local personal finance tracker with a React 18 + Vite frontend, FastAPI/Python backend, Pydantic 2 request/response validation, SQLAlchemy 2 ORM and SQLite local database. The frontend dev server is intended for port 5173 and proxies `/api` to FastAPI on port 8000. Backend structure is routers → services → repositories → SQLAlchemy models. React displays API data and should not calculate financial totals.
 
-The project has completed the foundation phase and implements transaction management, the Phase 3 dashboard/budgets, and Phase 4 analytics. Analytics provides a date range with weekly/monthly/yearly trend grouping and eight Recharts views; all monetary aggregation is performed in the backend. The API import/OpenAPI contract and frontend production build were checked. Analytics calculations and browser chart behavior remain unverified. Loans/repayments and exports remain planned.
+The project has completed the foundation phase and implements transaction management, the Phase 3 dashboard/budgets, and Phase 4 analytics. Analytics provides preset and custom date ranges, weekly/monthly/yearly trend grouping, Recharts views, savings-rate trend, budget comparison, and top individual expenses; all monetary aggregation is performed in the backend. Analytics tests, the full backend suite, and the frontend production build passed. Desktop DOM rendering was checked with synthetic data; manual visual/interactive browser review remains outstanding. Loans/repayments and exports remain planned.
 
 Core rules: persist all money as integer kobo (₦1 = 100 kobo), reject precision beyond two decimals, use shared categories, treat Savings-category expenses separately from ordinary expenditure, keep opening balance out of income, and use Sunday–Saturday weeks. Loans must never create transaction rows. No fabricated financial data in the real DB. The database currently uses `create_all` and has no Alembic migration baseline or backup routine; the handoff says not to enter real records until migrations are handled.
 
-Current Phase 3 and Phase 4 status and verification are recorded above. Earlier Phase 1 and Phase 2 check results are historical, not current claims. See this guide for technology explanations and the file map; see `HANDOFF.md` for locked rules and the verification ledger. Next, test analytics calculations and inspect charts at phone and desktop widths using synthetic records.
+Current Phase 3 and Phase 4 status and verification are recorded above. Earlier Phase 1 and Phase 2 check results are historical, not current claims. See this guide for technology explanations and the file map; see `HANDOFF.md` for locked rules and the verification ledger. Next, visually inspect charts at phone and desktop widths and exercise interactive browser flows if UX sign-off is required.
