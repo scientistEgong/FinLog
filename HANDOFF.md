@@ -264,6 +264,8 @@ Each budget comparison now returns `remaining_kobo` and `remaining_display`, cal
 
 **Verified 2026-11-26:** From `backend`, `..\.venv\Scripts\python.exe -m pytest test\test_analytics.py -q` passed 6 tests. From `backend`, `..\.venv\Scripts\python.exe -m pytest test -q` passed 66 tests, 21 subtests, with Starlette `httpx` deprecation and pytest cache permission warnings. From `frontend`, `npm.cmd run build` passed in 14.31s after the final preset change. A headless Chrome 1440x1000 DOM render at `http://127.0.0.1:5174/analytics` confirmed the new chart sections and budget rows using a disposable SQLite database on temporary ports 8001 and 5174. Temporary servers, config, database, seed script, screenshots, and browser profiles were removed; the real `data/finlog.db` was not used.
 
+**Budget remaining update verified 2026-11-26:** The analytics tests again passed 6 cases, the full backend suite passed 66 tests and 21 subtests, and `npm.cmd run build` passed after adding `remaining_kobo` and `remaining_display`. Tests confirm both unused budget remaining and negative over-budget balances. The temporary browser-render flow was not rerun for this UI wording update; no temporary analytics server was listening and the temporary Vite config was absent.
+
 **Not verified:** Phone/desktop screenshots were captured, but screenshots were not visually inspected; tooltip interaction, preset click-through, and end-to-end browser workflows were not manually exercised. Claims above are limited to the tests and DOM/build checks actually run.
 
 ### Dashboard enhancement — Stage 3 (approved 2026-11-26)
