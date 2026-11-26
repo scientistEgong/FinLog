@@ -4,7 +4,7 @@ from datetime import date
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models import Category, Transaction
+from app.models import Budget, Category, Transaction
 
 
 # ============================================================
@@ -53,5 +53,32 @@ def list_top_ordinary_expenses(db: Session, date_from: date, date_to: date, limi
         )
         .order_by(Transaction.amount_kobo.desc(), Transaction.id.desc())
         .limit(limit)
+    )
+    return list(db.execute(statement).all())
+
+
+# ============================================================
+# 2. Read budget allocations for analytics comparisons
+# ============================================================
+def list_budget_allocations(
+    db: Session, period_type: str, period_starts: list[date]
+) -> list[tuple]:
+    """Read budget rows for canonical period starts used by an analytics range."""
+    if not period_starts:
+        return []
+
+    statement = (
+        select(
+            Budget.period_start,
+            Budget.category_id,
+            Category.name,
+            Budget.amount_kobo,
+        )
+        .join(Category, Budget.category_id == Category.id)
+        .where(
+            Budget.period_type == period_type,
+            Budget.period_start.in_(period_starts),
+        )
+        .order_by(Budget.period_start, Budget.category_id)
     )
     return list(db.execute(statement).all())

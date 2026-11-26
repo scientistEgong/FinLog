@@ -91,7 +91,7 @@ Current exclusions: premium/payments, voice, AI assistant, login/authentication,
 - [x] Add eight Recharts visualisations with responsive chart cards.
 - [x] Keep financial aggregation in the backend and render API-provided chart data.
 - [x] Handle empty ranges, date filters, and responsive layouts.
-- [ ] Add tests for analytics calculations and endpoint responses.
+- [x] Add tests for analytics calculations and endpoint responses.
 
 **Implemented:** Eight views cover period income/ordinary spending/savings, available-balance change, highest spending categories, top-category trends, savings trends, income sources, weekday averages, and ordinary-expense frequency versus average size. Date inputs filter every view; period trends can be grouped weekly, monthly, or yearly.
 
@@ -112,10 +112,13 @@ Trend charts use lines, category segmentation uses horizontal bars, chart gridli
 **Verified 2026-11-26:** Dashboard tests passed 8 cases; full backend suite passed 60 tests and 21 subtests; Vite production build passed. Temporary test databases were used. Browser interaction and responsive layout have not been manually checked.
 
 ### Stage 4 — Analytics
-- [ ] Add backend savings-rate trend, category percentages, top individual expenses, and budget-vs-actual aggregates.
-- [ ] Add preset reporting periods and the new analytical charts to the Analytics page.
-- [ ] Add isolated backend tests for the new analytics fields and boundary cases.
-- [ ] Verify charts and filters in a browser at phone and desktop widths.
+- [x] Add backend savings-rate trend, category percentages, top individual expenses, and budget-vs-actual aggregates.
+- [x] Add preset reporting periods and the new analytical charts to the Analytics page.
+- [x] Add isolated backend tests for the new analytics fields and boundary cases.
+- [x] Confirm the rendered Analytics page and budget comparison rows in headless Chrome at 1440px using synthetic data.
+- [ ] Visually inspect phone/desktop screenshots and manually exercise tooltips, preset clicks, and top-expense links.
+
+**Verified 2026-11-26:** `..\.venv\Scripts\python.exe -m pytest test\test_analytics.py -q` passed 6 tests from `backend`. The full backend suite passed 66 tests and 21 subtests. `npm.cmd run build` passed from `frontend`. A headless Chrome DOM render on a temporary database and ports confirmed the new chart sections and budget rows; temporary artifacts were removed.
 
 ## Phase 5 — Loans and repayments
 
@@ -173,9 +176,9 @@ Trend charts use lines, category segmentation uses horizontal bars, chart gridli
 
 ## Current phase and next approved task
 
-**Current phase:** Stage 3 Dashboard enhancement is implemented and statically verified. Stage 4 Analytics enhancement is approved but not yet implemented. Analytics calculation tests and browser chart verification remain outstanding.
+**Current phase:** Stage 3 Dashboard and Stage 4 Analytics enhancements are implemented. Analytics backend tests, the full backend suite, and the frontend production build passed; desktop DOM rendering was confirmed with synthetic data. Manual visual/interactive browser verification remains outstanding.
 
-**Next logical action:** Add the approved backend analytics aggregates and frontend charts, then exercise all charts with synthetic data at phone and desktop widths.
+**Next logical action:** Visually inspect phone and desktop screenshots and manually exercise chart tooltips, preset buttons, and top-expense links if UX sign-off is required. Do not begin later phases without explicit approval.
 
 ## Progress recording rules
 

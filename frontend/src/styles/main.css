@@ -117,6 +117,20 @@ button.danger { background: transparent; color: var(--expense); border: 1px soli
 .chart-empty { height: 280px; display: grid; place-items: center; }
 .analytics-tooltip { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); box-shadow: 0 2px 8px rgba(20, 30, 50, .15); }
 .analytics-tooltip strong { display: block; margin-bottom: 4px; }
+.tooltip-meta { margin-top: 4px; color: var(--muted); font-size: 12px; }
+.analytics-preset-control { flex: 1 1 100%; }
+.field-label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 13px; }
+.analytics-preset-toggle { flex-wrap: wrap; margin-bottom: 8px; }
+.analytics-preset-toggle .seg { flex: 0 1 auto; min-width: 118px; }
+.analytics-preset-toggle .seg.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+.analytics-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
+.analytics-summary div { min-width: 0; }
+.analytics-summary span { display: block; color: var(--muted); font-size: 12px; }
+.analytics-summary strong { font-size: 17px; }
+.detail-list { list-style: none; margin: 10px 0 0; padding: 0; }
+.detail-list li { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 13px; }
+.detail-list li span:last-child { color: var(--muted); }
+.detail-list a { color: var(--brand); }
 .dashboard-trend-card { padding: 18px 20px 12px; }
 .dashboard-trend-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .dashboard-trend-heading h2 { margin: 0 0 4px; }
@@ -135,6 +149,7 @@ a.small-btn { display: inline-flex; align-items: center; text-decoration: none; 
 
 @media (min-width: 640px) {
   .dashboard-custom-range { grid-template-columns: repeat(2, minmax(0, 240px)); }
+  .analytics-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 @media (min-width: 900px) {
@@ -159,4 +174,5 @@ a.small-btn { display: inline-flex; align-items: center; text-decoration: none; 
   .budget-table td::before { content: attr(data-label); color: var(--muted); font-size: 12px; text-align: left; }
   .budget-table td.actions { justify-content: flex-end; }
   .budget-table td.actions::before { content: none; }
+  .detail-list li { flex-direction: column; }
 }

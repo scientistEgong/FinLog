@@ -2,6 +2,7 @@
 // 1. Load page dependencies and transaction view defaults
 // ============================================================
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { listTransactions, removeTransaction } from "../api/transactions.js";
 import TransactionFilters from "../components/TransactionFilters.jsx";
 import TransactionForm from "../components/TransactionForm.jsx";
@@ -16,7 +17,11 @@ const EMPTY_FILTERS = { dateFrom: "", dateTo: "", type: "", categoryId: "", q: "
 // ============================================================
 export default function Transactions() {
   const { categories, error: categoriesError, reload: reloadCategories } = useCategories();
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [searchParams] = useSearchParams();
+  const [filters, setFilters] = useState(() => ({
+    ...EMPTY_FILTERS,
+    q: searchParams.get("q") || "",
+  }));
   const [debouncedQ, setDebouncedQ] = useState("");
   const [offset, setOffset] = useState(0);
   const [data, setData] = useState({ items: [], total: 0 });

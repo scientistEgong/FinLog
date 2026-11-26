@@ -246,13 +246,23 @@ The response powers eight charts: (1) period income, ordinary expenditure, and s
 
 **Chart presentation update:** Analytics time-series views use line charts, category/income segmentation uses horizontal bars, and chart gridlines are removed. The Dashboard also shows a line chart for ordinary expenditure over the trailing 12 months, with a weekly/monthly selector. The analytics service returns the highest-spending period for that range so the Dashboard can label and highlight the peak without calculating financial results in React.
 
-**Verification:** The backend application imported and OpenAPI showed required `date_from`/`date_to`, optional `group_by`, and the nullable highest-spending-period response. The latest `npm.cmd run build` passed; main bundle was 186.39 kB, Analytics page 49.25 kB, shared Recharts chunk 420.03 kB, and Dashboard trend chunk 7.20 kB (uncompressed). No analytics calculation tests or manual browser interaction/responsive checks were run.
+**Verification:** The backend application imported and OpenAPI showed required `date_from`/`date_to`, optional `group_by`, and the nullable highest-spending-period response. The Stage 4 note below records the current tests, frontend build, and browser checks.
 
 **Dependency review:** Recharts 3.11.1 was added. `npm audit` reports four issues in existing Vite/esbuild and React Router dependency lines (three moderate, one high); Recharts was not listed among the affected packages. Those existing dependencies were not upgraded as part of this feature.
 
-**Next:** Add isolated tests for analytics aggregates and boundary dates, then inspect the eight chart states with synthetic records at phone and desktop widths.
-
 See `PROJECT_CHECKLIST.md` for detailed items.
+
+### Dashboard and analytics enhancement — Stage 4 (approved 2026-11-26)
+
+**Implemented:** `GET /api/analytics` now populates the savings-rate trend, category percentages, top individual expenses, and budget-versus-actual data that the schema already declared. `AnalyticsRepository.list_budget_allocations` supplies budget rows, and `AnalyticsService` keeps all aggregation in integer kobo, uses Decimal for fractional averages, and preserves the savings-category exclusion rule.
+
+The Analytics page defaults to the shared `this-month` preset, uses `REPORTING_PRESETS` with the Dashboard, and renders the three new views through `frontend/src/components/AnalyticsCharts.jsx`: savings rate, budget comparison, and largest individual expenses. Top-expense detail links open `Transactions` with `?q=<description>`, and `Transactions.jsx` applies that URL search filter on load. No new dependency, schema, route, folder, or architectural layer was introduced.
+
+**Important decisions:** Savings rate is `(Income - Ordinary Expenditure - Savings Contributions) / Income × 100` and is unavailable when income is zero. Budget comparison only includes complete canonical weekly or monthly periods inside the selected range; yearly grouping returns no comparisons and shows a clear explanatory message. Only budgeted categories are compared so the chart answers budget adherence, not a full-category spending census.
+
+**Verified 2026-11-26:** From `backend`, `..\.venv\Scripts\python.exe -m pytest test\test_analytics.py -q` passed 6 tests. From `backend`, `..\.venv\Scripts\python.exe -m pytest test -q` passed 66 tests, 21 subtests, with Starlette `httpx` deprecation and pytest cache permission warnings. From `frontend`, `npm.cmd run build` passed in 14.31s after the final preset change. A headless Chrome 1440x1000 DOM render at `http://127.0.0.1:5174/analytics` confirmed the new chart sections and budget rows using a disposable SQLite database on temporary ports 8001 and 5174. Temporary servers, config, database, seed script, screenshots, and browser profiles were removed; the real `data/finlog.db` was not used.
+
+**Not verified:** Phone/desktop screenshots were captured, but screenshots were not visually inspected; tooltip interaction, preset click-through, and end-to-end browser workflows were not manually exercised. Claims above are limited to the tests and DOM/build checks actually run.
 
 ### Dashboard enhancement — Stage 3 (approved 2026-11-26)
 
@@ -262,7 +272,7 @@ The React Dashboard now provides preset and custom reporting periods, separates 
 
 **Verification:** `..\.venv\Scripts\python.exe -m pytest test\test_dashboard.py -q` from `backend` passed 8 tests. The full backend suite passed 60 tests and 21 subtests. `npm.cmd run build` from `frontend` passed. Tests used temporary databases only; `data/finlog.db` was not used.
 
-**Not verified:** Browser interaction, chart tooltips, and phone/desktop layout have not been manually inspected. Stage 4 analytics chart changes remain unimplemented.
+**Not verified:** Browser interaction, chart tooltips, and phone/desktop layout have not been manually inspected. Stage 4 is implemented and tested separately above.
 
 Do not start a later phase merely because it appears in the roadmap. The developer approves the next task.
 
@@ -285,10 +295,9 @@ Before the first public push, inspect Git history for secrets and private data. 
 
 ## 10. Immediate next step
 
-1. Implement Stage 4 backend aggregates: savings-rate trend, category percentages, top individual expenses, and budget-vs-actual data.
-2. Add the corresponding Analytics charts and preset reporting periods.
-3. Add isolated analytics tests and inspect charts at phone and desktop widths using synthetic transactions.
-4. Record results in this handoff and `PROJECT_CHECKLIST.md` before marking verification complete.
+1. No Stage 4 code work remains; visually review phone/desktop screenshots and interactive browser flows if manual UX verification is required.
+2. Keep loans, exports, and other later phases out of scope until the developer approves and scopes them explicitly.
+3. Maintain the verified status in this handoff and `PROJECT_CHECKLIST.md` if later changes affect analytics fields, financial rules, or browser behaviour.
 
 ## 11. Handoff update protocol
 

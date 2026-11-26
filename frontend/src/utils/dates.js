@@ -1,6 +1,15 @@
 // ============================================================
 // 1. Build stable local calendar date strings
 // ============================================================
+export const REPORTING_PRESETS = [
+  { value: "this-week", label: "This week" },
+  { value: "this-month", label: "This month" },
+  { value: "last-month", label: "Last month" },
+  { value: "last-3-months", label: "Last 3 months" },
+  { value: "last-6-months", label: "Last 6 months" },
+  { value: "this-year", label: "This year" },
+];
+
 export function todayISO() {
   const d = new Date();
   const month = String(d.getMonth() + 1).padStart(2, "0");
