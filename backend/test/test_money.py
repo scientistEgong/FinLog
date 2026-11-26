@@ -1,5 +1,7 @@
+from decimal import Decimal
 import unittest
 
+from app.config import MAX_AMOUNT_KOBO
 from app.services.money import format_naira, kobo_to_decimal, naira_to_kobo
 
 
@@ -10,9 +12,48 @@ class MoneyTests(unittest.TestCase):
         self.assertEqual(naira_to_kobo(2500), 250_000)
         self.assertEqual(naira_to_kobo(12.5), 1_250)
         self.assertEqual(naira_to_kobo("0.01"), 1)
+        self.assertEqual(naira_to_kobo("0.50"), 50)
+        self.assertEqual(naira_to_kobo("-₦150.00"), -15_000)
+        self.assertEqual(naira_to_kobo("₦-150.00"), -15_000)
+        self.assertEqual(naira_to_kobo("1000000000000.00"), MAX_AMOUNT_KOBO)
+        self.assertEqual(naira_to_kobo(Decimal("15.25")), 1_525)
 
     def test_rejects_bad_input(self):
-        for bad in ["", "   ", None, "abc", "NaN", "Infinity", "10.005", True, "1 500"]:
+        bad_inputs = [
+            "",
+            "   ",
+            "₦",
+            "-",
+            "-₦",
+            None,
+            "abc",
+            "NaN",
+            "Infinity",
+            float("nan"),
+            float("inf"),
+            float("-inf"),
+            "10.005",
+            "10.100",
+            "10.0000",
+            ".50",
+            "10.",
+            "+500",
+            "1e2",
+            "1E2",
+            "1e999999",
+            "1_000",
+            "1,2,3",
+            "1,,000",
+            ",500",
+            "500,",
+            "15₦00",
+            True,
+            "1 500",
+            "1000000000000.01",
+            "0" * 65,
+            {"amount": "100"},
+        ]
+        for bad in bad_inputs:
             with self.subTest(bad=bad):
                 with self.assertRaises(ValueError):
                     naira_to_kobo(bad)

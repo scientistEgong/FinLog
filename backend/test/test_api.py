@@ -37,7 +37,10 @@ def test_create_returns_formatted_amounts(client):
     assert data["notes"] is None  # blank notes become null
 
 
-@pytest.mark.parametrize("amount", ["0", "-5", "abc", "", "1.234", "99999999999999999"])
+@pytest.mark.parametrize(
+    "amount",
+    ["0", "-5", "abc", "", "1.234", "10.100", ".50", "+500", "1e2", "1e999999", "1_000", "1,2,3", "99999999999999999"],
+)
 def test_invalid_amounts_rejected(client, amount):
     r = client.post("/api/transactions", json=txn_body(client, amount=amount))
     assert r.status_code == 422
@@ -46,6 +49,11 @@ def test_invalid_amounts_rejected(client, amount):
 
 def test_other_validation_rules(client):
     assert client.post("/api/transactions", json=txn_body(client, description="   ")).status_code == 422
+    assert client.post("/api/transactions", json=txn_body(client, description=123)).status_code == 422
+    assert client.post("/api/transactions", json=txn_body(client, description="Lunch\x00test")).status_code == 422
+    assert client.post("/api/transactions", json=txn_body(client, description="Lunch\nDinner")).status_code == 422
+    assert client.post("/api/transactions", json=txn_body(client, payment_method="Cash\t1")).status_code == 422
+    assert client.post("/api/transactions", json=txn_body(client, notes="Line 1\x00Line 2")).status_code == 422
     assert client.post("/api/transactions", json=txn_body(client, transaction_date="2026-13-45")).status_code == 422
     assert client.post("/api/transactions", json=txn_body(client, transaction_date="1990-01-01")).status_code == 422
     assert client.post("/api/transactions", json=txn_body(client, type="transfer")).status_code == 422
@@ -53,6 +61,15 @@ def test_other_validation_rules(client):
     assert r.status_code == 422
     assert r.json()["detail"][0]["loc"] == ["body", "category_id"]
     assert client.get("/api/transactions").json()["total"] == 0
+
+    # Notes allow normal multiline whitespace, and 0.50 is accepted.
+    ok = client.post(
+        "/api/transactions",
+        json=txn_body(client, amount="0.50", notes="Line 1\r\n\tLine 2"),
+    )
+    assert ok.status_code == 201
+    assert ok.json()["amount_kobo"] == 50
+    assert ok.json()["notes"] == "Line 1\r\n\tLine 2"
 
 
 def test_edit_and_delete(client):
@@ -123,6 +140,9 @@ def test_custom_categories(client):
     assert r.status_code == 201 and r.json()["name"] == "Pets" and r.json()["is_default"] is False
     assert client.post("/api/categories", json={"name": "pets"}).status_code == 409
     assert client.post("/api/categories", json={"name": "  "}).status_code == 422
+    assert client.post("/api/categories", json={"name": 123}).status_code == 422
+    assert client.post("/api/categories", json={"name": "Pets\nCare"}).status_code == 422
+    assert client.post("/api/categories", json={"name": "Pets\x00Care"}).status_code == 422
 
     pets = r.json()["id"]
     client.post("/api/transactions", json=txn_body(client, category_id=pets))
@@ -132,3 +152,63 @@ def test_custom_categories(client):
     unused = client.post("/api/categories", json={"name": "Hobbies"}).json()["id"]
     assert client.delete(f"/api/categories/{unused}").status_code == 204
     assert client.delete("/api/categories/9999").status_code == 404
+
+
+def test_category_integrity_conflict_handling_and_non_misclassification(session, monkeypatch):
+    from sqlalchemy.exc import IntegrityError
+
+    from app.models import Category, Transaction
+    from app.repositories import category_repository
+    from app.schemas.category import CategoryIn
+    from app.services import category_service
+    from app.services.errors import ConflictError
+    from datetime import date
+
+    # Simulate a race condition on create_category where get_by_name saw None before insert.
+    category_service.create_category(session, CategoryIn(name="Travel"))
+    monkeypatch.setattr(category_repository, "get_by_name", lambda _db, _name: None)
+    with pytest.raises(ConflictError):
+        category_service.create_category(session, CategoryIn(name="travel"))
+    assert session.new == set()  # failed transaction was rolled back
+
+    # Simulate a race condition on delete_category where is_in_use returned False before FK check.
+    custom = category_repository.add(session, Category(name="Gadgets", is_savings=False, is_default=False))
+    session.commit()
+    session.add(
+        Transaction(
+            type="expense",
+            amount_kobo=10_000,
+            transaction_date=date(2026, 11, 21),
+            category_id=custom.id,
+            description="Charger",
+        )
+    )
+    session.commit()
+    monkeypatch.setattr(category_repository, "is_in_use", lambda _db, _cid: False)
+    with pytest.raises(ConflictError):
+        category_service.delete_category(session, custom.id)
+    assert session.deleted == set()  # failed delete was rolled back
+
+    # Unrelated IntegrityError (e.g. NOT NULL violation on commit) must roll back and not be misclassified as 409.
+    rolled_back = []
+    orig_rollback = session.rollback
+
+    def spy_rollback():
+        rolled_back.append(True)
+        orig_rollback()
+
+    class FakeNotNullOrig(Exception):
+        sqlite_errorcode = 1299
+
+        def __str__(self):
+            return "NOT NULL constraint failed: categories.is_default"
+
+    monkeypatch.setattr(session, "rollback", spy_rollback)
+    monkeypatch.setattr(
+        session,
+        "commit",
+        lambda: (_ for _ in ()).throw(IntegrityError("INSERT INTO categories ...", {}, FakeNotNullOrig())),
+    )
+    with pytest.raises(IntegrityError):
+        category_service.create_category(session, CategoryIn(name="Unrelated"))
+    assert rolled_back == [True]

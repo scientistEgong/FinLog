@@ -26,14 +26,18 @@ class AmountTests(unittest.TestCase):
     def test_non_negative_allows_zero_only(self):
         self.assertEqual(parse_non_negative_amount("0"), 0)
         self.assertEqual(parse_non_negative_amount("250.00"), 25_000)
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, "negative"):
             parse_non_negative_amount("-0.01")
+        with self.assertRaisesRegex(ValueError, "negative"):
+            parse_non_negative_amount("-₦10.00")
+        with self.assertRaisesRegex(ValueError, "greater than zero"):
+            parse_positive_amount("-₦10.00")
 
 
 class TextTests(unittest.TestCase):
     def test_required_text(self):
         self.assertEqual(clean_required_text("  Lunch  ", "Description", 200), "Lunch")
-        for bad in ["", "   ", None, "x" * 201]:
+        for bad in ["", "   ", None, 123, ["Lunch"], "Lunch\x00test", "Lunch\nDinner", "Lunch\t1", "x\x7f", "x" * 201]:
             with self.subTest(bad=bad):
                 with self.assertRaises(ValueError):
                     clean_required_text(bad, "Description", 200)
@@ -42,8 +46,20 @@ class TextTests(unittest.TestCase):
         self.assertIsNone(clean_optional_text(None, "Notes", 10))
         self.assertIsNone(clean_optional_text("   ", "Notes", 10))
         self.assertEqual(clean_optional_text(" hi ", "Notes", 10), "hi")
-        with self.assertRaises(ValueError):
-            clean_optional_text("x" * 11, "Notes", 10)
+        for bad in [123, "a\x00b", "a\nb", "a\tb", "x" * 11]:
+            with self.subTest(bad=bad):
+                with self.assertRaises(ValueError):
+                    clean_optional_text(bad, "Notes", 10)
+
+    def test_multiline_text_allows_normal_whitespace_only(self):
+        self.assertEqual(
+            clean_optional_text("Line 1\r\n\tLine 2", "Notes", 100, allow_multiline=True),
+            "Line 1\r\n\tLine 2",
+        )
+        for bad in ["Line 1\x00Line 2", "Beep\x07", "Del\x7f", 42]:
+            with self.subTest(bad=bad):
+                with self.assertRaises(ValueError):
+                    clean_optional_text(bad, "Notes", 100, allow_multiline=True)
 
 
 class DateTests(unittest.TestCase):

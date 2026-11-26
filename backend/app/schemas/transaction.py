@@ -51,7 +51,7 @@ class TransactionIn(BaseModel):
     @field_validator("notes", mode="before")
     @classmethod
     def _notes(cls, value):
-        return clean_optional_text(value, "Notes", MAX_NOTES_LENGTH)
+        return clean_optional_text(value, "Notes", MAX_NOTES_LENGTH, allow_multiline=True)
 
 
 # ============================================================

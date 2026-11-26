@@ -9,24 +9,44 @@ from app.config import MAX_AMOUNT_KOBO, MAX_DATE, MIN_DATE
 from app.services.money import naira_to_kobo
 
 
+_ALLOWED_MULTILINE_CONTROLS = frozenset(("\n", "\r", "\t"))
+
+
+def _validate_control_characters(text: str, label: str, *, allow_multiline: bool) -> None:
+    for ch in text:
+        code = ord(ch)
+        if code < 32 or code == 127:
+            if allow_multiline and ch in _ALLOWED_MULTILINE_CONTROLS:
+                continue
+            raise ValueError(f"{label} contains invalid control characters.")
+
+
 # ============================================================
 # 1. Validate and normalize user-provided text
 # ============================================================
-def clean_required_text(value, label: str, max_length: int) -> str:
-    text = "" if value is None else str(value).strip()
+def clean_required_text(value, label: str, max_length: int, *, allow_multiline: bool = False) -> str:
+    if value is None:
+        raise ValueError(f"{label} is required.")
+    if not isinstance(value, str):
+        raise ValueError(f"{label} must be text.")
+    text = value.strip()
     if not text:
         raise ValueError(f"{label} is required.")
+    _validate_control_characters(text, label, allow_multiline=allow_multiline)
     if len(text) > max_length:
         raise ValueError(f"{label} must be at most {max_length} characters.")
     return text
 
 
-def clean_optional_text(value, label: str, max_length: int) -> Optional[str]:
+def clean_optional_text(value, label: str, max_length: int, *, allow_multiline: bool = False) -> Optional[str]:
     if value is None:
         return None
-    text = str(value).strip()
+    if not isinstance(value, str):
+        raise ValueError(f"{label} must be text.")
+    text = value.strip()
     if not text:
         return None
+    _validate_control_characters(text, label, allow_multiline=allow_multiline)
     if len(text) > max_length:
         raise ValueError(f"{label} must be at most {max_length} characters.")
     return text

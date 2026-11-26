@@ -2,7 +2,7 @@
    1. Theme tokens and global document defaults
    ============================================================ */
 :root {
-  --bg: #f5f6f8; --card: #fff; --ink: #1b2333; --muted: #6a7385; --line: #060708;
+  --bg: #f5f6f8; --card: #fff; --ink: #1b2333; --muted: #6a7385; --line: #d8dee9;
   --brand: #1f4e79; --income: #1c7c54; --expense: #b83a32; --warn: #b9770e;
   box-sizing: border-box;
 }
@@ -99,7 +99,7 @@ button.danger { background: transparent; color: var(--expense); border: 1px soli
 .num { text-align: right !important; white-space: nowrap; font-weight: 600; }
 .num.income { color: var(--income); } .num.expense { color: var(--expense); }
 .actions { white-space: nowrap; text-align: right; } .actions button + button { margin-left: 6px; }
-.pill { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 20px; font-size: 11px; background: var(--line); }
+.pill { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 20px; font-size: 11px; background: var(--line); color: var(--ink); }
 .empty { padding: 12px 0; }
 .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 8px; flex-wrap: wrap; }
 .pager button + button { margin-left: 6px; }
