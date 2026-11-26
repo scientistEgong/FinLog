@@ -9,6 +9,9 @@ import {
 } from "recharts";
 import { compactKobo, formatKobo } from "../utils/money.js";
 
+// ============================================================
+// 1. Format comparison values for the chart tooltip
+// ============================================================
 function ComparisonTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
@@ -19,6 +22,9 @@ function ComparisonTooltip({ active, payload, label }) {
   );
 }
 
+// ============================================================
+// 2. Compare income, ordinary spending, savings, and retained money
+// ============================================================
 export default function IncomeExpenseChart({ period, loading, error }) {
   if (loading) {
     return (

@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listTransactions } from "../api/transactions.js";
 
+// ============================================================
+// 1. Load the latest records and present the compact transaction list
+// ============================================================
 export default function RecentTransactions() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);

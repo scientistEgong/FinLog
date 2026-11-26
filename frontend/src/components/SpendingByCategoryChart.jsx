@@ -12,6 +12,9 @@ import { compactKobo, formatKobo, formatPercent } from "../utils/money.js";
 
 const CATEGORY_COLORS = ["#1f4e79", "#2f6b94", "#4a83a8", "#6a9bbb", "#8bb2c9"];
 
+// ============================================================
+// 1. Explain category amounts and their share of spending
+// ============================================================
 function CategoryTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
   const category = payload[0].payload;
@@ -24,6 +27,9 @@ function CategoryTooltip({ active, payload }) {
   );
 }
 
+// ============================================================
+// 2. Rank and present ordinary spending categories
+// ============================================================
 export default function SpendingByCategoryChart({ period, loading, error }) {
   const heading = (
     <div className="budget-heading">

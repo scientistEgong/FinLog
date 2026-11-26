@@ -2,6 +2,9 @@
 from decimal import Decimal
 
 
+# ============================================================
+# 1. Prepare reusable API records for analytics scenarios
+# ============================================================
 def category_id(client, name):
     return next(category["id"] for category in client.get("/api/categories").json() if category["name"] == name)
 
@@ -42,6 +45,9 @@ def get_analytics(client, date_from, date_to, group_by="month"):
     return response.json()
 
 
+# ============================================================
+# 2. Verify analytical totals, period grouping, and category results
+# ============================================================
 def test_analytics_empty_range_returns_complete_contract(client):
     data = get_analytics(client, "2026-11-01", "2026-11-30")
 
@@ -140,6 +146,9 @@ def test_analytics_weekly_grouping_uses_sunday_starts_and_inclusive_end_date(cli
     assert data["highest_spending_period"]["period_start"] == "2026-11-29"
 
 
+# ============================================================
+# 3. Verify budget remaining amounts and complete-period boundaries
+# ============================================================
 def test_analytics_budget_comparison_excludes_savings_and_unbudgeted_actuals(client):
     create_budget(client, category="Food", period_start="2026-11-01", amount="1000.00")
     create_budget(client, category="Transport", period_start="2026-11-01", amount="500.00")
@@ -156,10 +165,14 @@ def test_analytics_budget_comparison_excludes_savings_and_unbudgeted_actuals(cli
     assert [row["category_name"] for row in comparisons] == ["Food", "Transport"]
     assert comparisons[0]["budget_kobo"] == 100_000
     assert comparisons[0]["actual_kobo"] == 120_000
+    assert comparisons[0]["remaining_kobo"] == -20_000
+    assert comparisons[0]["remaining_display"] == "-₦200.00"
     assert comparisons[0]["variance_kobo"] == -20_000
     assert comparisons[0]["variance_display"] == "-₦200.00"
     assert Decimal(str(comparisons[0]["utilization_percent"])) == Decimal("120.00")
     assert comparisons[1]["actual_kobo"] == 0
+    assert comparisons[1]["remaining_kobo"] == 50_000
+    assert comparisons[1]["remaining_display"] == "₦500.00"
     assert comparisons[1]["variance_kobo"] == 50_000
     assert Decimal(str(comparisons[1]["utilization_percent"])) == Decimal("0.00")
 

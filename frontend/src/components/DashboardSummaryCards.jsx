@@ -1,5 +1,8 @@
 import { formatPercent } from "../utils/money.js";
 
+// ============================================================
+// 1. Define all-time and selected-period summary metrics
+// ============================================================
 const ALL_TIME_CARDS = [
   { key: "opening_balance", label: "Opening balance" },
   { key: "available_balance", label: "Available balance" },
@@ -28,6 +31,9 @@ function SummaryCard({ label, value, tone, loading, error }) {
   );
 }
 
+// ============================================================
+// 2. Present backend-provided financial summary values
+// ============================================================
 export default function DashboardSummaryCards({ summary, loading, error, range }) {
   const period = summary?.period;
 

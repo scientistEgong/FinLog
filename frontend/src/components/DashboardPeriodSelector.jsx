@@ -1,5 +1,8 @@
 import { REPORTING_PRESETS } from "../utils/dates.js";
 
+// ============================================================
+// 1. Keep custom dates inside the selected reporting range
+// ============================================================
 export default function DashboardPeriodSelector({ preset, range, onPresetChange, onCustomChange }) {
   function handleDateChange(field, value) {
     if (!value) return;

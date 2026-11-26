@@ -305,7 +305,8 @@ def _build_budget_comparison(
     for period_start, category_id, category_name, budget_kobo in budget_rows:
         budget_kobo = int(budget_kobo)
         actual_kobo = category_period_totals.get((period_start, category_id), 0)
-        variance_kobo = budget_kobo - actual_kobo
+        # Keep the signed balance so the API distinguishes available budget from overspending.
+        remaining_kobo = budget_kobo - actual_kobo
         comparisons.append(
             BudgetComparison(
                 period_type=filters.group_by,
@@ -316,8 +317,10 @@ def _build_budget_comparison(
                 budget_display=format_naira(budget_kobo),
                 actual_kobo=actual_kobo,
                 actual_display=format_naira(actual_kobo),
-                variance_kobo=variance_kobo,
-                variance_display=format_naira(variance_kobo),
+                remaining_kobo=remaining_kobo,
+                remaining_display=format_naira(remaining_kobo),
+                variance_kobo=remaining_kobo,
+                variance_display=format_naira(remaining_kobo),
                 utilization_percent=_calculate_percentage(actual_kobo, budget_kobo),
             )
         )

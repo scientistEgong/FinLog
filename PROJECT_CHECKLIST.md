@@ -113,6 +113,7 @@ Trend charts use lines, category segmentation uses horizontal bars, chart gridli
 
 ### Stage 4 — Analytics
 - [x] Add backend savings-rate trend, category percentages, top individual expenses, and budget-vs-actual aggregates.
+- [x] Return and display the remaining budget per category, including clear over-budget amounts.
 - [x] Add preset reporting periods and the new analytical charts to the Analytics page.
 - [x] Add isolated backend tests for the new analytics fields and boundary cases.
 - [x] Confirm the rendered Analytics page and budget comparison rows in headless Chrome at 1440px using synthetic data.

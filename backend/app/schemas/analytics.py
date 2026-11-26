@@ -66,6 +66,8 @@ class BudgetComparison(BaseModel):
     budget_display: str
     actual_kobo: int
     actual_display: str
+    remaining_kobo: int
+    remaining_display: str
     variance_kobo: int
     variance_display: str
     utilization_percent: Decimal

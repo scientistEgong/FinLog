@@ -69,8 +69,10 @@ export function ChartTooltip({ active, payload, label }) {
       {row.percentage_of_total !== undefined && (
         <div>Share of selected total: {formatPercent(row.percentage_of_total)}</div>
       )}
-      {row.variance_display !== undefined && (
-        <div>Variance: {row.variance_display}</div>
+      {row.remaining_kobo !== undefined && (
+        <div>
+          {row.remaining_kobo < 0 ? "Over budget by" : "Remaining"}: {formatKobo(Math.abs(row.remaining_kobo))}
+        </div>
       )}
       {row.utilization_percent !== undefined && (
         <div>Budget used: {formatPercent(row.utilization_percent)}</div>
@@ -151,7 +153,10 @@ export function BudgetComparisonChart({ rows, groupBy }) {
               <strong>{row.category_name}</strong> · {row.period_start}
             </span>
             <span>
-              {row.budget_display} planned · {row.actual_display} actual · {row.variance_display} variance ·{" "}
+              {row.budget_display} planned · {row.actual_display} actual ·{" "}
+              {row.remaining_kobo < 0
+                ? `Over budget by ${formatKobo(Math.abs(row.remaining_kobo))}`
+                : `${row.remaining_display} remaining`} ·{" "}
               {formatPercent(row.utilization_percent)} used
             </span>
           </li>
