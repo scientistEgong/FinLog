@@ -1,42 +1,63 @@
 # FinLog
-Finlog is a finacial assistant, designed to help track one's financial decisions.
 
+FinLog is a local-first personal finance tracker for Windows. The current implementation provides transaction management, categories, and an opening balance. Dashboard, budgets, analytics, loans, repayments, and reports are planned; some have database models, but their APIs and user workflows are not implemented.
 
-# FinLog
+Check [HANDOFF.md](HANDOFF.md) and [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md) for the recorded implementation and verification status. See [PROJECT_DOC.md](PROJECT_DOC.md) for the detailed file map, technology explanations, domain conventions, API summary, and roadmap.
 
-Personal finance tracker: React frontend + FastAPI backend + SQLite. Web-first, designed to be wrapped for Android later (Capacitor).
+## Requirements
 
-> **Status: Phase 2 code is present (transactions API and React transaction UI).** Dashboard, budgets, analytics, loans and reports are planned for later phases. See `HANDOFF.md` for the current status and verification notes.
+- Windows
+- Python 3.11 or later, available through `py`
+- Node.js and npm
 
-## Prerequisites (Windows)
-- Python 3.11 or 3.12 (tick "Add Python to PATH"). Check: `py --version`
-- Node.js LTS (needed from Phase 2). Check: `node --version`
+## Run the application
 
-## Run the backend (Command Prompt)
+The simplest option is to double-click `run_finlog.bat` from the repository root. It creates the project-root `.venv` if needed, installs backend dependencies and frontend packages if needed, then starts both servers.
+
+To run the services manually, create the project-root virtual environment once with `py -m venv .venv`, then open two terminals from the repository root.
+
+Backend terminal:
+
+```powershell
+cd backend
+..\.venv\Scripts\python.exe -m pip install -r requirements.txt
+..\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
-cd FinLog\backend
-py -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+
+Frontend terminal:
+
+```powershell
+cd frontend
+npm ci
+npm run dev
 ```
-Or just double-click `run_finlog.bat` in the FinLog folder.
 
-Then open:
-- http://localhost:8000/api/health  -> should show `{"status":"ok", ...}`
-- http://localhost:8000/docs  -> interactive API docs
+Open `http://localhost:5173`. The API health endpoint is `http://127.0.0.1:8000/api/health`, and interactive API documentation is at `http://127.0.0.1:8000/docs`.
 
-Your database is created automatically at `data\finlog.db` the first time the backend starts. It is never overwritten or reset on later starts.
+The frontend development server proxies `/api` requests to the backend. The database is created at `data/finlog.db` when the backend starts. Startup creates missing tables and seeds default categories when the category table is empty; it does not migrate existing tables.
 
-## Run the tests
+## Run backend tests
+
+From the repository root:
+
+```powershell
+cd backend
+..\.venv\Scripts\python.exe -m pytest test
 ```
-cd FinLog\backend
-.venv\Scripts\activate
-pytest
-```
-Tests use temporary databases and never touch `data\finlog.db`.
 
-## Important notes
-- All money is stored as integer kobo (1 naira = 100 kobo) and shown as e.g. ₦15,000.00.
-- Weeks run Sunday to Saturday.
-- Do not enter real financial data until the build is declared ready (see "Known limitations" in `HANDOFF.md`).
+The test fixtures use temporary SQLite databases. Do not point tests at `data/finlog.db`.
+
+## Financial data and limitations
+
+Money is stored as integer kobo; API inputs use naira amounts, with values beyond two decimal places rejected. Weeks run Sunday through Saturday. The opening balance is a setting and is currently edited on the Transactions page.
+
+There is no Alembic migration baseline or automated backup/restore routine yet. Do not enter real financial records until migration and backup/restore readiness has been established. See [SECURITY.md](SECURITY.md) for data handling requirements.
+
+## Project guidance
+
+- [AGENTS.md](AGENTS.md): canonical coding-agent instructions.
+- [CLAUDE.md](CLAUDE.md): Claude pointer to the canonical instructions.
+- [CONTRIBUTING.md](CONTRIBUTING.md): contribution workflow and coding conventions.
+- [HANDOFF.md](HANDOFF.md): project decisions, status, and verification history.
+- [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md): phased progress tracker.
+- [PROJECT_DOC.md](PROJECT_DOC.md): detailed technical documentation.
