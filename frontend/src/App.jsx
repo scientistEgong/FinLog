@@ -30,8 +30,8 @@ export default function App() {
             </Suspense>
           )}
         />
-        <Route path="/loans" element={<ComingSoon name="Loans" phase={4} />} />
-        <Route path="/reports" element={<ComingSoon name="Reports" phase={5} />} />
+        <Route path="/loans" element={<ComingSoon name="Loans" phase={5} />} />
+        <Route path="/reports" element={<ComingSoon name="Reports" phase={6} />} />
         <Route path="*" element={<Navigate to="/transactions" replace />} />
       </Routes>
     </Layout>

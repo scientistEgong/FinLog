@@ -44,8 +44,10 @@ def list_categories(db: Session) -> list[Category]:
 def create_category(db: Session, data: CategoryIn) -> Category:
     if category_repository.get_by_name(db, data.name) is not None:
         raise ConflictError("A category with this name already exists.")
-    category = category_repository.add(db, Category(name=data.name, is_savings=False, is_default=False))
     try:
+        category = category_repository.add(
+            db, Category(name=data.name, is_savings=False, is_default=False)
+        )
         db.commit()
     except IntegrityError as exc:
         db.rollback()

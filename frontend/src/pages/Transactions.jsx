@@ -3,7 +3,7 @@
 // ============================================================
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { listTransactions, removeTransaction } from "../api/transactions.js";
+import { getTransaction, listTransactions, removeTransaction } from "../api/transactions.js";
 import TransactionFilters from "../components/TransactionFilters.jsx";
 import TransactionForm from "../components/TransactionForm.jsx";
 import TransactionList from "../components/TransactionList.jsx";
@@ -18,6 +18,7 @@ const EMPTY_FILTERS = { dateFrom: "", dateTo: "", type: "", categoryId: "", q: "
 export default function Transactions() {
   const { categories, error: categoriesError, reload: reloadCategories } = useCategories();
   const [searchParams] = useSearchParams();
+  const transactionId = searchParams.get("id");
   const [filters, setFilters] = useState(() => ({
     ...EMPTY_FILTERS,
     q: searchParams.get("q") || "",
@@ -41,15 +42,18 @@ export default function Transactions() {
     let cancelled = false;
     setLoading(true);
     setError("");
-    listTransactions({
-      date_from: filters.dateFrom,
-      date_to: filters.dateTo,
-      type: filters.type,
-      category_id: filters.categoryId,
-      q: debouncedQ,
-      limit: PAGE_SIZE,
-      offset,
-    })
+    const request = transactionId
+      ? getTransaction(transactionId).then((transaction) => ({ items: [transaction], total: 1 }))
+      : listTransactions({
+          date_from: filters.dateFrom,
+          date_to: filters.dateTo,
+          type: filters.type,
+          category_id: filters.categoryId,
+          q: debouncedQ,
+          limit: PAGE_SIZE,
+          offset,
+      });
+    request
       .then((result) => {
         if (cancelled) return;
         if (result.items.length === 0 && offset > 0) {
@@ -63,7 +67,7 @@ export default function Transactions() {
     return () => {
       cancelled = true;
     };
-  }, [filters.dateFrom, filters.dateTo, filters.type, filters.categoryId, debouncedQ, offset, refreshKey]);
+  }, [transactionId, filters.dateFrom, filters.dateTo, filters.type, filters.categoryId, debouncedQ, offset, refreshKey]);
 
   const refresh = () => setRefreshKey((k) => k + 1);
 

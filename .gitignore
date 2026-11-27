@@ -230,10 +230,18 @@ data/backups/*
 !data/backups/.gitkeep
 export_output/*
 !export_output/.gitkeep
+
 # Python
 .venv/
 __pycache__/
 .pytest_cache/
+
 # Node
 frontend/node_modules/
 frontend/dist/
+
+# AI Models
+/.kombai
+
+# Personal project planning document
+/doc/FinLog — Product Requirements and Technical Specification.pdf

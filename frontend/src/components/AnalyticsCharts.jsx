@@ -153,7 +153,10 @@ export function BudgetComparisonChart({ rows, groupBy }) {
               <strong>{row.category_name}</strong> · {row.period_start}
             </span>
             <span>
-              {row.budget_display} planned · {row.actual_display} actual ·{" "}
+              {row.budget_kobo === 0
+                ? `${row.budget_display} · Budget needed`
+                : `${row.budget_display} planned`} ·{" "}
+              {row.actual_display} actual ·{" "}
               {row.remaining_kobo < 0
                 ? `Over budget by ${formatKobo(Math.abs(row.remaining_kobo))}`
                 : `${row.remaining_display} remaining`} ·{" "}
@@ -189,7 +192,7 @@ export function TopExpensesChart({ expenses }) {
       <ul className="detail-list top-expense-list">
         {expenses.map((expense) => (
           <li key={expense.id}>
-            <Link to={`/transactions?q=${encodeURIComponent(expense.description)}`}>
+            <Link to={`/transactions?id=${expense.id}`}>
               {expense.description || "Untitled expense"}
             </Link>
             <span>

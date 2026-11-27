@@ -73,6 +73,7 @@ def get_analytics(db: Session, filters: AnalyticsFilters) -> AnalyticsOut:
     spending_totals: dict[int, dict] = {}
     income_totals: dict[int, dict] = {}
     category_period_totals: dict[tuple[date, int], int] = {}
+    spending_category_names: dict[int, str] = {}
     weekday_totals = [0] * 7
     weekday_counts = [0] * 7
 
@@ -96,6 +97,7 @@ def get_analytics(db: Session, filters: AnalyticsFilters) -> AnalyticsOut:
             period["expenditure"] += amount_kobo
             period["expense_count"] += int(transaction_count)
             _add_category_total(spending_totals, category_id, category_name, amount_kobo)
+            spending_category_names[category_id] = category_name
             key = (_period_start(transaction_date, filters.group_by), category_id)
             category_period_totals[key] = category_period_totals.get(key, 0) + amount_kobo
             weekday_totals[(transaction_date.weekday() + 1) % 7] += amount_kobo
@@ -152,7 +154,9 @@ def get_analytics(db: Session, filters: AnalyticsFilters) -> AnalyticsOut:
         ],
         highest_spending_period=_highest_spending_period(period_results),
         top_expenses=_build_top_expenses(db, filters),
-        budget_comparison=_build_budget_comparison(db, filters, starts, category_period_totals),
+        budget_comparison=_build_budget_comparison(
+            db, filters, starts, category_period_totals, spending_category_names
+        ),
     )
 
 
@@ -290,6 +294,7 @@ def _build_budget_comparison(
     filters: AnalyticsFilters,
     starts: list[date],
     category_period_totals: dict[tuple[date, int], int],
+    spending_category_names: dict[int, str],
 ) -> list[BudgetComparison]:
     # Budgets are week/month allocations, so yearly analytics cannot compare them fairly.
     if filters.group_by == "year":
@@ -301,9 +306,23 @@ def _build_budget_comparison(
     budget_rows = analytics_repository.list_budget_allocations(
         db, filters.group_by, comparable_starts
     )
+    budget_by_period_and_category = {
+        (period_start, category_id): (category_name, int(budget_kobo))
+        for period_start, category_id, category_name, budget_kobo in budget_rows
+    }
+    comparison_keys = set(budget_by_period_and_category)
+    comparison_keys.update(
+        key for key in category_period_totals if key[0] in comparable_starts
+    )
+
     comparisons = []
-    for period_start, category_id, category_name, budget_kobo in budget_rows:
-        budget_kobo = int(budget_kobo)
+    for period_start, category_id in sorted(comparison_keys):
+        budget_row = budget_by_period_and_category.get((period_start, category_id))
+        if budget_row is None:
+            category_name = spending_category_names[category_id]
+            budget_kobo = 0
+        else:
+            category_name, budget_kobo = budget_row
         actual_kobo = category_period_totals.get((period_start, category_id), 0)
         # Keep the signed balance so the API distinguishes available budget from overspending.
         remaining_kobo = budget_kobo - actual_kobo
