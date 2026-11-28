@@ -46,7 +46,7 @@ window never flashes the wrong theme while React mounts.
 
 | Layout | Navigation | Typography | Signature treatment |
 |---|---|---|---|
-| Verdant | 210 px dark rail | Manrope-style headings, monospaced figures | Oversized balance and a coloured spine on every card |
+| Verdant | 210 px dark rail | Manrope headings, IBM Plex Mono figures | Oversized balance and a coloured spine on every card |
 | Classic | 228 px dark rail | System sans, proportional figures | Rounded cards and softer shadows |
 | Compass | 92 px icon-less rail, stacked labels | System sans | Weekly budget ring beside the balance |
 | Harmattan | Top bar | Serif headings | Deep ink header band with a curved lower edge |
@@ -56,6 +56,69 @@ window never flashes the wrong theme while React mounts.
 On phones every layout uses the same bottom bar with Dashboard, Transactions,
 Budgets, Analytics, and More. Loans and Reports stay in the More menu until
 their phases exist.
+
+### Typefaces
+
+The layouts named three families that were not installed on the machine, so the
+serif layouts drew headings in Georgia or Palatino and the numeral layouts drew
+figures in Consolas. All three are now served from this repository, and a
+typography token decides where each one appears.
+
+| Token | Family | Where it renders |
+|---|---|---|
+| `--font-serif` | Fraunces, variable 400-700 | Harmattan balance and headings; Ledgerline headings and wordmark |
+| `--font-heading` | Manrope, variable 400-800 | Verdant headings and wordmark |
+| `--font-num` | IBM Plex Mono, 400/500/600/700 | Every figure: hero balance, KPI strip, table amounts, Tape receipt column |
+| `--font-body` | Operating system UI font (Segoe UI on Windows) | Body copy, labels, and the Classic and Compass headings |
+
+Classic and Compass deliberately keep the system UI face with proportional
+figures. Only Verdant uses Manrope, matching the typography recorded for that
+layout above.
+
+Body copy is intentionally not a downloaded family. It is the most-read text in
+the application and Windows already supplies a well-hinted match. An earlier
+`"Inter"` entry in the body stack matched nothing on this machine, so it was
+removed instead of staying a reference that can never resolve; the rendered face
+is unchanged because Segoe UI was already in use.
+
+One correction came out of the same work: Verdant declared
+`--font-num: var(--font-num)`, a self-reference that CSS treats as a cycle and
+discards, so its figures had silently inherited the body face. The declaration
+was removed and Verdant now renders figures in IBM Plex Mono, which is what this
+document always described. To prefer proportional figures instead, set
+`--font-num: var(--font-body)` in that layout block.
+
+### Font files, subsets, and licensing
+
+| Path | Contents |
+|---|---|
+| `frontend/src/styles/fonts.css` | Every `@font-face` declaration, imported first by `main.css` |
+| `frontend/public/fonts/fraunces-latin*.woff2` | Fraunces variable, latin and latin-ext |
+| `frontend/public/fonts/manrope-latin*.woff2` | Manrope variable, latin and latin-ext |
+| `frontend/public/fonts/ibm-plex-mono-*-latin*.woff2` | IBM Plex Mono 400, 500, 600, 700 in latin and latin-ext |
+| `frontend/public/fonts/LICENCE-*-OFL.txt` | Upstream SIL Open Font License text for each family |
+
+- The files were retrieved from the Google Fonts CSS API on 2026-11-28 and are
+  now served from `/fonts/` by this application. No browser request reaches
+  `fonts.gstatic.com`; the inspected documents made none.
+- Only the latin and latin-ext subsets are shipped. latin-ext is declared first
+  because it owns `U+20A0-20AB`, the currency block that contains the naira sign.
+  The character ranges also keep loading proportionate: Verdant loads one
+  Manrope file, Tape loads two Plex Mono files, not the whole set.
+- `font-display: swap` keeps text visible while a face decodes. Nothing is
+  preloaded in `index.html`, because the display families are used by only some
+  of the six layouts, so a preload would charge every layout for them.
+- Each family is licensed under the SIL Open Font License 1.1: Fraunces
+  © The Fraunces Project Authors, Manrope © The Manrope Project Authors, IBM Plex
+  Mono © IBM Corp. with the reserved font name "Plex". The licence texts live
+  beside the font files, so a built `dist/` carries them and a redistributed
+  build stays compliant.
+- To add, change, or refresh a family: request the family's CSS with a browser
+  user agent (`https://fonts.googleapis.com/css2?family=Family:wght@range`),
+  keep only the `latin` and `latin-ext` blocks, download those `woff2` files into
+  `public/fonts/` using the existing naming pattern, copy each block's
+  `unicode-range` into `fonts.css`, and take the family's `OFL.txt` from the
+  `google/fonts` repository in the same step.
 
 ### Colour and mode
 
@@ -173,12 +236,11 @@ changes. Update `site.webmanifest` if the icon sizes or start URL change.
   plain CSS stack, so no Tailwind or component framework was installed. This
   follows `AGENTS.md` (no new dependency without approval) and avoids rewriting
   every page's classes.
-- **No remote fonts.** `SECURITY.md` prohibits third-party fonts without
-  approval, so the layouts use local font stacks: the serif layouts fall back to
-  Georgia/Palatino, and the numeral layouts fall back to Consolas/ui-monospace.
-  The intended families (Fraunces, Manrope, IBM Plex Mono) are named first, so
-  self-hosting them later changes nothing else. Do not add a Google Fonts link
-  without approval.
+- **Self-hosted fonts, never a font CDN.** The three named families are bundled
+  in `public/fonts/` under the SIL OFL, so the type is exact without a runtime
+  request to a third party, which `SECURITY.md` forbids without approval. The
+  files are assets rather than dependencies, so `package.json` is unchanged. Do
+  not add a Google Fonts `<link>`; extend `fonts.css` instead.
 - **Loans are not shown on the dashboard.** The prototype's "Who do I owe?"
   block needs the Phase 5 API; the dashboard omits it rather than showing zeros.
 - **Emoji navigation icons were removed.** The prototypes use text labels and the
@@ -214,12 +276,15 @@ changes. Update `site.webmanifest` if the icon sizes or start URL change.
 | `frontend/src/styles/tokens.css` | Palette, mode, layout, typography, and logo tokens |
 | `frontend/src/styles/base.css` | Elements, cards, controls, tables, charts, appearance panel |
 | `frontend/src/styles/layouts.css` | Shell, six layout treatments, phone behaviour |
+| `frontend/src/styles/fonts.css` | Font faces, subsets, and character ranges |
 | `frontend/src/styles/main.css` | Layer imports and page composition |
-| `frontend/public/*` | Icon masters, PNG sizes, manifest |
+| `frontend/public/*` | Icon masters, PNG sizes, manifest, font files and their licences |
 
 ## 9. Dependencies and local setup
 
-No package was added for this work. From `frontend`:
+No package was added for this work; the fonts are static assets in
+`public/fonts/`, so `package.json` and the lockfile are unchanged. From
+`frontend`:
 
 ```powershell
 npm ci
@@ -233,7 +298,16 @@ npm run build
   390×844. Firefox, Safari, physical phones, and screen readers were not tested.
 - The appearance matrix is large (six layouts × five palettes × two resolved
   modes). Individual contrast pairs were not measured with a contrast tool.
-- Self-hosted display fonts would sharpen the Harmattan, Ledgerline, and Tape
-  character but need a licensing and security decision first.
+- Fraunces has no naira glyph (`U+20A6`), so in Harmattan the `₦` of the serif
+  balance is drawn by the platform serif, Times New Roman on Windows, while the
+  digits are Fraunces; the browser reported both faces for that one node. All
+  other figures use IBM Plex Mono, which does contain the glyph. A display serif
+  with naira coverage, or splitting the symbol from the amount, would remove the
+  mix; both are design decisions rather than font-loading defects.
+- `font-display: swap` allows one frame of the fallback face in serif and mono
+  layouts before the local file decodes. Nothing is preloaded by design. The
+  final built page reported cumulative layout shift of 0.001 with the API
+  blocked; the 0.24 reading during inspection came from placeholder error cards
+  replacing loading states, not from the fonts.
 - The Analytics page still presents eleven chart cards in one scroll; a
   sectioned or tabbed arrangement remains a design follow-up.

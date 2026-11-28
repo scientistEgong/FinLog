@@ -384,6 +384,81 @@ Firefox/Safari, physical phones, chart tooltips on touch, production serving of
 the built bundle, and per-pair contrast measurement across the full
 6 × 5 × 2 matrix. Backend tests were not rerun because no backend file changed.
 
+### Self-hosted typefaces — approved 2026-11-28
+
+**Implemented:** Fraunces, Manrope, and IBM Plex Mono are now served from the
+repository, so the serif and monospaced layouts no longer render in system
+fallbacks.
+
+| Family | Files in `frontend/public/fonts/` | Used by |
+|---|---|---|
+| Fraunces, variable 400-700 | `fraunces-latin.woff2`, `fraunces-latin-ext.woff2` | Harmattan balance and headings; Ledgerline headings and wordmark |
+| Manrope, variable 400-800 | `manrope-latin.woff2`, `manrope-latin-ext.woff2` | Verdant headings and wordmark |
+| IBM Plex Mono 400/500/600/700 | eight `ibm-plex-mono-*-latin*.woff2` files | Every figure in every layout |
+
+Twelve `woff2` files and three SIL OFL licence texts were added.
+`frontend/src/styles/fonts.css` declares the faces and is imported first by
+`main.css`; `tokens.css` points the typography tokens at them.
+
+**Decisions:**
+
+- Only latin and latin-ext subsets were taken from the Google Fonts CSS API.
+  latin-ext is declared first because it owns the currency block
+  `U+20A0-20AB`, which contains the naira sign, and the declared character ranges
+  ensure a page downloads only what its text needs.
+- Files are served from `public/fonts/` rather than `src/assets/` so the built
+  `dist/` carries the licence texts beside the fonts, which the OFL expects of a
+  redistributed build, and so the paths stay readable in `fonts.css`.
+- No CDN link and no preload: a runtime request to `fonts.gstatic.com` would be
+  an unapproved third-party transfer under `SECURITY.md`, and the display
+  families are used by only some of the six layouts. `font-display: swap` is
+  used instead.
+- Two defects were fixed while wiring the tokens. Verdant declared
+  `--font-num: var(--font-num)`, a CSS cycle, so its figures had been inheriting
+  the body face; Ledgerline and Tape repeated the mono stack literally. The
+  duplicate declarations were removed and all figures now resolve through the
+  root token.
+- The `"Inter"` entry was removed from `--font-body`: it matched no installed
+  family, so body copy was already Segoe UI and remains so at the same measured
+  width. No fourth family was added.
+- Verdant's phone balance floor dropped from 42 px to 30 px, because monospaced
+  figures are wider: at a 390 px viewport, `₦12,345,678.90` previously broke
+  inside the decimal part and now holds one line.
+
+**Verified 2026-11-28:** `npm.cmd run build` from `frontend` passed; the build
+emitted `dist/fonts/` (12 `woff2` files plus 3 licence texts) and a 43.55 kB CSS
+bundle. `vite preview` on port 4180 returned HTTP 200 for
+`/fonts/fraunces-latin.woff2` and for `LICENCE-Fraunces-OFL.txt`, and rendered
+the application with the new faces.
+
+Headless Chromium at 1440×1000 reported the rendered platform font per node for
+four layouts: Verdant balance `IBM Plex Mono` (13 of 13 glyphs), Verdant heading
+and wordmark `Manrope`; Harmattan heading and wordmark `Fraunces`; Ledgerline
+heading and wordmark `Fraunces` with an `IBM Plex Mono` balance; Tape wordmark
+`IBM Plex Mono SemiBold` and heading `Segoe UI`, which is that layout's
+documented system sans. Loaded face lists and resource entries referenced only
+`/fonts/*.woff2`, and no request to `fonts.gstatic.com` or `fonts.googleapis.com`
+appeared. At 390×844 the document width stayed 375 px and every layout held
+`₦12,345,678.90` on one line. API requests were answered with a synthetic 503
+while measuring; one earlier dev-server load did proxy to the backend already
+listening on port 8000 and displayed that data before the interception was
+narrowed. Only GET requests occurred, and no record was created, changed, or
+deleted.
+
+**Not verified:** Firefox and Safari font loading, a physical phone, screen
+readers, cross-pair contrast, and layout shift on a page loading live data. The
+final built page reported cumulative layout shift of 0.001 with the API blocked. Fraunces carries no naira glyph, so in Harmattan the `₦` of the
+serif balance is drawn by the platform serif while the digits are Fraunces; the
+rendered node reported both faces. This is recorded in `doc/UI_DESIGN.md` with
+the two possible remedies. Backend tests were not rerun because no backend file
+changed.
+
+**Working-tree note:** git operations outside this task discarded the work twice:
+a `reset: moving to HEAD` at 13:49:54, then a rebase onto `origin/main` that
+stashed it. It was re-applied and then restored from `stash@{0}`. `main` now
+points at the rebased `2c4837d`, the fonts and documentation are present again,
+and this task committed nothing.
+
 ## 9. Data safety and Git
 
 Never commit:
@@ -394,6 +469,11 @@ Never commit:
 - `.venv/`;
 - `node_modules/`;
 - secrets, credentials, tokens, or private keys.
+
+The product brief PDF in `doc/` is the developer's private planning material. It
+is intentionally local-only: untracked, ignored by the `/doc/*.pdf` rule, and
+absent from the index and from every ref, so no history rewrite is outstanding.
+Do not add it to the repository or copy its contents into tracked documents.
 
 The live database must never be overwritten by generated sample data or tests.
 

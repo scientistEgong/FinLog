@@ -46,10 +46,14 @@
   --card-spine: 5px;
   --balance-size: clamp(42px, 6vw, 72px);
 
-  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Fraunces, Manrope, and IBM Plex Mono are self-hosted in `fonts.css`.
+     Body copy deliberately stays on the operating system UI font: it is the
+     most-read text in the app, Windows already ships a good match, and a
+     fourth downloaded family would not change how the figures read. */
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-heading: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
-  --font-num: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-num: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 
   box-sizing: border-box;
 }
@@ -139,17 +143,24 @@
 /* ============================================================
    3. Layout structure and typography
    ============================================================ */
-/* Verdant is the default: dark sidebar, oversized balance, card spines. */
+/* Verdant is the default: dark sidebar, oversized balance, card spines.
+   It keeps the root Manrope headings and IBM Plex Mono figures, which is the
+   typography this layout is documented with. The earlier
+   `--font-num: var(--font-num)` line was a self-reference, which CSS treats as
+   a cycle and discards, so those figures had been inheriting the body face. */
 :root[data-layout="verdant"] {
   --nav-width: 210px;
   --radius-card: 8px;
   --card-spine: 5px;
-  --font-heading: var(--font-body);
-  --font-num: var(--font-num);
-  --balance-size: clamp(42px, 6vw, 72px);
+  /* Monospaced figures are wider than the proportional fallback they replace,
+     so the floor drops to 30px: at a 390px viewport, ₦12,345,678.90 still fits
+     on one line instead of breaking inside the decimal part. */
+  --balance-size: clamp(30px, 6vw, 72px);
   --content-max: 1180px;
 }
 
+/* Classic and Compass read in the operating system UI face with proportional
+   figures, so neither downloads a display or mono weight. */
 :root[data-layout="classic"] {
   --nav-width: 228px;
   --radius-card: 18px;
@@ -180,12 +191,15 @@
   --content-max: 1180px;
 }
 
+/* Ledgerline and Tape keep the root IBM Plex Mono stack for tabular figures.
+   Neither needs its own declaration: repeating the same family list here made
+   two copies of one stack, and a self-reference such as
+   `--font-num: var(--font-num)` is a CSS cycle that silently drops the token. */
 :root[data-layout="ledgerline"] {
   --nav-width: 0px;
   --radius-card: 2px;
   --card-spine: 0px;
   --font-heading: var(--font-serif);
-  --font-num: "IBM Plex Mono", ui-monospace, monospace;
   --balance-size: clamp(40px, 6.4vw, 58px);
   --content-max: 1120px;
 }
@@ -195,7 +209,6 @@
   --radius-card: 6px;
   --card-spine: 0px;
   --font-heading: var(--font-body);
-  --font-num: "IBM Plex Mono", ui-monospace, monospace;
   --balance-size: clamp(36px, 5.2vw, 48px);
   --content-max: 1180px;
 }

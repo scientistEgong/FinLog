@@ -140,6 +140,10 @@ Trend charts use lines, category segmentation uses horizontal bars, chart gridli
 - [x] Apply layout treatments and responsive rules to Dashboard, Transactions, Budgets, and Analytics.
 - [x] Ship favicon SVG, 32/48/180 PNG sizes, and a web manifest; document regeneration.
 - [x] Rewrite `doc/UI_DESIGN.md` and update `PROJECT_DOC.md`.
+- [x] Self-host Fraunces, Manrope, and IBM Plex Mono with latin and latin-ext subsets.
+- [x] Store the SIL OFL licence text for each family beside its font files.
+- [x] Fix the self-referencing `--font-num` declaration that dropped Verdant's monospaced figures.
+- [x] Document the typography tokens, font map, and naira-glyph limitation.
 - [ ] Manually verify keyboard-only traversal and screen-reader announcement.
 - [ ] Verify the layout on Firefox, Safari, and a physical phone.
 - [ ] Measure contrast for every palette against every layout and mode.
@@ -152,6 +156,17 @@ three pages. Palette and mode changes were asserted through the DOM
 so no horizontal overflow. Synthetic data came from a disposable database; the
 live `data/finlog.db` was not used. Backend tests were not rerun because no
 backend file changed. See `HANDOFF.md` for the full record.
+
+**Fonts verified 2026-11-28:** `npm.cmd run build` passed and emitted the twelve
+`woff2` files plus three licence texts into `dist/fonts/`. `vite preview` served
+`/fonts/fraunces-latin.woff2` and the licence with HTTP 200. Headless Chromium
+reported Fraunces for Harmattan and Ledgerline headings and wordmarks, Manrope
+for Verdant headings, and IBM Plex Mono for the balances and figures, with no
+request to a Google font host. At 390×844 the document width stayed 375 px and
+`₦12,345,678.90` held one line in every layout. Fraunces has no naira glyph, so
+Harmattan's serif balance draws `₦` from a platform serif; recorded as a
+limitation with possible remedies. Firefox, Safari, and screen readers were not
+tested.
 
 ## Phase 5 — Loans and repayments
 
@@ -209,7 +224,7 @@ backend file changed. See `HANDOFF.md` for the full record.
 
 ## Current phase and next approved task
 
-**Current phase:** Stage 3 Dashboard and Stage 4 Analytics enhancements are implemented, and the approved UI redesign and appearance system was implemented on 2026-11-28. The frontend production build passed and all six layouts were rendered in headless Chromium at desktop and phone widths. Manual accessibility and cross-browser verification remains outstanding.
+**Current phase:** Stage 3 Dashboard and Stage 4 Analytics enhancements are implemented, and the approved UI redesign and appearance system was implemented on 2026-11-28, including self-hosted Fraunces, Manrope, and IBM Plex Mono. The frontend production build passed and all six layouts were rendered in headless Chromium at desktop and phone widths. Manual accessibility and cross-browser verification remains outstanding.
 
 **Next logical action:** Manually exercise keyboard navigation, screen-reader output, chart tooltips on touch, and the appearance panel on a physical device if UX sign-off is required. Do not begin later phases without explicit approval.
 

@@ -21,7 +21,7 @@ The project is intentionally single-user and local at this stage. Login, cloud h
 | Vite 5 | Frontend development server and build tool | Serves the React app on port 5173 and bundles it for production. Its development proxy forwards `/api` calls to FastAPI. |
 | React Router 6 | Client-side navigation library | Maps URLs such as `/transactions` and `/budgets` to React page components without a full page reload. |
 | Recharts 3 | React chart library | Renders the analytics visuals from API-provided data; loaded only when the Analytics page opens. |
-| CSS | Browser styling language | Sets responsive layout, colour tokens, six layout treatments, controls and the mobile table-to-card presentation; no CSS framework is used. |
+| CSS | Browser styling language | Sets responsive layout, colour tokens, six layout treatments, controls and the mobile table-to-card presentation; no CSS framework is used. Self-hosted Fraunces, Manrope, and IBM Plex Mono provide the display, heading, and figure faces. |
 | pytest / unittest | Python test tools | pytest runs the integration/database tests; several pure helper tests use Python's built-in unittest style and can also be collected by pytest. |
 | httpx | HTTP client library | Supports FastAPI's test client in API tests. |
 | npm / Node.js | JavaScript package manager/runtime | Installs frontend dependencies and runs Vite scripts. |
@@ -57,7 +57,7 @@ Each backend layer has a narrow responsibility. Routers translate HTTP into serv
 - `backend/app/migrations/`: currently contains migration guidance only; Alembic baseline is a future requirement.
 - `backend/test/`: temporary-database fixtures and unit/API/database tests. The directory is named `test` (not the historical `tests`).
 - `frontend/index.html`: browser entry document, icon/manifest links, and the pre-paint appearance bootstrap.
-- `frontend/public/`: favicon master, generated PNG sizes, and the web manifest.
+- `frontend/public/`: favicon master, generated PNG sizes, the web manifest, and the self-hosted font files with their SIL OFL licence texts.
 - `frontend/src/main.jsx`: mounts React and browser routing.
 - `frontend/src/App.jsx`: URL-to-page routing; unfinished sections show planned-phase copy.
 - `frontend/src/api/`: API request wrapper and endpoint-specific functions, including analytics.
@@ -68,6 +68,7 @@ Each backend layer has a narrow responsibility. Routers translate HTTP into serv
 - `frontend/src/styles/tokens.css`: palette, mode, layout, typography and logo tokens.
 - `frontend/src/styles/base.css`: elements, cards, controls, tables, charts and the appearance panel.
 - `frontend/src/styles/layouts.css`: shell and the six layout treatments.
+- `frontend/src/styles/fonts.css`: `@font-face` declarations, subsets, and character ranges for the self-hosted families.
 - `frontend/src/styles/main.css`: imports the style layers and carries page composition.
 - `doc/UI_DESIGN.md`: appearance model, dashboard information architecture, brand/icon system, and favicon regeneration steps.
 - `frontend/vite.config.js`: React plugin, frontend port and local API proxy.
@@ -116,6 +117,8 @@ Phase 4 analytics implementation is present and tested. On 2026-11-26, the analy
 
 The appearance system and dashboard reorganisation were implemented on 2026-11-28. The frontend production build passed twice after the change. Headless Chromium renders at 1440×1000 confirmed all six layouts, the dark palette, and the appearance interactions (palette changes to Midnight Blue, mode changes to Dark); a 390×844 check measured a 375 px document width with no horizontal overflow. Transactions, Budgets and Analytics were rendered in Ledgerline, Tape and dark Verdant respectively against a disposable database with synthetic records. `data/finlog.db` was not used. Keyboard-only traversal, screen readers, other browsers, and production serving remain unverified. See `doc/UI_DESIGN.md`.
 
+Fraunces, Manrope, and IBM Plex Mono were self-hosted on 2026-11-28 under the SIL Open Font License, with the licence texts stored beside the files. The frontend build passed and emitted the fonts into `dist/fonts/`; the built app served `fraunces-latin.woff2` and its licence with HTTP 200. Headless Chromium reported Fraunces for Harmattan and Ledgerline headings and wordmarks, Manrope for Verdant headings, and IBM Plex Mono for balances and figures, with no request to a font CDN. One limitation was recorded: Fraunces has no naira glyph, so the `₦` of Harmattan's serif balance falls back to a platform serif. Firefox, Safari, and a physical phone were not retested.
+
 ## Planned phases from the handoff
 
 1. **Phase 1 — foundation (marked complete):** configuration, local DB, models, category seeding, helpers, health route, initial test setup and launcher.
@@ -144,7 +147,7 @@ The appearance system and dashboard reorganisation were implemented on 2026-11-2
 
 FinLog is a Windows-first local personal finance tracker with a React 18 + Vite frontend, FastAPI/Python backend, Pydantic 2 request/response validation, SQLAlchemy 2 ORM and SQLite local database. The frontend dev server is intended for port 5173 and proxies `/api` to FastAPI on port 8000. Backend structure is routers → services → repositories → SQLAlchemy models. React displays API data and should not calculate financial totals.
 
-The project has completed the foundation phase and implements transaction management, the Phase 3 dashboard/budgets, and Phase 4 analytics. Analytics provides preset and custom date ranges, weekly/monthly/yearly trend grouping, Recharts views, savings-rate trend, budget comparison with per-category remaining funds, and top individual expenses; all monetary aggregation is performed in the backend. The interface now has an independent layout, colour and mode appearance system (six layouts, five palettes, three modes) applied to all four pages, with a dashboard ordered around the balance, the current week's budget, and recent movement. Analytics tests, the full backend suite, and the frontend production build passed. Desktop DOM rendering was checked with synthetic data, and the appearance system was checked in headless Chromium; manual visual/interactive browser review and accessibility testing remain outstanding. Loans/repayments and exports remain planned.
+The project has completed the foundation phase and implements transaction management, the Phase 3 dashboard/budgets, and Phase 4 analytics. Analytics provides preset and custom date ranges, weekly/monthly/yearly trend grouping, Recharts views, savings-rate trend, budget comparison with per-category remaining funds, and top individual expenses; all monetary aggregation is performed in the backend. The interface now has an independent layout, colour and mode appearance system (six layouts, five palettes, three modes) applied to all four pages, with a dashboard ordered around the balance, the current week's budget, and recent movement. Fraunces, Manrope, and IBM Plex Mono are self-hosted under the SIL OFL, so the serif and monospaced layouts no longer fall back to system faces. Analytics tests, the full backend suite, and the frontend production build passed. Desktop DOM rendering was checked with synthetic data, and the appearance system was checked in headless Chromium; manual visual/interactive browser review and accessibility testing remain outstanding. Loans/repayments and exports remain planned.
 
 Core rules: persist all money as integer kobo (₦1 = 100 kobo), reject precision beyond two decimals, use shared categories, treat Savings-category expenses separately from ordinary expenditure, keep opening balance out of income, and use Sunday–Saturday weeks. Loans must never create transaction rows. No fabricated financial data in the real DB. The database currently uses `create_all` and has no Alembic migration baseline or backup routine; the handoff says not to enter real records until migrations are handled.
 

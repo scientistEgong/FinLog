@@ -1,6 +1,7 @@
 /* ============================================================
    1. Load the design system layers in order
    ============================================================ */
+@import "./fonts.css";
 @import "./tokens.css";
 @import "./base.css";
 @import "./layouts.css";
