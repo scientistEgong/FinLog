@@ -19,6 +19,7 @@ from app.schemas.analytics import (
     WeekdayAverage,
 )
 from app.services.dates import week_start
+from app.services.budget_service import build_budget_comparison
 from app.services.money import format_naira
 
 MAX_TREND_CATEGORIES = 5
@@ -306,41 +307,24 @@ def _build_budget_comparison(
     budget_rows = analytics_repository.list_budget_allocations(
         db, filters.group_by, comparable_starts
     )
-    budget_by_period_and_category = {
-        (period_start, category_id): (category_name, int(budget_kobo))
-        for period_start, category_id, category_name, budget_kobo in budget_rows
-    }
-    comparison_keys = set(budget_by_period_and_category)
-    comparison_keys.update(
-        key for key in category_period_totals if key[0] in comparable_starts
-    )
-
     comparisons = []
-    for period_start, category_id in sorted(comparison_keys):
-        budget_row = budget_by_period_and_category.get((period_start, category_id))
-        if budget_row is None:
-            category_name = spending_category_names[category_id]
-            budget_kobo = 0
-        else:
-            category_name, budget_kobo = budget_row
-        actual_kobo = category_period_totals.get((period_start, category_id), 0)
-        # Keep the signed balance so the API distinguishes available budget from overspending.
-        remaining_kobo = budget_kobo - actual_kobo
-        comparisons.append(
-            BudgetComparison(
-                period_type=filters.group_by,
-                period_start=period_start,
-                category_id=category_id,
-                category_name=category_name,
-                budget_kobo=budget_kobo,
-                budget_display=format_naira(budget_kobo),
-                actual_kobo=actual_kobo,
-                actual_display=format_naira(actual_kobo),
-                remaining_kobo=remaining_kobo,
-                remaining_display=format_naira(remaining_kobo),
-                variance_kobo=remaining_kobo,
-                variance_display=format_naira(remaining_kobo),
-                utilization_percent=_calculate_percentage(actual_kobo, budget_kobo),
+    for period_start in comparable_starts:
+        period_budget_rows = [
+            (category_id, category_name, is_savings, int(budget_kobo))
+            for row_period_start, category_id, category_name, is_savings, budget_kobo in budget_rows
+            if row_period_start == period_start
+        ]
+        period_actual_rows = [
+            (category_id, spending_category_names[category_id], amount_kobo)
+            for (row_period_start, category_id), amount_kobo in category_period_totals.items()
+            if row_period_start == period_start
+        ]
+        comparisons.extend(
+            build_budget_comparison(
+                filters.group_by,
+                period_start,
+                period_budget_rows,
+                period_actual_rows,
             )
         )
     return comparisons

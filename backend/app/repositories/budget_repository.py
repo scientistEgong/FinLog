@@ -5,7 +5,7 @@ from typing import Optional
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from app.models import Budget
+from app.models import Budget, Category, Transaction
 
 
 # ============================================================
@@ -64,3 +64,20 @@ def get_period_total(db: Session, period_type: str, period_start: date) -> int:
         Budget.period_start == period_start,
     )
     return int(db.scalar(statement) or 0)
+
+
+def list_ordinary_spending_by_category(db: Session, date_from: date, date_to: date) -> list[tuple]:
+    """Return category totals for ordinary expenses, excluding savings contributions."""
+    statement = (
+        select(Category.id, Category.name, func.sum(Transaction.amount_kobo))
+        .join(Transaction, Transaction.category_id == Category.id)
+        .where(
+            Transaction.type == "expense",
+            Category.is_savings.is_(False),
+            Transaction.transaction_date >= date_from,
+            Transaction.transaction_date <= date_to,
+        )
+        .group_by(Category.id, Category.name)
+        .order_by(Category.id)
+    )
+    return list(db.execute(statement).all())

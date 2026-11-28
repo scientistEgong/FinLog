@@ -4,6 +4,8 @@ FinLog is a local-first personal finance tracker for Windows. The current implem
 
 Check [HANDOFF.md](HANDOFF.md) and [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md) for the recorded implementation and verification status. See [PROJECT_DOC.md](PROJECT_DOC.md) for the detailed file map, technology explanations, domain conventions, API summary, and roadmap.
 
+The current appearance options, browser tab icon, and instructions for updating the icon are documented in [doc/UI_DESIGN.md](doc/UI_DESIGN.md).
+
 ## Requirements
 
 - Windows

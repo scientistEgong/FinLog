@@ -65,8 +65,8 @@ def delete_category(db: Session, category_id: int) -> None:
         raise ConflictError("Default categories cannot be deleted.")
     if category_repository.is_in_use(db, category_id):
         raise ConflictError("This category is used by transactions or budgets and cannot be deleted.")
-    category_repository.delete(db, category)
     try:
+        category_repository.delete(db, category)
         db.commit()
     except IntegrityError as exc:
         db.rollback()

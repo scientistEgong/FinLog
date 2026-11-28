@@ -65,6 +65,8 @@ Each backend layer has a narrow responsibility. Routers translate HTTP into serv
 - `frontend/src/hooks/`: reusable React state/effect logic, currently category loading.
 - `frontend/src/utils/`: small display/input helpers, currently local date formatting.
 - `frontend/src/styles/main.css`: responsive visual system.
+- `frontend/finlog-icon.svg`: scalable browser tab icon using the FinLog mark.
+- `doc/UI_DESIGN.md`: palette/mode options, visual direction, favicon creation steps, and frontend setup notes.
 - `frontend/vite.config.js`: React plugin, frontend port and local API proxy.
 - `frontend/package.json` / `package-lock.json`: frontend dependency declarations and resolved npm dependency tree.
 - `data/`: local database location; `export_output/` exists for future generated files.

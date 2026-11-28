@@ -282,6 +282,34 @@ The React Dashboard now provides preset and custom reporting periods, separates 
 
 Do not start a later phase merely because it appears in the roadmap. The developer approves the next task.
 
+### Stabilisation pass — approved budget corrections (2026-11-27)
+
+**Implemented:** The Budgets API and Analytics now use the same backend category comparison calculation. The Budgets page reports allocation, ordinary spending, remaining funds, and overspent amounts per category and in total. The selected partial current period is marked “So far”; Analytics still compares only complete weekly/monthly periods. A zero or absent allocation is returned with `budget_status="budget_needed"` and `utilization_percent=null`, while actual spending and overspending remain visible. Existing savings-category budget rows remain stored and listed, are excluded from comparisons and totals, and savings categories are absent from the editor choices. Budget integrity errors become duplicate conflicts only for the period/category uniqueness constraint. Category deletion now catches the foreign-key failure raised by repository flush. Transaction ID links open a single-record view with a back action. Analytics/Budgets/recent-transaction errors have retry actions; all eleven Analytics chart cards have table views; phone navigation puts Loans and Reports under More; Analytics/transaction controls use compact phone layouts; the weekday chart title states that its average includes every calendar occurrence.
+
+**Tests:** The full isolated backend suite passed 79 tests and 59 subtests on 2026-11-27. It passed with one Starlette/httpx deprecation warning. Coverage added or corrected for unbudgeted spending, zero budgets, empty-transaction budget visibility, savings exclusion, partial-period budgets, budget uniqueness error classification, and SQLAlchemy rollback collection checks. `npm.cmd run build` passed from `frontend`; `git diff --check` passed. No database schema or dependency changed.
+
+**Phase 3–4 roadmap reconciliation:**
+
+| Deliverable | Status | Evidence |
+|---|---|---|
+| Root route opens Dashboard | Done | `frontend/src/App.jsx` redirects `/` to `/dashboard`. |
+| Calendar date picker for budget period | Done | `frontend/src/pages/Budgets.jsx` uses a date input and canonical period start. |
+| Week/month budget toggle | Done | `frontend/src/pages/Budgets.jsx` period selector. |
+| Opening-balance card on Dashboard | Done | `frontend/src/pages/Dashboard.jsx` renders `OpeningBalanceCard`. |
+| Budget category breakdown with spent/remaining totals | Done in this pass | `frontend/src/pages/Budgets.jsx`; shared backend calculation in `backend/app/services/budget_service.py`; API tests in `backend/test/test_budgets.py`. |
+| Six chart types required in the original specification | Partial | Budget-vs-actual horizontal bars exist. Monthly expenditure trend is available on the Dashboard but uses a line chart. Weekly spending comparison and income-vs-expenditure are represented by other chart forms. The category donut and debt summary are absent. See the requirement mapping below. |
+| Exactly six Recharts charts in the current app | Missing | Current source renders eleven Analytics charts plus three Dashboard charts. This count does not match the specification’s six required chart types or the checklist’s historical eight-chart Analytics count. No charts were removed in this stabilization pass. |
+
+The six specification chart types map to current source as follows: (1) category donut — missing; spending category bars exist instead (`Analytics.jsx`, Dashboard category component); (2) monthly expenditure trend — partial (`DashboardSpendingTrend.jsx`, line chart with period selector); (3) weekly spending comparison columns — partial (`Analytics.jsx`, weekly grouped period line chart rather than the specified comparison columns); (4) budget-versus-actual horizontal bars — present (`AnalyticsCharts.jsx`); (5) income-versus-expenditure grouped columns — partial (`Analytics.jsx`, the period cashflow view is a line chart and also includes savings); (6) outstanding debt summary — missing, deferred to Loans/Phase 5.
+
+The eleven Analytics chart purposes are: period income/ordinary spending/savings; available-balance change; savings-rate trend; highest spending categories; spending by category over time; budget versus actual; largest individual expenses; savings contributions; income sources; average spending per calendar weekday occurrence; purchase frequency versus average expense size. The Dashboard adds three chart views: period income/spending/savings comparison, spending by category, and trailing-period spending trend.
+
+**Phase 2 status:** Source-level Phase 2 backend/frontend implementation is present, the complete backend test suite passes, and the frontend production build passes. Manual browser CRUD/filter/pagination, persistence after restart, and local launcher behavior remain unverified; checklist implementation items are checked separately from those runtime verification items.
+
+**Logging check:** No persisted server log handler or tracked `.log` file was found. The launcher starts Uvicorn in a console without redirecting output to a file. Search terms may be visible in console access logs, but this review found no configured persisted server log and made no logging changes.
+
+**Runtime verification limitation and safety note:** A live check was attempted while port 8000 was already occupied. A temporary backend was launched with `FINLOG_DATABASE_URL` pointing to `C:\Users\Scientist\AppData\Local\Temp\FinLogRuntime_20261127.db`, but Windows reported multiple listeners on port 8000. Requests were sent to `127.0.0.1:8000` before the collision was understood; therefore it cannot be proven which listener handled them. The requests created and edited a synthetic transaction (then sent a delete request), attempted a duplicate weekly budget, and created/edited a November 2026 Transport monthly budget to ₦9,000. These may have reached the pre-existing local application and may have changed its database. No further requests were made; the temporary database and processes started by this pass were stopped/removed. The user should inspect the live application for the synthetic transaction description “Synthetic browser audit edited” and a November 2026 Transport monthly budget of ₦9,000 if those values were not already present. This audit did not read the real database. Phone screenshots and the requested interactive browser workflow were not completed because the ports were not safely isolated.
+
 ## 9. Data safety and Git
 
 Never commit:

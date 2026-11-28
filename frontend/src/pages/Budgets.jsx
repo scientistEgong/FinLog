@@ -22,7 +22,12 @@ export default function Budgets() {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [refreshKey, setRefreshKey] = useState(0);
-  const { categories, error: categoryError } = useCategories();
+  const { categories, error: categoryError, reload: reloadCategories } = useCategories();
+  const spendingCategories = categories.filter((category) => !category.is_savings);
+  const excludedSavingsBudgets = data.items.filter((budget) => {
+    const category = categories.find((item) => item.id === budget.category_id);
+    return category?.is_savings;
+  });
   const periodStart = useMemo(() => periodStartISO(selectedDate, periodType), [selectedDate, periodType]);
 
   useEffect(() => {
@@ -146,7 +151,7 @@ export default function Budgets() {
               required
             >
               <option value="">Choose a category</option>
-              {categories.map((category) => (
+              {spendingCategories.map((category) => (
                 <option key={category.id} value={category.id}>{category.name}</option>
               ))}
             </select>
@@ -161,11 +166,22 @@ export default function Budgets() {
               placeholder="0.00"
               required
             />
+            {form.amount.trim() !== "" && Number(form.amount) === 0 && (
+              <small className="muted">Budget needed. Zero is a placeholder; spending will still appear as overspent.</small>
+            )}
             {fieldErrors.amount && <small className="field-error">{fieldErrors.amount}</small>}
           </label>
         </div>
-        {categoryError && <div className="alert error">{categoryError}</div>}
-        {error && <div className="alert error" role="alert">{error}</div>}
+        {categoryError && (
+          <div className="alert error" role="alert">
+            {categoryError} <button type="button" className="secondary small-btn" onClick={reloadCategories}>Retry categories</button>
+          </div>
+        )}
+        {error && (
+          <div className="alert error" role="alert">
+            {error} <button type="button" className="secondary small-btn" onClick={() => setRefreshKey((key) => key + 1)}>Retry</button>
+          </div>
+        )}
         <div className="form-actions">
           <button type="submit" disabled={saving || Boolean(categoryError)}>
             {saving ? "Saving…" : editing ? "Save changes" : "Add budget"}
@@ -177,31 +193,57 @@ export default function Budgets() {
       <section className="card">
         <div className="budget-heading">
           <h2>Category breakdown</h2>
-          <strong>Total: {loading ? "Loading…" : data.total_budget_display}</strong>
+          <strong>{loading ? "Loading…" : data.is_partial_period ? "So far" : "Period total"}</strong>
         </div>
-        {error && <div className="alert error" role="alert">{error}</div>}
         {loading ? (
           <p className="muted">Loading budgets…</p>
-        ) : data.items.length === 0 ? (
+        ) : data.comparison.length === 0 ? (
           <p className="empty muted">No budgets for this period yet.</p>
         ) : (
           <table className="budget-table">
             <thead>
-              <tr><th>Category</th><th>Budget</th><th>Actions</th></tr>
+              <tr><th>Category</th><th>Budget</th><th>Spent</th><th>Remaining / overspent</th><th>Actions</th></tr>
             </thead>
             <tbody>
-              {data.items.map((budget) => (
-                <tr key={budget.id}>
-                  <td data-label="Category">{budget.category_name}</td>
-                  <td data-label="Budget" className="num">{budget.amount_display}</td>
+              {data.comparison.map((row) => {
+                const budget = data.items.find((item) => item.category_id === row.category_id);
+                return (
+                <tr key={row.category_id}>
+                  <td data-label="Category">{row.category_name}</td>
+                  <td data-label="Budget" className="num">
+                    {row.budget_kobo === 0 ? "Budget needed" : row.budget_display}
+                  </td>
+                  <td data-label="Spent" className="num">{row.actual_display}</td>
+                  <td data-label="Remaining / overspent" className="num">
+                    {row.overspent_kobo > 0
+                      ? `Overspent ${row.overspent_display}`
+                      : `${row.remaining_display} remaining`}
+                  </td>
                   <td data-label="Actions" className="actions">
-                    <button type="button" className="secondary small-btn" onClick={() => beginEdit(budget)}>Edit</button>
-                    <button type="button" className="danger small-btn" onClick={() => handleDelete(budget)}>Delete</button>
+                    {budget && <button type="button" className="secondary small-btn" onClick={() => beginEdit(budget)}>Edit</button>}
+                    {budget && <button type="button" className="danger small-btn" onClick={() => handleDelete(budget)}>Delete</button>}
                   </td>
                 </tr>
-              ))}
+              );})}
+              <tr className="budget-total-row">
+                <th scope="row">Total {data.is_partial_period && "so far"}</th>
+                <td data-label="Budget" className="num">{data.total_budget_display}</td>
+                <td data-label="Spent" className="num">{data.total_actual_display}</td>
+                <td data-label="Remaining / overspent" className="num">
+                  {data.total_overspent_kobo > 0
+                    ? `Overspent ${data.total_overspent_display}`
+                    : `${data.total_remaining_display} remaining`}
+                </td>
+                <td data-label="Actions" />
+              </tr>
             </tbody>
           </table>
+        )}
+        {excludedSavingsBudgets.length > 0 && (
+          <div className="muted small savings-budget-note">
+            Existing savings-category budget rows are retained and excluded from spending comparisons:
+            {" "}{excludedSavingsBudgets.map((budget) => `${budget.category_name} (${budget.amount_display})`).join(", ")}.
+          </div>
         )}
       </section>
     </>

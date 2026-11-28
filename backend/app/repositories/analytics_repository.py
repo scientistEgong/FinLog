@@ -72,6 +72,7 @@ def list_budget_allocations(
             Budget.period_start,
             Budget.category_id,
             Category.name,
+            Category.is_savings,
             Budget.amount_kobo,
         )
         .join(Category, Budget.category_id == Category.id)

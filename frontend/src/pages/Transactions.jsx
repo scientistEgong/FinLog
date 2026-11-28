@@ -17,7 +17,7 @@ const EMPTY_FILTERS = { dateFrom: "", dateTo: "", type: "", categoryId: "", q: "
 // ============================================================
 export default function Transactions() {
   const { categories, error: categoriesError, reload: reloadCategories } = useCategories();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const transactionId = searchParams.get("id");
   const [filters, setFilters] = useState(() => ({
     ...EMPTY_FILTERS,
@@ -76,6 +76,14 @@ export default function Transactions() {
     setOffset(0);
   }
 
+  function returnToAllTransactions() {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("id");
+    setSearchParams(nextParams);
+    changeFilters(EMPTY_FILTERS);
+    setEditing(null);
+  }
+
   async function handleDelete(txn) {
     if (!window.confirm(`Delete "${txn.description}" (${txn.amount_display})? This cannot be undone.`)) return;
     try {
@@ -92,10 +100,17 @@ export default function Transactions() {
 
   return (
     <>
-      <h1>Transactions</h1>
+      <div className="page-heading-row">
+        <h1>{transactionId ? "Transaction details" : "Transactions"}</h1>
+        {transactionId && (
+          <button type="button" className="secondary" onClick={returnToAllTransactions}>
+            Back to all transactions
+          </button>
+        )}
+      </div>
       {categoriesError && <div className="alert error">{categoriesError}</div>}
 
-      <TransactionForm
+      {!transactionId && <TransactionForm
         categories={categories}
         editing={editing}
         onSaved={() => {
@@ -104,19 +119,23 @@ export default function Transactions() {
         }}
         onCancel={() => setEditing(null)}
         onCategoryAdded={reloadCategories}
-      />
+      />}
 
       <section className="card">
-        <h2>History</h2>
-        <TransactionFilters
+        <h2>{transactionId ? "Selected transaction" : "History"}</h2>
+        {!transactionId && <TransactionFilters
           filters={filters}
           categories={categories}
           onChange={changeFilters}
           onClear={() => changeFilters(EMPTY_FILTERS)}
-        />
-        {error && <div className="alert error">{error}</div>}
+        />}
+        {error && (
+          <div className="alert error" role="alert">
+            {error} <button type="button" className="secondary small-btn" onClick={refresh}>Retry</button>
+          </div>
+        )}
         <TransactionList items={data.items} loading={loading} onEdit={setEditing} onDelete={handleDelete} />
-        <div className="pager">
+        {!transactionId && <div className="pager">
           <span className="muted">{data.total === 0 ? "0 results" : `Showing ${from}–${to} of ${data.total}`}</span>
           <div>
             <button type="button" className="secondary" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}>
@@ -126,7 +145,7 @@ export default function Transactions() {
               Next
             </button>
           </div>
-        </div>
+        </div>}
       </section>
     </>
   );

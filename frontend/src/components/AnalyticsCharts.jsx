@@ -1,6 +1,7 @@
 // ============================================================
 // 1. Shared chart presentation for the Analytics page
 // ============================================================
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Bar,
@@ -37,12 +38,43 @@ export function ChartCard({
   children,
   hasData = true,
   emptyMessage = "No matching records in this date range.",
+  tableData = [],
+  tableColumns = [],
 }) {
+  const [showTable, setShowTable] = useState(false);
+
   return (
     <section className="card analytics-card">
       <h2>{title}</h2>
       <p className="muted small">{purpose}</p>
-      {hasData ? children : <p className="empty muted chart-empty">{emptyMessage}</p>}
+      {tableColumns.length > 0 && hasData && (
+        <button
+          type="button"
+          className="secondary small-btn chart-view-toggle"
+          aria-pressed={showTable}
+          onClick={() => setShowTable((visible) => !visible)}
+        >
+          {showTable ? "View chart" : "View as table"}
+        </button>
+      )}
+      {!hasData ? <p className="empty muted chart-empty">{emptyMessage}</p> : showTable ? (
+        <div className="chart-table-wrap">
+          <table className="chart-data-table">
+            <thead><tr>{tableColumns.map((column) => <th key={column.key}>{column.label}</th>)}</tr></thead>
+            <tbody>
+              {tableData.map((row, index) => (
+                <tr key={row.id ?? `${row.period_start ?? row.label ?? "row"}-${index}`}>
+                  {tableColumns.map((column) => (
+                    <td key={column.key} data-label={column.label}>
+                      {column.render ? column.render(row[column.key], row) : row[column.key]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : children}
     </section>
   );
 }
@@ -75,7 +107,7 @@ export function ChartTooltip({ active, payload, label }) {
         </div>
       )}
       {row.utilization_percent !== undefined && (
-        <div>Budget used: {formatPercent(row.utilization_percent)}</div>
+        row.utilization_percent !== null && <div>Budget used: {formatPercent(row.utilization_percent)}</div>
       )}
       {row.transaction_date && (
         <div className="tooltip-meta">{row.category_name} · {row.transaction_date}</div>
@@ -98,6 +130,11 @@ export function SavingsRateChart({ periods }) {
       purpose="Retained income after ordinary spending and savings contributions, shown as a share of income."
       hasData={hasData}
       emptyMessage="Savings rates are unavailable when periods have no income."
+      tableData={periods}
+      tableColumns={[
+        { key: "label", label: "Period" },
+        { key: "savings_rate_percent", label: "Savings rate", render: (value) => formatPercent(value) },
+      ]}
     >
       <ResponsiveContainer width="100%" height={280}>
         <LineChart data={periods} margin={{ top: 12, right: 16, bottom: 4, left: 8 }}>
@@ -130,6 +167,14 @@ export function BudgetComparisonChart({ rows, groupBy }) {
       title="Budget versus actual spending"
       purpose="Compare ordinary expenditure with category budgets for complete weekly or monthly periods."
       hasData={data.length > 0}
+      tableData={data}
+      tableColumns={[
+        { key: "label", label: "Category and period" },
+        { key: "budget_kobo", label: "Budget", render: formatKobo },
+        { key: "actual_kobo", label: "Spent", render: formatKobo },
+        { key: "remaining_kobo", label: "Remaining", render: (value) => formatKobo(value) },
+        { key: "overspent_kobo", label: "Overspent", render: formatKobo },
+      ]}
       emptyMessage={
         groupBy === "year"
           ? "Budgets are weekly or monthly; choose Weekly or Monthly to compare."
@@ -157,10 +202,12 @@ export function BudgetComparisonChart({ rows, groupBy }) {
                 ? `${row.budget_display} · Budget needed`
                 : `${row.budget_display} planned`} ·{" "}
               {row.actual_display} actual ·{" "}
-              {row.remaining_kobo < 0
-                ? `Over budget by ${formatKobo(Math.abs(row.remaining_kobo))}`
-                : `${row.remaining_display} remaining`} ·{" "}
-              {formatPercent(row.utilization_percent)} used
+              {row.budget_kobo === 0
+                ? `Budget needed · ${formatKobo(row.overspent_kobo)} overspent`
+                : row.overspent_kobo > 0
+                  ? `Over budget by ${formatKobo(row.overspent_kobo)}`
+                  : `${row.remaining_display} remaining`}
+              {row.utilization_percent !== null && ` · ${formatPercent(row.utilization_percent)} used`}
             </span>
           </li>
         ))}
@@ -180,6 +227,13 @@ export function TopExpensesChart({ expenses }) {
       title="Largest individual expenses"
       purpose="Rank the highest ordinary expense transactions in the selected date range."
       hasData={data.length > 0}
+      tableData={data}
+      tableColumns={[
+        { key: "label", label: "Expense" },
+        { key: "category_name", label: "Category" },
+        { key: "transaction_date", label: "Date" },
+        { key: "amount_display", label: "Amount" },
+      ]}
     >
       <ResponsiveContainer width="100%" height={280}>
         <BarChart data={data} layout="vertical" margin={{ left: 12, right: 20 }}>

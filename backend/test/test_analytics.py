@@ -162,19 +162,46 @@ def test_analytics_budget_comparison_excludes_savings_and_unbudgeted_actuals(cli
     data = get_analytics(client, "2026-11-01", "2026-11-30")
 
     comparisons = data["budget_comparison"]
-    assert [row["category_name"] for row in comparisons] == ["Food", "Transport"]
+    assert [row["category_name"] for row in comparisons] == ["Food", "Transport", "Other"]
     assert comparisons[0]["budget_kobo"] == 100_000
+    assert comparisons[0]["budget_status"] == "set"
     assert comparisons[0]["actual_kobo"] == 120_000
-    assert comparisons[0]["remaining_kobo"] == -20_000
-    assert comparisons[0]["remaining_display"] == "-₦200.00"
-    assert comparisons[0]["variance_kobo"] == -20_000
-    assert comparisons[0]["variance_display"] == "-₦200.00"
+    assert comparisons[0]["remaining_kobo"] == 0
+    assert comparisons[0]["overspent_kobo"] == 20_000
+    assert comparisons[0]["remaining_display"] == "₦0.00"
+    assert comparisons[0]["overspent_display"] == "₦200.00"
     assert Decimal(str(comparisons[0]["utilization_percent"])) == Decimal("120.00")
     assert comparisons[1]["actual_kobo"] == 0
     assert comparisons[1]["remaining_kobo"] == 50_000
     assert comparisons[1]["remaining_display"] == "₦500.00"
-    assert comparisons[1]["variance_kobo"] == 50_000
     assert Decimal(str(comparisons[1]["utilization_percent"])) == Decimal("0.00")
+    assert comparisons[2]["budget_kobo"] == 0
+    assert comparisons[2]["budget_status"] == "budget_needed"
+    assert comparisons[2]["actual_kobo"] == 10_000
+    assert comparisons[2]["overspent_kobo"] == 10_000
+    assert comparisons[2]["utilization_percent"] is None
+
+
+def test_analytics_keeps_budget_comparison_when_range_has_no_transactions(client):
+    create_budget(client, category="Food", period_start="2026-11-01", amount="1000.00")
+    data = get_analytics(client, "2026-11-01", "2026-11-30")
+
+    assert data["summary"]["expenditure_kobo"] == 0
+    assert len(data["budget_comparison"]) == 1
+    row = data["budget_comparison"][0]
+    assert row["category_name"] == "Food"
+    assert row["actual_kobo"] == 0
+    assert row["remaining_kobo"] == 100_000
+
+
+def test_analytics_omits_savings_category_budget_rows(client):
+    create_budget(client, category="Savings", period_start="2026-11-01", amount="500.00")
+    create_transaction(client, type_="expense", amount="100.00", category="Savings",
+                       transaction_date="2026-11-04", description="Savings transfer")
+
+    data = get_analytics(client, "2026-11-01", "2026-11-30")
+
+    assert data["budget_comparison"] == []
 
 
 def test_analytics_budget_comparison_only_uses_complete_canonical_periods(client):

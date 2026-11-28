@@ -169,7 +169,7 @@ def test_category_integrity_conflict_handling_and_non_misclassification(session,
     monkeypatch.setattr(category_repository, "get_by_name", lambda _db, _name: None)
     with pytest.raises(ConflictError):
         category_service.create_category(session, CategoryIn(name="travel"))
-    assert session.new == set()  # failed transaction was rolled back
+    assert not session.new  # the failed insert left no pending objects after rollback
 
     # Simulate a race condition on delete_category where is_in_use returned False before FK check.
     custom = category_repository.add(session, Category(name="Gadgets", is_savings=False, is_default=False))
@@ -187,7 +187,7 @@ def test_category_integrity_conflict_handling_and_non_misclassification(session,
     monkeypatch.setattr(category_repository, "is_in_use", lambda _db, _cid: False)
     with pytest.raises(ConflictError):
         category_service.delete_category(session, custom.id)
-    assert session.deleted == set()  # failed delete was rolled back
+    assert not session.deleted  # the failed delete left no pending deletes after rollback
 
     # Unrelated IntegrityError (e.g. NOT NULL violation on commit) must roll back and not be misclassified as 409.
     rolled_back = []

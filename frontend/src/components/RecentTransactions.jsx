@@ -9,6 +9,7 @@ export default function RecentTransactions() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -21,7 +22,7 @@ export default function RecentTransactions() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refreshKey]);
 
   return (
     <section className="card">
@@ -33,7 +34,11 @@ export default function RecentTransactions() {
         <Link className="secondary small-btn" to="/transactions">View all</Link>
       </div>
       {loading && <p className="muted" role="status">Loading transactions…</p>}
-      {error && <div className="alert error" role="alert">{error}</div>}
+      {error && (
+        <div className="alert error" role="alert">
+          {error} <button type="button" className="secondary small-btn" onClick={() => setRefreshKey((key) => key + 1)}>Retry</button>
+        </div>
+      )}
       {!loading && !error && items.length === 0 && (
         <p className="muted empty">No transactions recorded yet.</p>
       )}

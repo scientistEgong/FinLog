@@ -31,25 +31,25 @@ Current exclusions: premium/payments, voice, AI assistant, login/authentication,
 ## Phase 2 — Transactions, categories, opening balance, and frontend foundation
 
 ### Backend
-- [ ] Health endpoint: `GET /api/health`.
-- [ ] Transaction listing with date/type/category/search/pagination filters.
-- [ ] Create transaction endpoint.
-- [ ] Read, update, and delete transaction endpoints.
-- [ ] Category listing and creation.
-- [ ] Category deletion restrictions (default or in-use categories).
-- [ ] Opening balance `GET` and `PUT` endpoints.
-- [ ] Pydantic validation and documented error responses.
-- [ ] Tests for transaction, category, and opening-balance behaviour.
+- [x] Health endpoint: `GET /api/health`.
+- [x] Transaction listing with date/type/category/search/pagination filters.
+- [x] Create transaction endpoint.
+- [x] Read, update, and delete transaction endpoints.
+- [x] Category listing and creation.
+- [x] Category deletion restrictions (default or in-use categories).
+- [x] Opening balance `GET` and `PUT` endpoints.
+- [x] Pydantic validation and documented error responses.
+- [x] Tests for transaction, category, and opening-balance behaviour.
 
 ### Frontend
-- [ ] React + Vite scaffold.
-- [ ] API request helper and error handling.
-- [ ] Responsive application shell and navigation.
-- [ ] Transaction form.
-- [ ] Transaction history.
-- [ ] Search and filters.
-- [ ] Pagination.
-- [ ] Edit and delete flows.
+- [x] React + Vite scaffold.
+- [x] API request helper and error handling.
+- [x] Responsive application shell and navigation.
+- [x] Transaction form.
+- [x] Transaction history.
+- [x] Search and filters.
+- [x] Pagination.
+- [x] Edit and delete flows.
 - [x] Opening balance UI (originally on Transactions; moved to Dashboard in Phase 3).
 
 ### Verification
@@ -62,6 +62,8 @@ Current exclusions: premium/payments, voice, AI assistant, login/authentication,
 - [ ] No real database or private data is included in Git.
 
 **Historical note:** Phase 2 implementation was reported as written. Earlier sandbox checks covered selected JavaScript syntax/helpers with mocked fetch. FastAPI/SQLAlchemy tests, JSX/Vite build, launcher execution, and full end-to-end flows remained unverified at that point. Confirm current state before changing these boxes.
+
+**Verification update 2026-11-27:** The full isolated backend suite passed 79 tests and 59 subtests. The frontend production build passed. These checks verify backend/API behavior and frontend compilation; they do not verify manual browser CRUD, filtering, pagination, restart persistence, or phone layouts. A live smoke-test attempt encountered an already-running server on port 8000, so no end-to-end or real-data safety claim is made for that attempt. See the latest HANDOFF entry.
 
 ## Phase 3 — Dashboard and budgets
 

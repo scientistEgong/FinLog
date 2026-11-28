@@ -1,6 +1,7 @@
 """Validated request and response shapes for category budgets."""
 from datetime import date
-from typing import Literal, Optional
+from decimal import Decimal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -52,9 +53,35 @@ class BudgetOut(BaseModel):
     amount_display: str
 
 
+class BudgetComparison(BaseModel):
+    period_type: Literal["week", "month"]
+    period_start: date
+    category_id: int
+    category_name: str
+    budget_kobo: int
+    budget_display: str
+    budget_status: Literal["set", "budget_needed"]
+    actual_kobo: int
+    actual_display: str
+    remaining_kobo: int
+    remaining_display: str
+    overspent_kobo: int
+    overspent_display: str
+    utilization_percent: Decimal | None
+
+
 class BudgetPage(BaseModel):
     period_type: Literal["week", "month"]
     period_start: date
     items: list[BudgetOut]
     total_budget_kobo: int
     total_budget_display: str
+    comparison: list[BudgetComparison]
+    total_actual_kobo: int
+    total_actual_display: str
+    total_remaining_kobo: int
+    total_remaining_display: str
+    total_overspent_kobo: int
+    total_overspent_display: str
+    is_partial_period: bool
+    actual_through: date | None

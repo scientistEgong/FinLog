@@ -53,6 +53,7 @@ export default function Analytics() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,7 +66,7 @@ export default function Analytics() {
     return () => {
       cancelled = true;
     };
-  }, [dateFrom, dateTo, groupBy]);
+  }, [dateFrom, dateTo, groupBy, refreshKey]);
 
   function applyPreset(value) {
     const range = periodRangeForPreset(value);
@@ -174,13 +175,19 @@ export default function Analytics() {
       </section>
 
       {loading && <p className="muted" role="status">Loading analytics…</p>}
-      {error && <div className="alert error" role="alert">{error}</div>}
+      {error && (
+        <div className="alert error" role="alert">
+          {error} <button type="button" className="secondary small-btn" onClick={() => setRefreshKey((key) => key + 1)}>Retry</button>
+        </div>
+      )}
       {!loading && !error && noTransactions && (
         <p className="card empty muted">No transactions were recorded in this date range.</p>
       )}
 
-      {!loading && !error && data && !noTransactions && (
+      {!loading && !error && data && (
         <>
+          {!noTransactions && (
+            <>
           <section className="card analytics-summary" aria-label="Selected period totals">
             <div>
               <span>Income</span>
@@ -204,6 +211,13 @@ export default function Analytics() {
             <ChartCard
               title="Income, spending, and savings"
               purpose="Compare period income with ordinary expenditure and savings contributions."
+              tableData={periods}
+              tableColumns={[
+                { key: "label", label: "Period" },
+                { key: "income_kobo", label: "Income", render: formatKobo },
+                { key: "expenditure_kobo", label: "Ordinary spending", render: formatKobo },
+                { key: "savings_kobo", label: "Savings", render: formatKobo },
+              ]}
             >
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={periods} margin={{ top: 12, right: 16, bottom: 4, left: 8 }}>
@@ -242,6 +256,11 @@ export default function Analytics() {
             <ChartCard
               title="Change in available balance"
               purpose="Income minus ordinary spending and savings set aside; opening balance is excluded."
+              tableData={periods}
+              tableColumns={[
+                { key: "label", label: "Period" },
+                { key: "available_change_kobo", label: "Available balance change", render: formatKobo },
+              ]}
             >
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={periods} margin={{ top: 12, right: 16, bottom: 4, left: 8 }}>
@@ -266,6 +285,11 @@ export default function Analytics() {
               title="Highest spending categories"
               purpose="Rank ordinary expenditure categories from highest to lowest for this date range."
               hasData={topSpendingCategories.length > 0}
+              tableData={topSpendingCategories}
+              tableColumns={[
+                { key: "category_name", label: "Category" },
+                { key: "amount_kobo", label: "Ordinary spending", render: formatKobo },
+              ]}
             >
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={topSpendingCategories} layout="vertical" margin={{ left: 12, right: 20 }}>
@@ -281,6 +305,14 @@ export default function Analytics() {
               title="Spending by category over time"
               purpose="See which of your five largest categories drive changes in ordinary spending."
               hasData={categoryTrendNames.length > 0}
+              tableData={categoryTrendData.map((row) => ({
+                ...row,
+                ...Object.fromEntries(categoryTrendNames.map((category) => [category, formatKobo(row[category])])),
+              }))}
+              tableColumns={[
+                { key: "label", label: "Period" },
+                ...categoryTrendNames.map((category) => ({ key: category, label: category })),
+              ]}
             >
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={categoryTrendData} margin={{ top: 12, right: 16, bottom: 4, left: 8 }}>
@@ -311,6 +343,11 @@ export default function Analytics() {
               title="Savings contributions"
               purpose="Track expenses assigned to savings categories, separately from ordinary expenditure."
               hasData={periods.some((period) => period.savings_kobo > 0)}
+              tableData={periods}
+              tableColumns={[
+                { key: "label", label: "Period" },
+                { key: "savings_kobo", label: "Savings contributions", render: formatKobo },
+              ]}
             >
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={periods} margin={{ top: 12, right: 16, bottom: 4, left: 8 }}>
@@ -333,6 +370,11 @@ export default function Analytics() {
               title="Income sources"
               purpose="Rank income categories by the amount recorded during this date range."
               hasData={data.income_by_category.length > 0}
+              tableData={data.income_by_category}
+              tableColumns={[
+                { key: "category_name", label: "Income source" },
+                { key: "amount_kobo", label: "Income", render: formatKobo },
+              ]}
             >
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={data.income_by_category} layout="vertical" margin={{ left: 12, right: 20 }}>
@@ -345,9 +387,14 @@ export default function Analytics() {
             </ChartCard>
 
             <ChartCard
-              title="Average spending by weekday"
-              purpose="Compare ordinary spending per occurrence of each weekday in the selected range."
+              title="Average spending per calendar weekday occurrence"
+              purpose="Includes every occurrence of each weekday in the selected range, including days with no spending."
               hasData={periods.some((period) => period.expenditure_kobo > 0)}
+              tableData={data.spending_by_weekday}
+              tableColumns={[
+                { key: "weekday_name", label: "Weekday" },
+                { key: "average_amount_kobo", label: "Average per occurrence", render: formatKobo },
+              ]}
             >
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={data.spending_by_weekday}>
@@ -363,6 +410,12 @@ export default function Analytics() {
               title="Purchase frequency and average size"
               purpose="Distinguish periods with many smaller expenses from periods with fewer larger ones."
               hasData={periods.some((period) => period.ordinary_expense_count > 0)}
+              tableData={periods}
+              tableColumns={[
+                { key: "label", label: "Period" },
+                { key: "ordinary_expense_count", label: "Expense count" },
+                { key: "average_expense_kobo", label: "Average expense", render: formatKobo },
+              ]}
             >
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={periods} margin={{ top: 12, right: 16, bottom: 4, left: 8 }}>
@@ -400,6 +453,11 @@ export default function Analytics() {
               </ResponsiveContainer>
             </ChartCard>
           </div>
+            </>
+          )}
+          {noTransactions && (
+            <BudgetComparisonChart rows={data.budget_comparison || []} groupBy={groupBy} />
+          )}
         </>
       )}
     </>

@@ -5,6 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, model_validator
 
+from app.schemas.budget import BudgetComparison
 from app.services.validation import check_date_in_range
 
 
@@ -55,22 +56,6 @@ class TopExpense(BaseModel):
     transaction_date: date
     amount_kobo: int
     amount_display: str
-
-
-class BudgetComparison(BaseModel):
-    period_type: Literal["week", "month"]
-    period_start: date
-    category_id: int
-    category_name: str
-    budget_kobo: int
-    budget_display: str
-    actual_kobo: int
-    actual_display: str
-    remaining_kobo: int
-    remaining_display: str
-    variance_kobo: int
-    variance_display: str
-    utilization_percent: Decimal
 
 
 class AnalyticsSummary(BaseModel):
