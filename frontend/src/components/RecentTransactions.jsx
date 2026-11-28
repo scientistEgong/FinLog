@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listTransactions } from "../api/transactions.js";
+import { formatDisplayDate } from "../utils/dates.js";
 
 // ============================================================
 // 1. Load the latest records and present the compact transaction list
@@ -55,7 +56,7 @@ export default function RecentTransactions() {
           <tbody>
             {items.map((transaction) => (
               <tr key={transaction.id}>
-                <td data-label="Date">{transaction.transaction_date}</td>
+                <td data-label="Date">{formatDisplayDate(transaction.transaction_date)}</td>
                 <td data-label="Description">{transaction.description}</td>
                 <td data-label="Category">
                   {transaction.category_name}

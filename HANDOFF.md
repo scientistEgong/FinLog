@@ -310,6 +310,80 @@ The eleven Analytics chart purposes are: period income/ordinary spending/savings
 
 **Runtime verification limitation and safety note:** A live check was attempted while port 8000 was already occupied. A temporary backend was launched with `FINLOG_DATABASE_URL` pointing to `C:\Users\Scientist\AppData\Local\Temp\FinLogRuntime_20261127.db`, but Windows reported multiple listeners on port 8000. Requests were sent to `127.0.0.1:8000` before the collision was understood; therefore it cannot be proven which listener handled them. The requests created and edited a synthetic transaction (then sent a delete request), attempted a duplicate weekly budget, and created/edited a November 2026 Transport monthly budget to ₦9,000. These may have reached the pre-existing local application and may have changed its database. No further requests were made; the temporary database and processes started by this pass were stopped/removed. The user should inspect the live application for the synthetic transaction description “Synthetic browser audit edited” and a November 2026 Transport monthly budget of ₦9,000 if those values were not already present. This audit did not read the real database. Phone screenshots and the requested interactive browser workflow were not completed because the ports were not safely isolated.
 
+### UI redesign and appearance system — approved 2026-11-28
+
+**Implemented:** The frontend now has three independent appearance axes: layout,
+colour, and mode. Six layouts are available — Verdant (default), Classic,
+Compass, Harmattan, Ledgerline, and Tape — with the previous interface preserved
+as Classic. Five palettes are available (Forest Ink, Midnight Blue, Harbor Teal,
+Graphite, Mint) and System/Light/Dark modes. Values resolve onto `<html>` as
+`data-layout`, `data-palette`, `data-mode`, and the mode preference as
+`data-mode-preference`; an inline script in `frontend/index.html` applies stored
+values before first paint.
+
+The two header dropdowns were replaced by a visual appearance panel with layout
+schematic cards, palette swatches, and a mode segment control. The logo is now a
+single token-driven `BrandMark` component; tile, glyph, and accent follow the
+palette and mode, and `theme-color` tracks the palette.
+
+Layout changes apply to all four pages. Dashboard order is now: balance hero and
+period totals, reporting-period control, weekly budget panel, charts, recent
+transactions, observations, opening-balance editor. Transactions gains an
+explicit add/hide form action and supports `/transactions?new=1` from the
+dashboard hero. Budgets gains a period summary strip and human period captions
+("Showing 22–28 Nov 2026"); dates in lists render as "27 Nov 2026". Chart axis
+and legend text follow the active theme, and the two-column dashboard layouts
+render recent transactions as a compact two-line entry.
+
+`frontend/public/` now holds `favicon.svg` (master), `favicon-32.png`,
+`favicon-48.png`, `apple-touch-icon.png`, and `site.webmanifest`; the old
+project-root `frontend/finlog-icon.svg` was removed. `doc/UI_DESIGN.md` was
+rewritten with the appearance model, dashboard map, brand tokens, and icon
+regeneration steps.
+
+**Important decisions:** (1) No new dependency and no Tailwind: the system uses
+the existing React/Vite/plain-CSS stack, matching `AGENTS.md` and the user's
+chosen option. (2) No remote fonts: `SECURITY.md` forbids third-party fonts
+without approval, so serif and monospaced layouts use local stacks with the
+intended families named first. (3) The loans block is intentionally absent until
+Phase 5's API exists. (4) Defaults are Verdant, Forest Ink, System. (5) The
+backend budget totals clamp unspent and overspent amounts separately; the UI
+shows both and does not invent a net figure or call a period over budget when
+only one category is. (6) Where the clarification answers selected every option
+(styling and loans), the recommended path recorded above was used.
+
+**Files:** `frontend/src/utils/theme.js`, `frontend/src/components/BrandMark.jsx`,
+`frontend/src/components/AppearanceMenu.jsx`,
+`frontend/src/components/DashboardHero.jsx`,
+`frontend/src/components/DashboardBudgetPanel.jsx`,
+`frontend/src/hooks/useWeeklyBudget.js`, `frontend/src/components/Layout.jsx`,
+`frontend/src/pages/Dashboard.jsx`, `frontend/src/pages/Transactions.jsx`,
+`frontend/src/pages/Budgets.jsx`, `frontend/src/pages/Analytics.jsx`,
+`frontend/src/components/RecentTransactions.jsx`,
+`frontend/src/components/TransactionList.jsx`,
+`frontend/src/components/AnalyticsCharts.jsx`, `frontend/src/utils/dates.js`,
+`frontend/src/styles/tokens.css`, `base.css`, `layouts.css`, `main.css`,
+`frontend/index.html`, `frontend/public/*`, `doc/UI_DESIGN.md`,
+`PROJECT_DOC.md`, `PROJECT_CHECKLIST.md`. `DashboardSummaryCards.jsx` was deleted
+because the hero replaced it.
+
+**Verified 2026-11-28:** `npm.cmd run build` from `frontend` passed after the
+theme work (39.61 kB CSS, 681 modules) and again after the budget-copy fix.
+Headless Chromium at 1440×1000 rendered Verdant, Classic, Compass, Harmattan,
+Ledgerline, and Tape; a dark Verdant dashboard; dark Analytics; Ledgerline
+Transactions; and Tape Budgets. Appearance interactions were asserted through
+the DOM: selecting Midnight Blue produced `data-palette="midnight"` and
+`--brand: #2457a6`; selecting Dark produced `data-mode="dark"` with
+`data-mode-preference="dark"`. A 390×844 run measured `scrollWidth` 375 against
+a 390 px viewport, so no horizontal overflow. Synthetic records were served from
+a disposable SQLite database via `FINLOG_DATABASE_URL`; `data/finlog.db` was not
+opened or modified.
+
+**Not verified:** keyboard-only traversal and screen-reader announcement,
+Firefox/Safari, physical phones, chart tooltips on touch, production serving of
+the built bundle, and per-pair contrast measurement across the full
+6 × 5 × 2 matrix. Backend tests were not rerun because no backend file changed.
+
 ## 9. Data safety and Git
 
 Never commit:

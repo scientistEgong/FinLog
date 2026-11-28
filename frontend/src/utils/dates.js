@@ -99,3 +99,31 @@ export function formatDateRange(dateFrom, dateTo) {
   const toLabel = to.toLocaleDateString("en-NG", { day: "numeric", month: "short" });
   return `${fromLabel} – ${toLabel} ${to.getFullYear()}`;
 }
+
+// ============================================================
+// 4. Human-readable dates for lists and period captions
+// ============================================================
+// Stored and API dates stay ISO; only presentation changes. Parsing at noon
+// keeps the calendar day stable in every timezone.
+export function formatDisplayDate(isoDate) {
+  if (!isoDate) return "";
+  const date = new Date(`${isoDate}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return isoDate;
+  return date.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
+}
+
+export function formatPeriodLabel(periodType, periodStart) {
+  if (!periodStart) return "";
+  const start = new Date(`${periodStart}T12:00:00`);
+  if (Number.isNaN(start.getTime())) return periodStart;
+
+  if (periodType === "month") {
+    return start.toLocaleDateString("en-NG", { month: "long", year: "numeric" });
+  }
+
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  const startLabel = start.toLocaleDateString("en-NG", { day: "numeric", month: "short" });
+  const endLabel = end.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
+  return `${startLabel} – ${endLabel}`;
+}

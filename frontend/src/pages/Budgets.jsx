@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createBudget, listBudgets, removeBudget, updateBudget } from "../api/budgets.js";
 import useCategories from "../hooks/useCategories.js";
-import { periodStartISO, todayISO } from "../utils/dates.js";
+import { formatPeriodLabel, periodStartISO, todayISO } from "../utils/dates.js";
 
 const EMPTY_FORM = { categoryId: "", amount: "" };
 
@@ -20,6 +20,7 @@ export default function Budgets() {
     total_budget_display: "₦0.00",
     total_actual_display: "₦0.00",
     total_remaining_display: "₦0.00",
+    total_remaining_kobo: 0,
     total_overspent_display: "₦0.00",
     total_overspent_kobo: 0,
     is_partial_period: false,
@@ -111,7 +112,8 @@ export default function Budgets() {
     }
   }
 
-  const periodLabel = periodType === "week" ? "Week starting Sunday" : "Month starting on the first";
+  // Any date inside the period is accepted; the canonical start is derived.
+  const periodLabel = periodType === "week" ? "Any date in the week" : "Any date in the month";
 
   // The backend owns budget totals; this page only presents returned values.
   return (
@@ -147,7 +149,7 @@ export default function Budgets() {
             required
           />
         </label>
-        <p className="muted small">Showing period starting {periodStart}</p>
+        <p className="muted small">Showing {formatPeriodLabel(periodType, periodStart)}</p>
       </section>
 
       <section className="card budget-summary" aria-label="Budget position for this period">
@@ -160,17 +162,18 @@ export default function Budgets() {
           <strong className="num">{loading ? "—" : data.total_actual_display}</strong>
         </div>
         <div>
-          <span>{data.total_overspent_kobo > 0 ? "Over budget" : "Left"}</span>
-          <strong className={`num${data.total_overspent_kobo > 0 ? " is-expense" : ""}`}>
-            {loading ? "—" : data.total_overspent_kobo > 0
-              ? data.total_overspent_display
-              : data.total_remaining_display}
-          </strong>
+          <span>Left</span>
+          <strong className="num">{loading ? "—" : data.total_remaining_display}</strong>
         </div>
         <div>
           <span>Categories</span>
           <strong className="num">{loading ? "—" : data.items.length}</strong>
         </div>
+        {!loading && data.total_overspent_kobo > 0 && (
+          <p className="small budget-summary-note is-expense">
+            Some categories are already over their allocation by {data.total_overspent_display}.
+          </p>
+        )}
         {!loading && data.is_partial_period && (
           <p className="muted small budget-summary-note">
             This period is still in progress. Spending is counted up to {data.actual_through}.
@@ -268,7 +271,7 @@ export default function Budgets() {
                 <td data-label="Budget" className="num">{data.total_budget_display}</td>
                 <td data-label="Spent" className="num">{data.total_actual_display}</td>
                 <td data-label="Remaining / overspent" className="num">
-                  {data.total_overspent_kobo > 0
+                  {data.total_remaining_kobo < 0
                     ? `Overspent ${data.total_overspent_display}`
                     : `${data.total_remaining_display} remaining`}
                 </td>

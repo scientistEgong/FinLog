@@ -2,6 +2,7 @@
 // 1. Load dependencies and compact-board limits
 // ============================================================
 import { Link } from "react-router-dom";
+import { formatPeriodLabel } from "../utils/dates.js";
 
 const MAX_ROWS = 4;
 
@@ -25,14 +26,20 @@ export default function DashboardBudgetPanel({ budget, loading, error, periodSta
     .filter((row) => row.budget_status === "set")
     .slice(0, MAX_ROWS);
   const hasAllocation = Boolean(budget && budget.total_budget_kobo > 0);
-  const overspent = (budget?.total_overspent_kobo || 0) > 0;
+  // The API reports unspent budget and overspending as separate totals, so the
+  // panel shows both rather than implying one net figure.
+  const overBudgetCategories = (budget?.comparison || []).filter(
+    (row) => row.overspent_kobo > 0,
+  ).length;
 
   return (
     <section className="card dash-budget" aria-label="This week's budget">
       <div className="panel-heading">
         <div>
           <h2>What is left this week?</h2>
-          <p className="muted small">Week starting {periodStart}. Spending excludes savings transfers.</p>
+          <p className="muted small">
+            Week of {formatPeriodLabel("week", periodStart)}. Spending excludes savings transfers.
+          </p>
         </div>
         <Link className="secondary small-btn" to="/budgets">Open budgets</Link>
       </div>
@@ -72,11 +79,15 @@ export default function DashboardBudgetPanel({ budget, loading, error, periodSta
             })}
           </div>
           <div className="budget-total">
-            <span>{overspent ? "Over budget this week" : "Left this week"}</span>
-            <strong className={`num${overspent ? " is-expense" : ""}`}>
-              {overspent ? budget.total_overspent_display : budget.total_remaining_display}
-            </strong>
+            <span>Left in budget</span>
+            <strong className="num">{budget.total_remaining_display}</strong>
           </div>
+          {overBudgetCategories > 0 && (
+            <p className="budget-total-note">
+              {overBudgetCategories} {overBudgetCategories === 1 ? "category is" : "categories are"} already
+              over by {budget.total_overspent_display}.
+            </p>
+          )}
         </>
       )}
     </section>

@@ -11,12 +11,11 @@ import { formatDateRange } from "../utils/dates.js";
 // the gauge percentage, which is presentation, not an authoritative balance.
 export default function DashboardHero({ summary, period, range, budget, loading, error }) {
   const balanceText = loading ? "—" : error ? "Unavailable" : summary?.available_balance_display || "—";
-  const overspent = (budget?.total_overspent_kobo || 0) > 0;
+  // The API reports unspent budget and overspending separately, so the hero
+  // shows what is still available and the panel explains any overspending.
   const hasAllocation = Boolean(budget && budget.total_budget_kobo > 0);
   const budgetText = hasAllocation
-    ? overspent
-      ? budget.total_overspent_display
-      : budget.total_remaining_display
+    ? budget.total_remaining_display
     : loading
       ? "Loading…"
       : "Not set";
@@ -73,8 +72,8 @@ export default function DashboardHero({ summary, period, range, budget, loading,
           <dd>{period?.savings_display || "—"}</dd>
         </div>
         <div>
-          <dt>{overspent ? "Over budget" : "Budget left"}</dt>
-          <dd className={overspent ? "is-expense" : undefined}>{budgetText}</dd>
+          <dt>Budget left</dt>
+          <dd>{budgetText}</dd>
         </div>
       </dl>
     </section>

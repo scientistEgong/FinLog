@@ -21,7 +21,7 @@ The project is intentionally single-user and local at this stage. Login, cloud h
 | Vite 5 | Frontend development server and build tool | Serves the React app on port 5173 and bundles it for production. Its development proxy forwards `/api` calls to FastAPI. |
 | React Router 6 | Client-side navigation library | Maps URLs such as `/transactions` and `/budgets` to React page components without a full page reload. |
 | Recharts 3 | React chart library | Renders the analytics visuals from API-provided data; loaded only when the Analytics page opens. |
-| CSS | Browser styling language | Sets responsive layout, colors, controls and the mobile table-to-card presentation. |
+| CSS | Browser styling language | Sets responsive layout, colour tokens, six layout treatments, controls and the mobile table-to-card presentation; no CSS framework is used. |
 | pytest / unittest | Python test tools | pytest runs the integration/database tests; several pure helper tests use Python's built-in unittest style and can also be collected by pytest. |
 | httpx | HTTP client library | Supports FastAPI's test client in API tests. |
 | npm / Node.js | JavaScript package manager/runtime | Installs frontend dependencies and runs Vite scripts. |
@@ -56,17 +56,20 @@ Each backend layer has a narrow responsibility. Routers translate HTTP into serv
 - `backend/app/exports/`: reserved for future CSV/PDF export implementation.
 - `backend/app/migrations/`: currently contains migration guidance only; Alembic baseline is a future requirement.
 - `backend/test/`: temporary-database fixtures and unit/API/database tests. The directory is named `test` (not the historical `tests`).
-- `frontend/index.html`: browser entry document with the React mount point.
+- `frontend/index.html`: browser entry document, icon/manifest links, and the pre-paint appearance bootstrap.
+- `frontend/public/`: favicon master, generated PNG sizes, and the web manifest.
 - `frontend/src/main.jsx`: mounts React and browser routing.
-- `frontend/src/App.jsx`: URL-to-page routing; unfinished sections currently show “Coming soon”.
+- `frontend/src/App.jsx`: URL-to-page routing; unfinished sections show planned-phase copy.
 - `frontend/src/api/`: API request wrapper and endpoint-specific functions, including analytics.
 - `frontend/src/pages/`: page-level state and coordination for Dashboard, Analytics, Budgets and Transactions.
-- `frontend/src/components/`: reusable UI elements and forms.
-- `frontend/src/hooks/`: reusable React state/effect logic, currently category loading.
-- `frontend/src/utils/`: small display/input helpers, currently local date formatting.
-- `frontend/src/styles/main.css`: responsive visual system.
-- `frontend/finlog-icon.svg`: scalable browser tab icon using the FinLog mark.
-- `doc/UI_DESIGN.md`: palette/mode options, visual direction, favicon creation steps, and frontend setup notes.
+- `frontend/src/components/`: reusable UI, including `Layout`, `BrandMark`, `AppearanceMenu`, `DashboardHero` and `DashboardBudgetPanel`.
+- `frontend/src/hooks/`: reusable state/effect logic for categories and the current weekly budget.
+- `frontend/src/utils/`: date/period formatting, money formatting and theme descriptors.
+- `frontend/src/styles/tokens.css`: palette, mode, layout, typography and logo tokens.
+- `frontend/src/styles/base.css`: elements, cards, controls, tables, charts and the appearance panel.
+- `frontend/src/styles/layouts.css`: shell and the six layout treatments.
+- `frontend/src/styles/main.css`: imports the style layers and carries page composition.
+- `doc/UI_DESIGN.md`: appearance model, dashboard information architecture, brand/icon system, and favicon regeneration steps.
 - `frontend/vite.config.js`: React plugin, frontend port and local API proxy.
 - `frontend/package.json` / `package-lock.json`: frontend dependency declarations and resolved npm dependency tree.
 - `data/`: local database location; `export_output/` exists for future generated files.
@@ -97,18 +100,21 @@ Implemented source currently contains:
 - `GET /api/analytics?date_from=YYYY-MM-DD&date_to=YYYY-MM-DD&group_by=week|month|year` returns backend-aggregated trend, category, and weekday data for the selected range.
 - `GET /api/budgets?period_type=week|month&period_start=YYYY-MM-DD`, `POST /api/budgets`, `PUT /api/budgets/{id}`, and `DELETE /api/budgets/{id}` manage category allocations for canonical Sunday or first-of-month period starts.
 - API error conventions: 404 for missing records, 409 for conflicts (such as deleting a protected category), and 422 for invalid input. Transaction amounts return `amount_kobo`, `amount_input` for editing, and `amount_display` for display.
-- React transaction page: add/edit/delete, category selection and quick category creation, filters/search, and pagination.
-- React dashboard page: API-provided all-time financial cards and opening balance editor.
+- React transaction page: add/edit/delete, category selection and quick category creation, filters/search, and pagination. The entry form opens from an explicit action or the `?new=1` deep link used by the dashboard.
+- React dashboard page: balance hero with period totals, a reporting-period control, a weekly budget panel with per-category progress, period comparison and category charts, the trailing-year trend, recent transactions, and the opening-balance editor. The dashboard directs "Add transaction" to the expanded transaction form.
 - React analytics page: eight Recharts views for period cash flow, available-balance movement, top spending categories, category trends, savings, income sources, weekday averages, and expense frequency/size. It also shows backend-provided savings-rate trend, budget-versus-actual comparison with remaining or over-budget amounts for complete weekly/monthly periods, and linked top individual expenses. Trend charts use lines, category segmentation uses horizontal bars, and chart gridlines are omitted. Date range, preset periods, and weekly/monthly/yearly grouping controls are available; chart calculations come from the backend.
 - Dashboard spending trend: a weekly/monthly line chart over the trailing 12 months, with the highest-spending period returned by the backend and highlighted in the chart.
-- React budget page: week/month selection, calendar date input, category allocation CRUD and backend-provided period total.
-- Stub navigation routes remain for loans and reports.
+- React budget page: week/month selection, any-date-in-period input, a period summary of allocation, spending and remaining budget, category allocation CRUD, and a backend comparison table with spent and remaining/overspent amounts per category.
+- Appearance system: six layouts (Verdant, Classic, Compass, Harmattan, Ledgerline, Tape), five palettes (Forest Ink, Midnight Blue, Harbor Teal, Graphite, Mint) and three modes (System, Light, Dark), chosen from a visual appearance panel and stored per browser profile.
+- Stub navigation routes remain for loans and reports; the dashboard intentionally omits a loans block until Phase 5 exists.
 
 ## Progress and verification
 
 Phase 3 implementation is present. On 2026-11-26, the full backend suite passed (55 tests), the frontend production build passed, four Node assertions checked Sunday/month period-start conversion, and headless Chrome screenshots inspected the Dashboard and Budgets pages at 390px and 1440px viewport widths using a disposable database with synthetic records. Interactive budget-form and opening-balance save flows have not been manually exercised in a browser. These checks do not verify the launcher or a production deployment.
 
 Phase 4 analytics implementation is present and tested. On 2026-11-26, the analytics tests passed 6 cases, the full backend suite passed 66 tests and 21 subtests, and the frontend production build passed. A headless Chrome desktop DOM render confirmed the new chart sections and budget comparison rows with synthetic data on a temporary database. The budget API also exposes each category's remaining amount, with negative amounts presented as overspending. Manual visual review of phone/desktop screenshots and interactive tooltip/preset/link flows remains outstanding. See `HANDOFF.md` for commands, dependency review, and limitations.
+
+The appearance system and dashboard reorganisation were implemented on 2026-11-28. The frontend production build passed twice after the change. Headless Chromium renders at 1440×1000 confirmed all six layouts, the dark palette, and the appearance interactions (palette changes to Midnight Blue, mode changes to Dark); a 390×844 check measured a 375 px document width with no horizontal overflow. Transactions, Budgets and Analytics were rendered in Ledgerline, Tape and dark Verdant respectively against a disposable database with synthetic records. `data/finlog.db` was not used. Keyboard-only traversal, screen readers, other browsers, and production serving remain unverified. See `doc/UI_DESIGN.md`.
 
 ## Planned phases from the handoff
 
@@ -138,7 +144,7 @@ Phase 4 analytics implementation is present and tested. On 2026-11-26, the analy
 
 FinLog is a Windows-first local personal finance tracker with a React 18 + Vite frontend, FastAPI/Python backend, Pydantic 2 request/response validation, SQLAlchemy 2 ORM and SQLite local database. The frontend dev server is intended for port 5173 and proxies `/api` to FastAPI on port 8000. Backend structure is routers → services → repositories → SQLAlchemy models. React displays API data and should not calculate financial totals.
 
-The project has completed the foundation phase and implements transaction management, the Phase 3 dashboard/budgets, and Phase 4 analytics. Analytics provides preset and custom date ranges, weekly/monthly/yearly trend grouping, Recharts views, savings-rate trend, budget comparison with per-category remaining funds, and top individual expenses; all monetary aggregation is performed in the backend. Analytics tests, the full backend suite, and the frontend production build passed. Desktop DOM rendering was checked with synthetic data; manual visual/interactive browser review remains outstanding. Loans/repayments and exports remain planned.
+The project has completed the foundation phase and implements transaction management, the Phase 3 dashboard/budgets, and Phase 4 analytics. Analytics provides preset and custom date ranges, weekly/monthly/yearly trend grouping, Recharts views, savings-rate trend, budget comparison with per-category remaining funds, and top individual expenses; all monetary aggregation is performed in the backend. The interface now has an independent layout, colour and mode appearance system (six layouts, five palettes, three modes) applied to all four pages, with a dashboard ordered around the balance, the current week's budget, and recent movement. Analytics tests, the full backend suite, and the frontend production build passed. Desktop DOM rendering was checked with synthetic data, and the appearance system was checked in headless Chromium; manual visual/interactive browser review and accessibility testing remain outstanding. Loans/repayments and exports remain planned.
 
 Core rules: persist all money as integer kobo (₦1 = 100 kobo), reject precision beyond two decimals, use shared categories, treat Savings-category expenses separately from ordinary expenditure, keep opening balance out of income, and use Sunday–Saturday weeks. Loans must never create transaction rows. No fabricated financial data in the real DB. The database currently uses `create_all` and has no Alembic migration baseline or backup routine; the handoff says not to enter real records until migrations are handled.
 

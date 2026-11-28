@@ -123,6 +123,36 @@ Trend charts use lines, category segmentation uses horizontal bars, chart gridli
 
 **Verified 2026-11-26:** `..\.venv\Scripts\python.exe -m pytest test\test_analytics.py -q` passed 6 tests from `backend`. The full backend suite passed 66 tests and 21 subtests. `npm.cmd run build` passed from `frontend`. A headless Chrome DOM render on a temporary database and ports confirmed the new chart sections and budget rows; temporary artifacts were removed.
 
+## UI redesign and appearance system — approved 2026-11-28
+
+- [x] Add a layout axis with Verdant, Classic, Compass, Harmattan, Ledgerline, and Tape.
+- [x] Keep Forest Ink, Midnight Blue, and Harbor Teal; add Graphite and Mint.
+- [x] Keep System, Light, and Dark modes and resolve System to a concrete mode.
+- [x] Persist layout, palette, and mode per browser profile and apply them before first paint.
+- [x] Replace the two appearance dropdowns with a visual appearance panel.
+- [x] Drive the logo from palette tokens in the navigation, mobile header, and tab icon.
+- [x] Reorder the dashboard around the balance, period totals, and the current week's budget.
+- [x] Add a weekly budget panel fed by the budget API comparison.
+- [x] Add a period summary strip to the Budgets page.
+- [x] Render dates in lists and period captions in readable form.
+- [x] Put the transaction form behind an explicit action and support `?new=1`.
+- [x] Show remaining budget and overspending separately rather than one misleading total.
+- [x] Apply layout treatments and responsive rules to Dashboard, Transactions, Budgets, and Analytics.
+- [x] Ship favicon SVG, 32/48/180 PNG sizes, and a web manifest; document regeneration.
+- [x] Rewrite `doc/UI_DESIGN.md` and update `PROJECT_DOC.md`.
+- [ ] Manually verify keyboard-only traversal and screen-reader announcement.
+- [ ] Verify the layout on Firefox, Safari, and a physical phone.
+- [ ] Measure contrast for every palette against every layout and mode.
+
+**Verified 2026-11-28:** `npm.cmd run build` passed from `frontend` (39.61 kB CSS).
+Headless Chromium rendered all six layouts at 1440×1000, dark mode, and the other
+three pages. Palette and mode changes were asserted through the DOM
+(`data-palette="midnight"` with `--brand: #2457a6`; `data-mode="dark"` with
+`data-mode-preference="dark"`). A 390×844 run measured a 375 px document width,
+so no horizontal overflow. Synthetic data came from a disposable database; the
+live `data/finlog.db` was not used. Backend tests were not rerun because no
+backend file changed. See `HANDOFF.md` for the full record.
+
 ## Phase 5 — Loans and repayments
 
 - [ ] Confirm loan and repayment workflows.
@@ -179,9 +209,9 @@ Trend charts use lines, category segmentation uses horizontal bars, chart gridli
 
 ## Current phase and next approved task
 
-**Current phase:** Stage 3 Dashboard and Stage 4 Analytics enhancements are implemented. Analytics backend tests, the full backend suite, and the frontend production build passed; desktop DOM rendering was confirmed with synthetic data. Manual visual/interactive browser verification remains outstanding.
+**Current phase:** Stage 3 Dashboard and Stage 4 Analytics enhancements are implemented, and the approved UI redesign and appearance system was implemented on 2026-11-28. The frontend production build passed and all six layouts were rendered in headless Chromium at desktop and phone widths. Manual accessibility and cross-browser verification remains outstanding.
 
-**Next logical action:** Visually inspect phone and desktop screenshots and manually exercise chart tooltips, preset buttons, and top-expense links if UX sign-off is required. Do not begin later phases without explicit approval.
+**Next logical action:** Manually exercise keyboard navigation, screen-reader output, chart tooltips on touch, and the appearance panel on a physical device if UX sign-off is required. Do not begin later phases without explicit approval.
 
 ## Progress recording rules
 

@@ -14,6 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { formatDisplayDate } from "../utils/dates.js";
 import { compactKobo, formatKobo, formatPercent } from "../utils/money.js";
 
 export const ANALYTICS_COLORS = [
@@ -110,7 +111,9 @@ export function ChartTooltip({ active, payload, label }) {
         row.utilization_percent !== null && <div>Budget used: {formatPercent(row.utilization_percent)}</div>
       )}
       {row.transaction_date && (
-        <div className="tooltip-meta">{row.category_name} · {row.transaction_date}</div>
+        <div className="tooltip-meta">
+          {row.category_name} · {formatDisplayDate(row.transaction_date)}
+        </div>
       )}
     </div>
   );
@@ -250,7 +253,7 @@ export function TopExpensesChart({ expenses }) {
               {expense.description || "Untitled expense"}
             </Link>
             <span>
-              {expense.category_name} · {expense.transaction_date} · {expense.amount_display}
+              {expense.category_name} · {formatDisplayDate(expense.transaction_date)} · {expense.amount_display}
             </span>
           </li>
         ))}

@@ -1,6 +1,8 @@
 // ============================================================
 // 1. Render transaction history with loading and empty states
 // ============================================================
+import { formatDisplayDate } from "../utils/dates.js";
+
 export default function TransactionList({ items, loading, onEdit, onDelete }) {
   if (!loading && items.length === 0) {
     return <p className="muted empty">No transactions match. Add one above, or change the filters.</p>;
@@ -21,7 +23,7 @@ export default function TransactionList({ items, loading, onEdit, onDelete }) {
       <tbody>
         {items.map((t) => (
           <tr key={t.id}>
-            <td data-label="Date">{t.transaction_date}</td>
+            <td data-label="Date">{formatDisplayDate(t.transaction_date)}</td>
             <td data-label="Description">
               {t.description}
               {t.notes && <div className="muted small">{t.notes}</div>}
