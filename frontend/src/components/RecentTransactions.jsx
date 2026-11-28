@@ -25,7 +25,7 @@ export default function RecentTransactions() {
   }, [refreshKey]);
 
   return (
-    <section className="card">
+    <section className="card recent-transactions">
       <div className="budget-heading">
         <div>
           <h2>Recent transactions</h2>

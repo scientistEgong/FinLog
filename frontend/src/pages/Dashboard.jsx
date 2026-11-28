@@ -1,15 +1,23 @@
+// ============================================================
+// 1. Load dashboard data, the weekly budget, and chart components
+// ============================================================
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { getDashboardSummary } from "../api/dashboard.js";
+import DashboardBudgetPanel from "../components/DashboardBudgetPanel.jsx";
+import DashboardHero from "../components/DashboardHero.jsx";
 import DashboardPeriodSelector from "../components/DashboardPeriodSelector.jsx";
-import DashboardSummaryCards from "../components/DashboardSummaryCards.jsx";
 import OpeningBalanceCard from "../components/OpeningBalanceCard.jsx";
 import RecentTransactions from "../components/RecentTransactions.jsx";
+import useWeeklyBudget from "../hooks/useWeeklyBudget.js";
 import { periodRangeForPreset } from "../utils/dates.js";
 
 const DashboardSpendingTrend = lazy(() => import("../components/DashboardSpendingTrend.jsx"));
 const IncomeExpenseChart = lazy(() => import("../components/IncomeExpenseChart.jsx"));
 const SpendingByCategoryChart = lazy(() => import("../components/SpendingByCategoryChart.jsx"));
 
+// ============================================================
+// 2. Coordinate the selected reporting period and all-time position
+// ============================================================
 export default function Dashboard() {
   const [preset, setPreset] = useState("this-month");
   const [customRange, setCustomRange] = useState(null);
@@ -17,6 +25,12 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const {
+    budget,
+    loading: budgetLoading,
+    error: budgetError,
+    periodStart,
+  } = useWeeklyBudget();
 
   const range = useMemo(
     () => customRange || periodRangeForPreset(preset),
@@ -40,27 +54,23 @@ export default function Dashboard() {
     };
   }, [refreshKey, range.dateFrom, range.dateTo]);
 
+  // ============================================================
+  // 3. Lead with the balance, then this week's budget and movement
+  // ============================================================
+  // Order follows the approved prototype: position and choices first, then the
+  // weekly budget, then analysis, then the raw transaction ledger.
   return (
-    <>
-      <h1>Dashboard</h1>
-      <p className="muted">Current position, selected-period activity, and recent financial movements.</p>
+    <div className="page page-dashboard">
+      <h1 className="visually-hidden">Dashboard</h1>
 
-      <OpeningBalanceCard onSaved={refresh} />
-
-      <DashboardPeriodSelector
-        preset={preset}
+      <DashboardHero
+        summary={summary}
+        period={period}
         range={range}
-        onPresetChange={(nextPreset) => {
-          setPreset(nextPreset);
-          setCustomRange(null);
-        }}
-        onCustomChange={(nextRange) => {
-          setPreset("custom");
-          setCustomRange(nextRange);
-        }}
+        budget={budget}
+        loading={loading}
+        error={error}
       />
-
-      <DashboardSummaryCards summary={summary} loading={loading} error={error} range={range} />
 
       {error && (
         <div className="alert error" role="alert">
@@ -68,28 +78,58 @@ export default function Dashboard() {
         </div>
       )}
 
-      <Suspense fallback={<p className="muted">Loading charts…</p>}>
-        <IncomeExpenseChart period={period} loading={loading} error={error} />
-        <SpendingByCategoryChart period={period} loading={loading} error={error} />
-        <DashboardSpendingTrend />
-      </Suspense>
+      <div className="dashboard-toolbar">
+        <DashboardPeriodSelector
+          preset={preset}
+          range={range}
+          onPresetChange={(nextPreset) => {
+            setPreset(nextPreset);
+            setCustomRange(null);
+          }}
+          onCustomChange={(nextRange) => {
+            setPreset("custom");
+            setCustomRange(nextRange);
+          }}
+        />
+      </div>
 
-      {!loading && !error && period?.observations?.length > 0 && (
-        <section className="card">
-          <h2>Financial observations</h2>
-          <ul className="observation-list">
-            {period.observations.map((observation) => (
-              <li key={observation.code}>{observation.message}</li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <div className="dashboard-main">
+        <div className="dashboard-column">
+          <DashboardBudgetPanel
+            budget={budget}
+            loading={budgetLoading}
+            error={budgetError}
+            periodStart={periodStart}
+          />
 
-      <RecentTransactions />
+          <Suspense fallback={<p className="muted">Loading charts…</p>}>
+            <IncomeExpenseChart period={period} loading={loading} error={error} />
+            <SpendingByCategoryChart period={period} loading={loading} error={error} />
+            <DashboardSpendingTrend />
+          </Suspense>
 
-      <p className="muted small">
+          {!loading && !error && period?.observations?.length > 0 && (
+            <section className="card dash-observations">
+              <h2>What the numbers say</h2>
+              <ul className="observation-list">
+                {period.observations.map((observation) => (
+                  <li key={observation.code}>{observation.message}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
+
+        <RecentTransactions />
+      </div>
+
+      <div className="dashboard-settings">
+        <OpeningBalanceCard onSaved={refresh} />
+      </div>
+
+      <p className="page-footnote muted small">
         Savings are shown separately from expenditure and remain part of your total wallet.
       </p>
-    </>
+    </div>
   );
 }

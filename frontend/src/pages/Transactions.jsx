@@ -29,6 +29,8 @@ export default function Transactions() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(null);
+  // The dashboard links here with ?new=1, so the entry form opens on arrival.
+  const [formOpen, setFormOpen] = useState(() => searchParams.get("new") === "1");
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Wait briefly after typing in the search box before asking the server.
@@ -84,6 +86,16 @@ export default function Transactions() {
     setEditing(null);
   }
 
+  function beginEdit(transaction) {
+    setEditing(transaction);
+    setFormOpen(true);
+  }
+
+  function toggleForm() {
+    setFormOpen((open) => !open);
+    setEditing(null);
+  }
+
   async function handleDelete(txn) {
     if (!window.confirm(`Delete "${txn.description}" (${txn.amount_display})? This cannot be undone.`)) return;
     try {
@@ -99,27 +111,44 @@ export default function Transactions() {
   const to = Math.min(offset + PAGE_SIZE, data.total);
 
   return (
-    <>
+    <div className="page page-transactions">
       <div className="page-heading-row">
         <h1>{transactionId ? "Transaction details" : "Transactions"}</h1>
-        {transactionId && (
-          <button type="button" className="secondary" onClick={returnToAllTransactions}>
-            Back to all transactions
-          </button>
-        )}
+        <div className="page-heading-actions">
+          {transactionId && (
+            <button type="button" className="secondary" onClick={returnToAllTransactions}>
+              Back to all transactions
+            </button>
+          )}
+          {!transactionId && (
+            <button
+              type="button"
+              className={formOpen ? "secondary" : ""}
+              aria-expanded={formOpen}
+              aria-controls="transaction-form"
+              onClick={toggleForm}
+            >
+              {formOpen ? "Hide form" : "Add transaction"}
+            </button>
+          )}
+        </div>
       </div>
       {categoriesError && <div className="alert error">{categoriesError}</div>}
 
-      {!transactionId && <TransactionForm
-        categories={categories}
-        editing={editing}
-        onSaved={() => {
-          setEditing(null);
-          refresh();
-        }}
-        onCancel={() => setEditing(null)}
-        onCategoryAdded={reloadCategories}
-      />}
+      {!transactionId && (formOpen || editing) && (
+        <div id="transaction-form">
+          <TransactionForm
+            categories={categories}
+            editing={editing}
+            onSaved={() => {
+              setEditing(null);
+              refresh();
+            }}
+            onCancel={() => setEditing(null)}
+            onCategoryAdded={reloadCategories}
+          />
+        </div>
+      )}
 
       <section className="card">
         <h2>{transactionId ? "Selected transaction" : "History"}</h2>
@@ -134,7 +163,7 @@ export default function Transactions() {
             {error} <button type="button" className="secondary small-btn" onClick={refresh}>Retry</button>
           </div>
         )}
-        <TransactionList items={data.items} loading={loading} onEdit={setEditing} onDelete={handleDelete} />
+        <TransactionList items={data.items} loading={loading} onEdit={beginEdit} onDelete={handleDelete} />
         {!transactionId && <div className="pager">
           <span className="muted">{data.total === 0 ? "0 results" : `Showing ${from}–${to} of ${data.total}`}</span>
           <div>
@@ -147,6 +176,6 @@ export default function Transactions() {
           </div>
         </div>}
       </section>
-    </>
+    </div>
   );
 }

@@ -1,0 +1,331 @@
+/* ============================================================
+   1. Default tokens: Forest Ink, light, Verdant structure
+   ============================================================ */
+/* Three independent axes are set on <html> by the theme controller:
+   data-layout (structure), data-palette (colour), data-mode (light/dark). */
+:root {
+  color-scheme: light;
+
+  --bg: #f4f8f5;
+  --card: #ffffff;
+  --ink: #0b1f1a;
+  --muted: #50625c;
+  --line: #d9e2de;
+
+  --brand: #1f7a5a;
+  --brand-strong: #17624a;
+  --brand-soft: #e6f2ec;
+  --income: #1f7a5a;
+  --expense: #b5452f;
+  --warn: #b7791f;
+
+  --shadow: 0 12px 34px rgba(11, 31, 26, .07);
+
+  --nav-bg: #0b1f1a;
+  --nav-ink: #b6c6be;
+  --nav-ink-active: #ffffff;
+  --nav-active-bg: rgba(255, 255, 255, .13);
+  --nav-border: rgba(255, 255, 255, .1);
+
+  --hero-bg: #0b1f1a;
+  --hero-ink: #ffffff;
+  --hero-muted: rgba(255, 255, 255, .74);
+  /* Default negative colour for hero figures; Harmattan overrides this below
+     because its band is dark even in the light palette. */
+  --hero-expense: var(--expense);
+
+  /* The mark keeps a deep tile in every mode so it reads at tab size. */
+  --logo-bg: #0b1f1a;
+  --logo-glyph: #ffffff;
+  --logo-accent: #2db887;
+
+  --radius-card: 8px;
+  --radius-control: 11px;
+  --content-max: 1180px;
+  --nav-width: 210px;
+  --card-spine: 5px;
+  --balance-size: clamp(42px, 6vw, 72px);
+
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
+  --font-num: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   2. Palettes: light surfaces
+   ============================================================ */
+:root[data-palette="forest"] {
+  --bg: #f4f8f5;
+  --ink: #0b1f1a;
+  --muted: #50625c;
+  --line: #d9e2de;
+  --brand: #1f7a5a;
+  --brand-strong: #17624a;
+  --brand-soft: #e6f2ec;
+  --income: #1f7a5a;
+  --logo-bg: #0b1f1a;
+  --logo-accent: #2db887;
+  --nav-bg: #0b1f1a;
+  --hero-bg: #0b1f1a;
+}
+
+:root[data-palette="midnight"] {
+  --bg: #f6f8fb;
+  --ink: #0b1b33;
+  --muted: #4d5b73;
+  --line: #d8e0ec;
+  --brand: #2457a6;
+  --brand-strong: #1d4787;
+  --brand-soft: #e8eef8;
+  --income: #1f7a5a;
+  --logo-bg: #0b1b33;
+  --logo-accent: #4b8bdf;
+  --nav-bg: #101e36;
+  --hero-bg: #0b1b33;
+  --shadow: 0 12px 34px rgba(11, 27, 51, .08);
+}
+
+:root[data-palette="harbor"] {
+  --bg: #f5f9f9;
+  --ink: #0a2a2e;
+  --muted: #4b6165;
+  --line: #d5e4e3;
+  --brand: #0f766e;
+  --brand-strong: #0b5d57;
+  --brand-soft: #e2f3f1;
+  --income: #1f7a5a;
+  --logo-bg: #0a2a2e;
+  --logo-accent: #2bb3a4;
+  --nav-bg: #0a2528;
+  --hero-bg: #0a2a2e;
+  --shadow: 0 12px 34px rgba(10, 42, 46, .08);
+}
+
+:root[data-palette="graphite"] {
+  --bg: #f5f6f5;
+  --ink: #1a211e;
+  --muted: #5a6560;
+  --line: #dcdfdd;
+  --brand: #4f6157;
+  --brand-strong: #3d4d44;
+  --brand-soft: #ecefed;
+  --income: #2f7d5d;
+  --logo-bg: #1a211e;
+  --logo-accent: #8fa99b;
+  --nav-bg: #1a211e;
+  --hero-bg: #1a211e;
+  --shadow: 0 12px 34px rgba(20, 26, 23, .08);
+}
+
+:root[data-palette="mint"] {
+  --bg: #f2faf6;
+  --ink: #0b2b22;
+  --muted: #4a6a5e;
+  --line: #d3e8df;
+  --brand: #13926a;
+  --brand-strong: #0e7354;
+  --brand-soft: #e3f5ee;
+  --income: #13926a;
+  --logo-bg: #0b2b22;
+  --logo-accent: #2bd39a;
+  --nav-bg: #0b2b22;
+  --hero-bg: #0b2b22;
+  --shadow: 0 12px 34px rgba(11, 43, 34, .08);
+}
+
+/* ============================================================
+   3. Layout structure and typography
+   ============================================================ */
+/* Verdant is the default: dark sidebar, oversized balance, card spines. */
+:root[data-layout="verdant"] {
+  --nav-width: 210px;
+  --radius-card: 8px;
+  --card-spine: 5px;
+  --font-heading: var(--font-body);
+  --font-num: var(--font-num);
+  --balance-size: clamp(42px, 6vw, 72px);
+  --content-max: 1180px;
+}
+
+:root[data-layout="classic"] {
+  --nav-width: 228px;
+  --radius-card: 18px;
+  --card-spine: 0px;
+  --font-heading: var(--font-body);
+  --font-num: var(--font-body);
+  --balance-size: clamp(34px, 4.6vw, 46px);
+  --content-max: 1180px;
+}
+
+:root[data-layout="compass"] {
+  --nav-width: 92px;
+  --radius-card: 14px;
+  --card-spine: 0px;
+  --font-heading: var(--font-body);
+  --font-num: var(--font-body);
+  --balance-size: clamp(32px, 4.4vw, 44px);
+  --content-max: 1180px;
+}
+
+:root[data-layout="harmattan"] {
+  --nav-width: 0px;
+  --radius-card: 10px;
+  --card-spine: 0px;
+  --font-heading: var(--font-serif);
+  --font-num: var(--font-body);
+  --balance-size: clamp(40px, 6vw, 56px);
+  --content-max: 1180px;
+}
+
+:root[data-layout="ledgerline"] {
+  --nav-width: 0px;
+  --radius-card: 2px;
+  --card-spine: 0px;
+  --font-heading: var(--font-serif);
+  --font-num: "IBM Plex Mono", ui-monospace, monospace;
+  --balance-size: clamp(40px, 6.4vw, 58px);
+  --content-max: 1120px;
+}
+
+:root[data-layout="tape"] {
+  --nav-width: 0px;
+  --radius-card: 6px;
+  --card-spine: 0px;
+  --font-heading: var(--font-body);
+  --font-num: "IBM Plex Mono", ui-monospace, monospace;
+  --balance-size: clamp(36px, 5.2vw, 48px);
+  --content-max: 1180px;
+}
+
+/* ============================================================
+   4. Layout-specific corrections
+   ============================================================ */
+/* Harmattan renders its balance band in deep ink even in light mode. */
+:root[data-layout="harmattan"][data-mode="light"] { --hero-expense: #ff9282; }
+
+/* ============================================================
+   5. Palettes: dark surfaces
+   ============================================================ */
+/* data-mode is the resolved mode, so these blocks are the only dark rules.
+   The unresolved preference is stored in data-mode-preference. */
+:root[data-palette="forest"][data-mode="dark"] {
+  color-scheme: dark;
+  --bg: #0e1714;
+  --card: #17231e;
+  --ink: #e8efeb;
+  --muted: #a0b2a9;
+  --line: #304139;
+  --brand: #73c29b;
+  --brand-strong: #8bd3b1;
+  --brand-soft: #213a2e;
+  --income: #73c29b;
+  --expense: #ff9282;
+  --warn: #efbd68;
+  --shadow: 0 12px 34px rgba(0, 0, 0, .2);
+  --nav-bg: #09130f;
+  --nav-ink: #9fb5aa;
+  --nav-border: rgba(255, 255, 255, .09);
+  --hero-bg: #17231e;
+  --hero-ink: #e8efeb;
+  --hero-muted: #a0b2a9;
+  --logo-accent: #4fbf8b;
+}
+
+:root[data-palette="midnight"][data-mode="dark"] {
+  color-scheme: dark;
+  --bg: #111a28;
+  --card: #1b283b;
+  --ink: #e9eef7;
+  --muted: #a4b0c2;
+  --line: #34435a;
+  --brand: #82aeea;
+  --brand-strong: #a3c4f2;
+  --brand-soft: #263752;
+  --income: #78c5a2;
+  --expense: #ff9282;
+  --warn: #efbd68;
+  --shadow: 0 12px 34px rgba(0, 0, 0, .22);
+  --nav-bg: #0b1422;
+  --nav-ink: #9fb0c8;
+  --nav-border: rgba(255, 255, 255, .1);
+  --hero-bg: #1b283b;
+  --hero-ink: #e9eef7;
+  --hero-muted: #a4b0c2;
+  --logo-accent: #82aeea;
+}
+
+:root[data-palette="harbor"][data-mode="dark"] {
+  color-scheme: dark;
+  --bg: #101c1e;
+  --card: #1a292b;
+  --ink: #e7f1ef;
+  --muted: #a0b6b5;
+  --line: #33484a;
+  --brand: #69c3b8;
+  --brand-strong: #8ed8cf;
+  --brand-soft: #213b3b;
+  --income: #78c5a2;
+  --expense: #ff9282;
+  --warn: #efbd68;
+  --shadow: 0 12px 34px rgba(0, 0, 0, .22);
+  --nav-bg: #091719;
+  --nav-ink: #9db9b7;
+  --nav-border: rgba(255, 255, 255, .09);
+  --hero-bg: #1a292b;
+  --hero-ink: #e7f1ef;
+  --hero-muted: #a0b6b5;
+  --logo-accent: #69c3b8;
+}
+
+:root[data-palette="graphite"][data-mode="dark"] {
+  color-scheme: dark;
+  --bg: #121514;
+  --card: #1c211f;
+  --ink: #e9ece9;
+  --muted: #a4aca7;
+  --line: #333b37;
+  --brand: #9db3a7;
+  --brand-strong: #b7c9bf;
+  --brand-soft: #232b27;
+  --income: #78c5a2;
+  --expense: #ff9282;
+  --warn: #efbd68;
+  --shadow: 0 12px 34px rgba(0, 0, 0, .24);
+  --nav-bg: #0d100f;
+  --nav-ink: #a7b3ac;
+  --nav-border: rgba(255, 255, 255, .08);
+  --hero-bg: #1c211f;
+  --hero-ink: #e9ece9;
+  --hero-muted: #a4aca7;
+  --logo-accent: #9db3a7;
+}
+
+:root[data-palette="mint"][data-mode="dark"] {
+  color-scheme: dark;
+  --bg: #0c1a16;
+  --card: #15251f;
+  --ink: #e6f4ee;
+  --muted: #9dbfb2;
+  --line: #294038;
+  --brand: #4fd2a4;
+  --brand-strong: #74e0ba;
+  --brand-soft: #1b3429;
+  --income: #4fd2a4;
+  --expense: #ff9282;
+  --warn: #efbd68;
+  --shadow: 0 12px 34px rgba(0, 0, 0, .22);
+  --nav-bg: #071310;
+  --nav-ink: #93b8aa;
+  --nav-border: rgba(255, 255, 255, .09);
+  --hero-bg: #15251f;
+  --hero-ink: #e6f4ee;
+  --hero-muted: #9dbfb2;
+  --logo-accent: #4fd2a4;
+}
+
+/* In dark mode the hero sits on a card-like surface, so it can reuse the
+   page expense colour instead of the light-on-dark variant. */
+:root[data-mode="dark"] { --hero-expense: var(--expense); }

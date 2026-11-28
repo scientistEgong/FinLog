@@ -14,7 +14,17 @@ const EMPTY_FORM = { categoryId: "", amount: "" };
 export default function Budgets() {
   const [periodType, setPeriodType] = useState("week");
   const [selectedDate, setSelectedDate] = useState(todayISO());
-  const [data, setData] = useState({ items: [], total_budget_display: "₦0.00" });
+  const [data, setData] = useState({
+    items: [],
+    comparison: [],
+    total_budget_display: "₦0.00",
+    total_actual_display: "₦0.00",
+    total_remaining_display: "₦0.00",
+    total_overspent_display: "₦0.00",
+    total_overspent_kobo: 0,
+    is_partial_period: false,
+    actual_through: null,
+  });
   const [form, setForm] = useState(EMPTY_FORM);
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -105,7 +115,7 @@ export default function Budgets() {
 
   // The backend owns budget totals; this page only presents returned values.
   return (
-    <>
+    <div className="page page-budgets">
       <h1>Budgets</h1>
       <section className="card period-controls" aria-label="Budget period">
         <div className="segmented" role="group" aria-label="Budget period type">
@@ -138,6 +148,34 @@ export default function Budgets() {
           />
         </label>
         <p className="muted small">Showing period starting {periodStart}</p>
+      </section>
+
+      <section className="card budget-summary" aria-label="Budget position for this period">
+        <div>
+          <span>Allocated</span>
+          <strong className="num">{loading ? "—" : data.total_budget_display}</strong>
+        </div>
+        <div>
+          <span>{data.is_partial_period ? "Spent so far" : "Spent"}</span>
+          <strong className="num">{loading ? "—" : data.total_actual_display}</strong>
+        </div>
+        <div>
+          <span>{data.total_overspent_kobo > 0 ? "Over budget" : "Left"}</span>
+          <strong className={`num${data.total_overspent_kobo > 0 ? " is-expense" : ""}`}>
+            {loading ? "—" : data.total_overspent_kobo > 0
+              ? data.total_overspent_display
+              : data.total_remaining_display}
+          </strong>
+        </div>
+        <div>
+          <span>Categories</span>
+          <strong className="num">{loading ? "—" : data.items.length}</strong>
+        </div>
+        {!loading && data.is_partial_period && (
+          <p className="muted small budget-summary-note">
+            This period is still in progress. Spending is counted up to {data.actual_through}.
+          </p>
+        )}
       </section>
 
       <form className="card" onSubmit={handleSubmit}>
@@ -246,6 +284,6 @@ export default function Budgets() {
           </div>
         )}
       </section>
-    </>
+    </div>
   );
 }

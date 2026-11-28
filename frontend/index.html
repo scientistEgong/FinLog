@@ -1,15 +1,50 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- 1. Set browser metadata and the application title. -->
+    <!-- 1. Set browser metadata, the tab icon set, and the web manifest. -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0b1f1a" />
-    <link rel="icon" type="image/svg+xml" href="./finlog-icon.svg" />
+    <meta name="color-scheme" content="light dark" />
     <title>FinLog</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- 2. Resolve the stored layout, palette and mode before first paint so
+         the window never flashes the wrong theme while React mounts. -->
+    <script>
+      (function () {
+        try {
+          var layouts = ["verdant", "classic", "compass", "harmattan", "ledgerline", "tape"];
+          var palettes = ["forest", "midnight", "harbor", "graphite", "mint"];
+          var modes = ["system", "light", "dark"];
+          var root = document.documentElement;
+
+          var layout = localStorage.getItem("finlog.layout");
+          var palette = localStorage.getItem("finlog.palette");
+          var preference = localStorage.getItem("finlog.mode");
+
+          root.dataset.layout = layouts.indexOf(layout) > -1 ? layout : "verdant";
+          root.dataset.palette = palettes.indexOf(palette) > -1 ? palette : "forest";
+          preference = modes.indexOf(preference) > -1 ? preference : "system";
+          root.dataset.modePreference = preference;
+
+          var systemPrefersDark = window.matchMedia
+            && window.matchMedia("(prefers-color-scheme: dark)").matches;
+          root.dataset.mode = preference === "dark" || (preference === "system" && systemPrefersDark)
+            ? "dark"
+            : "light";
+        } catch (error) {
+          /* Storage can be blocked; the defaults above still apply via CSS. */
+        }
+      })();
+    </script>
   </head>
   <body>
-    <!-- 2. Provide React's mount point and load the browser entry module. -->
+    <!-- 3. Provide React's mount point and load the browser entry module. -->
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

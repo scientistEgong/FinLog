@@ -1,0 +1,438 @@
+/* ============================================================
+   1. Shell and the shared rail navigation
+   ============================================================ */
+.shell { min-height: 100%; background: var(--bg); }
+.app-frame { min-width: 0; }
+.app-header { display: none; }
+.content {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 26px 24px 44px;
+}
+
+.nav {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: var(--nav-width);
+  padding: 22px 14px calc(18px + env(safe-area-inset-bottom, 0px));
+  background: var(--nav-bg);
+  border-right: 1px solid var(--nav-border);
+  overflow-y: auto;
+}
+.nav-brand { display: flex; margin: 0 4px 20px; }
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  color: var(--nav-ink);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color .16s ease, color .16s ease;
+}
+.nav-link:hover { color: var(--nav-ink-active); background: var(--nav-active-bg); }
+.nav-link.active {
+  color: var(--nav-ink-active);
+  background: var(--nav-active-bg);
+  box-shadow: inset 3px 0 var(--brand);
+  font-weight: 600;
+}
+.nav-secondary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--nav-border);
+}
+.nav-secondary .nav-link { min-height: 40px; font-size: 13px; }
+.nav-more { display: none; }
+.nav-appearance {
+  width: 100%;
+  min-height: 44px;
+  margin-top: auto;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--nav-ink);
+  border: 1px solid var(--nav-border);
+  font-size: 13px;
+  font-weight: 600;
+}
+.nav-appearance:hover { color: var(--nav-ink-active); background: var(--nav-active-bg); filter: none; }
+.nav-more-menu button {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  color: var(--nav-ink-active);
+  text-align: left;
+}
+
+/* Rail layouts keep the page clear of the fixed navigation. */
+:root[data-layout="verdant"] .app-frame,
+:root[data-layout="classic"] .app-frame,
+:root[data-layout="compass"] .app-frame { padding-left: var(--nav-width); }
+
+/* ============================================================
+   2. Verdant: dark rail, oversized numeral, card spines
+   ============================================================ */
+[data-layout="verdant"] .brand-wordmark { font-size: 21px; }
+[data-layout="verdant"] .hero-balance { letter-spacing: -.05em; }
+[data-layout="verdant"] .dash-hero { padding: 22px 22px 20px; }
+
+/* ============================================================
+   3. Classic: wide rail, softer cards, no spine
+   ============================================================ */
+[data-layout="classic"] .nav-link { border-radius: 12px; }
+[data-layout="classic"] .card { padding: 20px; }
+[data-layout="classic"] .dash-hero { border-radius: var(--radius-card); }
+
+/* ============================================================
+   4. Compass: slim icon-less rail and a weekly ring
+   ============================================================ */
+[data-layout="compass"] .nav {
+  align-items: center;
+  width: 92px;
+  padding: 16px 8px calc(14px + env(safe-area-inset-bottom, 0px));
+}
+[data-layout="compass"] .nav-brand { margin: 0 0 14px; }
+[data-layout="compass"] .nav .brand-wordmark { display: none; }
+[data-layout="compass"] .nav .brand-mark { width: 34px; height: 34px; }
+[data-layout="compass"] .nav-link {
+  flex: none;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 2px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  font-size: 11px;
+  text-align: center;
+}
+[data-layout="compass"] .nav-link.active { box-shadow: inset 3px 0 var(--brand); }
+[data-layout="compass"] .nav-secondary .nav-link { min-height: 46px; font-size: 10px; }
+[data-layout="compass"] .nav-appearance { font-size: 11px; padding: 6px 4px; }
+[data-layout="compass"] .hero-head { align-items: center; }
+
+/* ============================================================
+   5. Harmattan: top navigation and a curved dark header band
+   ============================================================ */
+[data-layout="harmattan"] .nav,
+[data-layout="ledgerline"] .nav,
+[data-layout="tape"] .nav {
+  position: sticky;
+  top: 0;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 24px;
+  background: var(--card);
+  border-right: 0;
+  border-bottom: 1px solid var(--line);
+  overflow: visible;
+}
+[data-layout="harmattan"] .nav-brand,
+[data-layout="ledgerline"] .nav-brand,
+[data-layout="tape"] .nav-brand { margin: 0 20px 0 0; }
+[data-layout="harmattan"] .nav .brand-wordmark,
+[data-layout="ledgerline"] .nav .brand-wordmark,
+[data-layout="tape"] .nav .brand-wordmark { color: var(--ink); }
+[data-layout="harmattan"] .nav .brand-mark,
+[data-layout="ledgerline"] .nav .brand-mark,
+[data-layout="tape"] .nav .brand-mark { width: 26px; height: 26px; }
+[data-layout="harmattan"] .nav-link,
+[data-layout="ledgerline"] .nav-link,
+[data-layout="tape"] .nav-link {
+  flex: none;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+[data-layout="harmattan"] .nav-link.active,
+[data-layout="ledgerline"] .nav-link.active,
+[data-layout="tape"] .nav-link.active {
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+  box-shadow: inset 0 -2px var(--brand);
+}
+[data-layout="harmattan"] .nav-link:hover,
+[data-layout="ledgerline"] .nav-link:hover,
+[data-layout="tape"] .nav-link:hover { color: var(--ink); background: var(--brand-soft); }
+[data-layout="harmattan"] .nav-secondary,
+[data-layout="ledgerline"] .nav-secondary,
+[data-layout="tape"] .nav-secondary {
+  flex-direction: row;
+  gap: 0;
+  margin: 0 0 0 12px;
+  padding: 0 0 0 12px;
+  border-top: 0;
+  border-left: 1px solid var(--line);
+}
+[data-layout="harmattan"] .nav-appearance,
+[data-layout="ledgerline"] .nav-appearance,
+[data-layout="tape"] .nav-appearance {
+  width: auto;
+  min-height: 40px;
+  margin: 0 0 0 auto;
+  padding: 0 14px;
+  color: var(--muted);
+  border-color: var(--line);
+}
+[data-layout="harmattan"] .nav-appearance:hover,
+[data-layout="ledgerline"] .nav-appearance:hover,
+[data-layout="tape"] .nav-appearance:hover { color: var(--ink); background: var(--brand-soft); }
+
+[data-layout="harmattan"] .dash-hero {
+  margin: 0 -8px 10px;
+  padding: 18px 32px 58px;
+  border: 0;
+  border-radius: 0 0 50% 50% / 0 0 34px 34px;
+  background: var(--hero-bg);
+  color: var(--hero-ink);
+  box-shadow: none;
+}
+[data-layout="harmattan"] .hero-label,
+[data-layout="harmattan"] .hero-context,
+[data-layout="harmattan"] .hero-kpis dt { color: var(--hero-muted); }
+[data-layout="harmattan"] .hero-context strong { color: var(--hero-ink); }
+[data-layout="harmattan"] .hero-kpis { border-top-color: color-mix(in srgb, var(--hero-ink) 22%, transparent); }
+[data-layout="harmattan"] .hero-balance {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+/* ============================================================
+   6. Ledgerline: top navigation, ruled page, margin rule
+   ============================================================ */
+[data-layout="ledgerline"] .content {
+  position: relative;
+  padding-left: 72px;
+  background: repeating-linear-gradient(
+    transparent 0 31px,
+    color-mix(in srgb, var(--line) 70%, transparent) 31px 32px
+  );
+}
+[data-layout="ledgerline"] .content::before {
+  content: "";
+  position: absolute;
+  left: 44px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: color-mix(in srgb, var(--brand) 55%, transparent);
+}
+[data-layout="ledgerline"] h1,
+[data-layout="ledgerline"] h2 { font-family: var(--font-serif); font-weight: 600; }
+[data-layout="ledgerline"] h2 { font-size: 19px; }
+[data-layout="ledgerline"] .dash-hero {
+  margin-bottom: 18px;
+  padding: 0 0 14px;
+  border: 0;
+  border-bottom: 4px double var(--ink);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+[data-layout="ledgerline"] .hero-action { border-radius: 2px; background: var(--ink); color: var(--bg); }
+[data-layout="ledgerline"] .nav-link { border-radius: 2px; }
+[data-layout="ledgerline"] input,
+[data-layout="ledgerline"] select,
+[data-layout="ledgerline"] textarea,
+[data-layout="ledgerline"] button { border-radius: 2px; }
+[data-layout="ledgerline"] .appearance-panel { border-radius: 2px; }
+[data-layout="ledgerline"] .txn-table th,
+[data-layout="ledgerline"] .budget-table th { border-bottom: 1px solid var(--ink); }
+
+/* ============================================================
+   7. Tape: monospace figures and a receipt column
+   ============================================================ */
+[data-layout="tape"] .num { letter-spacing: -.04em; }
+[data-layout="tape"] .recent-transactions {
+  border: 0;
+  border-left: 2px dashed var(--brand);
+  border-radius: 0;
+  background: var(--brand-soft);
+  box-shadow: none;
+}
+[data-layout="tape"] .recent-transactions h2 {
+  font-family: var(--font-num);
+  font-size: 13px;
+  letter-spacing: .14em;
+  text-align: center;
+  text-transform: uppercase;
+}
+[data-layout="tape"] .recent-transactions .txn-table thead { display: none; }
+[data-layout="tape"] .recent-transactions .txn-table td {
+  padding: 8px 0;
+  border-top: 1px dashed color-mix(in srgb, var(--muted) 45%, transparent);
+}
+[data-layout="tape"] .recent-transactions .txn-table td[data-label="Category"],
+[data-layout="tape"] .recent-transactions .txn-table td[data-label="Payment"] { display: none; }
+[data-layout="tape"] .recent-transactions .budget-heading {
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+[data-layout="tape"] .recent-transactions .budget-heading p { display: none; }
+[data-layout="tape"] .recent-transactions .budget-heading a {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--brand-strong);
+  font-family: var(--font-num);
+  font-size: 12px;
+  text-decoration: underline;
+}
+[data-layout="tape"] .recent-transactions .budget-heading a:hover { background: transparent; }
+[data-layout="tape"] .page-transactions .txn-table thead { display: none; }
+[data-layout="tape"] .page-transactions .txn-table td {
+  font-family: var(--font-num);
+  font-size: 13px;
+  border-top: 1px dashed color-mix(in srgb, var(--muted) 40%, transparent);
+}
+
+/* ============================================================
+   8. Desktop appearance panel placement
+   ============================================================ */
+@media (min-width: 900px) {
+  .appearance-panel {
+    left: calc(var(--nav-width) + 20px);
+    right: auto;
+    bottom: 24px;
+    width: 460px;
+    max-height: min(80vh, 660px);
+  }
+  [data-layout="harmattan"] .appearance-panel,
+  [data-layout="ledgerline"] .appearance-panel,
+  [data-layout="tape"] .appearance-panel {
+    left: auto;
+    right: 24px;
+    top: 74px;
+    bottom: auto;
+  }
+}
+
+/* ============================================================
+   9. Phone and tablet: bottom bar for every layout
+   ============================================================ */
+@media (max-width: 899px) {
+  :root[data-layout] .nav {
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+    padding: 4px 6px calc(4px + env(safe-area-inset-bottom, 0px));
+    background: var(--nav-bg);
+    border-right: 0;
+    border-bottom: 0;
+    border-top: 1px solid var(--nav-border);
+    overflow: visible;
+  }
+  .nav-brand, .nav-secondary, .nav-appearance { display: none; }
+  .nav-more { display: flex; position: relative; flex: 1 1 0; }
+  :root[data-layout] .nav-link,
+  :root[data-layout="compass"] .nav-link,
+  :root[data-layout="tape"] .nav-link {
+    flex: 1 1 0;
+    min-height: 50px;
+    padding: 6px 2px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+    border-radius: 8px;
+    font-size: 11px;
+    text-align: center;
+  }
+  :root[data-layout] .nav-link.active {
+    background: transparent;
+    box-shadow: inset 0 3px var(--brand);
+  }
+  .nav-more-button {
+    flex: 1;
+    min-height: 50px;
+    padding: 6px 2px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--nav-ink);
+    font-size: 11px;
+  }
+  .nav-more-menu {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 8px);
+    min-width: 170px;
+    padding: 6px;
+    border: 1px solid var(--nav-border);
+    border-radius: 12px;
+    background: var(--nav-bg);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, .3);
+  }
+  .nav-more-menu a,
+  .nav-more-menu button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 44px;
+    padding: 0 10px;
+    border-radius: 8px;
+    color: var(--nav-ink-active);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .nav-more-menu a:hover,
+  .nav-more-menu button:hover { background: var(--nav-active-bg); filter: none; }
+
+  .app-frame, :root[data-layout] .app-frame {
+    padding-left: 0;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px 0;
+  }
+  .app-header .brand-mark { width: 28px; height: 28px; }
+  .app-header .brand-wordmark { font-size: 19px; }
+  .app-header-action {
+    min-height: 38px;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    font-size: 13px;
+  }
+  .content { padding: 16px 14px 24px; }
+  [data-layout="ledgerline"] .content { padding-left: 14px; background: none; }
+  [data-layout="ledgerline"] .content::before { display: none; }
+  [data-layout="harmattan"] .dash-hero {
+    margin: 0 0 10px;
+    padding: 16px 20px 44px;
+    border-radius: 0 0 40px 40px;
+  }
+  .appearance-panel { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+}

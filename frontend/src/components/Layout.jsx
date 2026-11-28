@@ -1,90 +1,95 @@
+// ============================================================
+// 1. Load shell dependencies, navigation model, and appearance helpers
+// ============================================================
+import { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { useEffect, useState } from "react";
+import AppearanceMenu from "./AppearanceMenu.jsx";
+import BrandMark from "./BrandMark.jsx";
+import {
+  applyThemeToDocument,
+  loadThemePreferences,
+  saveThemePreferences,
+  watchSystemMode,
+} from "../utils/theme.js";
 
-const STORAGE_KEYS = {
-  palette: "finlog.palette",
-  mode: "finlog.mode",
-};
-
-const PALETTES = [
-  { value: "forest", label: "Forest Ink" },
-  { value: "midnight", label: "Midnight Blue" },
-  { value: "harbor", label: "Harbor Teal" },
+const PRIMARY_LINKS = [
+  { to: "/dashboard", label: "Dashboard" },
+  { to: "/transactions", label: "Transactions" },
+  { to: "/budgets", label: "Budgets" },
+  { to: "/analytics", label: "Analytics" },
 ];
 
-const THEME_MODES = [
-  { value: "system", label: "System" },
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
+const SECONDARY_LINKS = [
+  { to: "/loans", label: "Loans" },
+  { to: "/reports", label: "Reports" },
 ];
 
-function readPreference(key, allowedValues, defaultValue) {
-  try {
-    const savedValue = window.localStorage.getItem(key);
-    return allowedValues.includes(savedValue) ? savedValue : defaultValue;
-  } catch {
-    return defaultValue;
-  }
+function navLinkClassName({ isActive }, extraClasses = "") {
+  return ["nav-link", extraClasses, isActive ? "active" : ""].filter(Boolean).join(" ");
 }
 
-// 1. Keep destinations in one list so desktop and phone navigation stay aligned.
-const LINKS = [
-  { to: "/dashboard", label: "Dashboard", icon: "🏠" },
-  { to: "/transactions", label: "Transactions", icon: "🧾" },
-  { to: "/budgets", label: "Budgets", icon: "🧮" },
-  { to: "/analytics", label: "Analytics", icon: "📊" },
-  { to: "/loans", label: "Loans", icon: "🤝" },
-  { to: "/reports", label: "Reports", icon: "📄" },
-];
-
-// Bottom bar on phones, left sidebar on larger screens (pure CSS, same markup).
-// 2. Render the shared responsive shell around the selected page.
+// ============================================================
+// 2. Render the responsive shell and appearance controls
+// ============================================================
+// One markup tree serves every layout: rail layouts put the navigation beside
+// the page, top-navigation layouts put it above, and phones always get a
+// bottom bar. Layout, colour and mode live on <html> so CSS owns appearance.
 export default function Layout({ children }) {
+  const [theme, setTheme] = useState(loadThemePreferences);
   const [moreOpen, setMoreOpen] = useState(false);
-  const [palette, setPalette] = useState(() => readPreference(
-    STORAGE_KEYS.palette,
-    PALETTES.map((option) => option.value),
-    "forest",
-  ));
-  const [mode, setMode] = useState(() => readPreference(
-    STORAGE_KEYS.mode,
-    THEME_MODES.map((option) => option.value),
-    "system",
-  ));
+  const [appearanceOpen, setAppearanceOpen] = useState(false);
+  const appearanceTrigger = useRef(null);
 
   useEffect(() => {
-    document.documentElement.dataset.palette = palette;
-    document.documentElement.dataset.mode = mode;
+    applyThemeToDocument(theme);
+    saveThemePreferences(theme);
+  }, [theme]);
 
-    try {
-      window.localStorage.setItem(STORAGE_KEYS.palette, palette);
-      window.localStorage.setItem(STORAGE_KEYS.mode, mode);
-    } catch {
-      // Theme controls still work for this session when storage is unavailable.
-    }
-  }, [mode, palette]);
+  useEffect(() => {
+    if (theme.mode !== "system") return undefined;
+    // Follow operating-system changes while "System" is selected.
+    return watchSystemMode(() => applyThemeToDocument(theme));
+  }, [theme]);
+
+  function openAppearance(trigger) {
+    appearanceTrigger.current = trigger || null;
+    setMoreOpen(false);
+    setAppearanceOpen(true);
+  }
+
+  function closeAppearance() {
+    setAppearanceOpen(false);
+    if (appearanceTrigger.current) appearanceTrigger.current.focus();
+  }
 
   return (
     <div className="shell">
+      <a className="skip-link" href="#main-content">Skip to content</a>
+
       <nav className="nav" aria-label="Main">
-        <div className="brand">
-          <svg className="brand-mark" viewBox="0 0 30 30" role="img" aria-label="FinLog icon">
-            <rect width="30" height="30" rx="7" />
-            <path d="M9 7h3v16H9zM9 7h12v3H9zM9 12.5h9v3H9z" />
-            <circle cx="21" cy="21" r="2.4" />
-          </svg>
-          <span>FinLog</span>
+        <div className="nav-brand">
+          <BrandMark showWordmark decorative />
         </div>
-        {LINKS.map((link, index) => (
-          <NavLink key={link.to} to={link.to} className={({ isActive }) => [
-            "nav-link",
-            index < 4 ? "nav-primary" : "nav-secondary",
-            isActive ? "active" : "",
-          ].filter(Boolean).join(" ")}>
-            <span className="nav-icon" aria-hidden="true">{link.icon}</span>
-            <span className="nav-label">{link.label}</span>
+
+        {PRIMARY_LINKS.map((link) => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            className={(state) => navLinkClassName(state)}
+            onClick={() => setMoreOpen(false)}
+          >
+            {link.label}
           </NavLink>
         ))}
+
+        <div className="nav-secondary">
+          {SECONDARY_LINKS.map((link) => (
+            <NavLink key={link.to} to={link.to} className={(state) => navLinkClassName(state)}>
+              {link.label}
+            </NavLink>
+          ))}
+        </div>
+
         <div className="nav-more">
           <button
             type="button"
@@ -93,50 +98,53 @@ export default function Layout({ children }) {
             aria-haspopup="true"
             onClick={() => setMoreOpen((open) => !open)}
           >
-            <span className="nav-icon" aria-hidden="true">•••</span>
-            <span className="nav-label">More</span>
+            More
           </button>
           {moreOpen && (
             <div className="nav-more-menu">
-              {LINKS.slice(4).map((link) => (
+              {SECONDARY_LINKS.map((link) => (
                 <NavLink key={link.to} to={link.to} onClick={() => setMoreOpen(false)}>
-                  <span aria-hidden="true">{link.icon}</span> {link.label}
+                  {link.label}
                 </NavLink>
               ))}
+              <button type="button" onClick={(event) => openAppearance(event.currentTarget)}>
+                Appearance
+              </button>
             </div>
           )}
         </div>
+
+        <button
+          type="button"
+          className="nav-appearance"
+          aria-haspopup="dialog"
+          aria-expanded={appearanceOpen}
+          onClick={(event) => openAppearance(event.currentTarget)}
+        >
+          Appearance
+        </button>
       </nav>
-      <div className="main-shell">
+
+      {appearanceOpen && (
+        <AppearanceMenu theme={theme} onChange={setTheme} onClose={closeAppearance} />
+      )}
+
+      <div className="app-frame">
         <header className="app-header">
-          <div className="mobile-brand" aria-label="FinLog">
-            <svg className="brand-mark" viewBox="0 0 30 30" aria-hidden="true">
-              <rect width="30" height="30" rx="7" />
-              <path d="M9 7h3v16H9zM9 7h12v3H9zM9 12.5h9v3H9z" />
-              <circle cx="21" cy="21" r="2.4" />
-            </svg>
-            <span>FinLog</span>
-          </div>
-          <div className="theme-controls" aria-label="Appearance settings">
-            <label className="theme-field">
-              <span>Colour</span>
-              <select value={palette} onChange={(event) => setPalette(event.target.value)}>
-                {PALETTES.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </label>
-            <label className="theme-field">
-              <span>Mode</span>
-              <select value={mode} onChange={(event) => setMode(event.target.value)}>
-                {THEME_MODES.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </label>
-          </div>
+          <BrandMark showWordmark decorative />
+          <button
+            type="button"
+            className="app-header-action"
+            aria-haspopup="dialog"
+            aria-expanded={appearanceOpen}
+            onClick={(event) => openAppearance(event.currentTarget)}
+          >
+            Appearance
+          </button>
         </header>
-        <main className="content">{children}</main>
+        <main id="main-content" className="content">
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -79,3 +79,23 @@ export function periodRangeForPreset(preset, today = new Date()) {
 
   return periodRangeForPreset("this-month", today);
 }
+
+// ============================================================
+// 3. Describe a selected range with one readable label
+// ============================================================
+// Noon parsing avoids the day shifting when the browser is west of UTC.
+export function formatDateRange(dateFrom, dateTo) {
+  const from = new Date(`${dateFrom}T12:00:00`);
+  const to = new Date(`${dateTo}T12:00:00`);
+  if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) return `${dateFrom} to ${dateTo}`;
+
+  const sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
+  if (sameMonth) {
+    const month = to.toLocaleDateString("en-NG", { month: "short" });
+    return `${from.getDate()}–${to.getDate()} ${month} ${to.getFullYear()}`;
+  }
+
+  const fromLabel = from.toLocaleDateString("en-NG", { day: "numeric", month: "short" });
+  const toLabel = to.toLocaleDateString("en-NG", { day: "numeric", month: "short" });
+  return `${fromLabel} – ${toLabel} ${to.getFullYear()}`;
+}

@@ -117,7 +117,7 @@ export default function Analytics() {
   // 3. Present the controls, summary, and analytical chart collection
   // ============================================================
   return (
-    <>
+    <div className="page page-analytics">
       <h1>Analytics</h1>
       <p className="muted">Explore income, spending, savings, and transaction patterns.</p>
 
@@ -460,6 +460,6 @@ export default function Analytics() {
           )}
         </>
       )}
-    </>
+    </div>
   );
 }
