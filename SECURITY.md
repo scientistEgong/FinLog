@@ -30,7 +30,9 @@ The following must not be committed:
 - exports containing real transactions or other private records;
 - `.env` files and credentials;
 - API tokens, passwords, private keys, certificates, or signing secrets;
-- logs, screenshots, or test fixtures containing real financial data.
+- logs, screenshots, or test fixtures containing real financial data;
+- the local product brief PDF under `doc/`, which is private planning material
+  rather than project documentation. `/doc/*.pdf` keeps it out of the index.
 
 If an `.env.example` is added, keep it limited to placeholder values; no `.env.example` currently exists in the repository.
 

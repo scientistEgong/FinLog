@@ -244,4 +244,8 @@ frontend/dist/
 /.kombai
 
 # Personal project planning document
-/doc/FinLog — Product Requirements and Technical Specification.pdf
+# The product brief PDF is the developer's private planning material. It stays
+# on this machine only and must never be committed or pushed. Every PDF in
+# doc/ is ignored because an exact-name rule depended on an em dash in the file
+# name, which is easy to break by retyping the path.
+/doc/*.pdf
